@@ -307,3 +307,9 @@ App.on(s => {
   });
   pages.global = { shown() { if (App.state) { g = JSON.parse(JSON.stringify(App.state.global)); render(true); } } };
 })();
+
+// Outputs > Workspace: the SCC graphics this workspace doesn't have yet.
+$("#ws-pack").addEventListener("click", async () => {
+  const r = await api("/api/pack/import", {});
+  toast(r.added.length ? `Added ${r.added.length}: ${r.added.join(", ")}` : "It has every SCC graphic already");
+});
