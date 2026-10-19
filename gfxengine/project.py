@@ -23,7 +23,6 @@ import secrets
 import shutil
 import threading
 
-from .config import STARTER_DIR, WORKSPACE_DIR
 from .log import log
 
 TRANSITION_TYPES = ("cut", "fade", "dip", "wipe", "animate", "stinger")
@@ -69,7 +68,7 @@ def blank_comp(name="New graphic"):
 
 
 class Workspace:
-    def __init__(self, folder=WORKSPACE_DIR, starter=STARTER_DIR):
+    def __init__(self, folder, starter=None):
         self.folder = folder
         self.assets_dir = os.path.join(folder, "assets")
         self.path = os.path.join(folder, "project.json")
@@ -192,6 +191,16 @@ class Workspace:
                 self.data["default_transition"] = default
             if not any(t["id"] == self.data["default_transition"] for t in clean) and clean:
                 self.data["default_transition"] = clean[0]["id"]
+            self.changed()
+
+    def set_global(self, g):
+        with self.lock:
+            self.data["global"] = g
+            self.changed()
+
+    def set_picture(self, name):
+        with self.lock:
+            self.data["picture"] = name
             self.changed()
 
     def set_sources(self, sources):

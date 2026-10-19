@@ -3,9 +3,10 @@ SCC broadcast PSDs and stingers.
 
     python tools/make_starter.py <folder with the PSDs> <folder with the stingers>
 
-The PSD folder needs ScheduleGraphic_Screen.psd, LowerThirds-FOOTER.psd,
-LOWER 3RD SGS.psd and TEAM STAT PAGE.psd; the stinger folder
-SCC_Main_Stinger.mov, SCC_Replay.mov and SCCIntroStinger.webm.
+The PSD folder is the SCC graphics folder (the PSDs in GRAPHICS below, and
+the SCREENS folder); the stinger folder has SCC_Main_Stinger.mov,
+SCC_Replay.mov and SCCIntroStinger.webm. The St. Clair badge (the left
+team's logo) comes from packaging/.
 """
 
 import os
@@ -19,12 +20,32 @@ from gfxengine import media  # noqa: E402
 from gfxengine.project import DEFAULT_TRANSITIONS, Workspace, new_id  # noqa: E402
 from gfxengine.psdimport import import_psd  # noqa: E402
 
+SCREENS = "24-11 SCS_Stream Overlay Graphics/SCREENS/"
 GRAPHICS = [
     ("ScheduleGraphic_Screen.psd", "Schedule"),
     ("LowerThirds-FOOTER.psd", "Scorebug & footer"),
     ("LOWER 3RD SGS.psd", "Caster lower third"),
     ("TEAM STAT PAGE.psd", "Team stats"),
+    (SCREENS + "1-Title Graphic/TitleGraphic_Screen.psd", "Title screen"),
+    (SCREENS + "3-Starting Soon_Intermission Screen/StartingSoonScreen.psd", "Starting soon"),
+    ("Team Graphic.psd", "Team graphic"),
+    ("1 Player Graphic.psd", "Player graphic (1)"),
+    ("2 Player Graphic.psd", "Player graphic (2)"),
+    ("3 Player Graphic.psd", "Player graphic (3)"),
+    ("4 Player Graphic.psd", "Player graphic (4)"),
+    ("5 Player Graphic.psd", "Player graphic (5)"),
+    ("INDIVIDUAL STAT PAGE.psd", "Player stats"),
+    ("GROUP BRACKET.psd", "Group bracket"),
+    ("TOP 8.psd", "Top 8 bracket"),
+    ("FINAL FOUR.psd", "Final four"),
+    (SCREENS + "10-Replay Overlay/REPLAY-Overlay.psd", "Replay overlay"),
+    ("SponsorLogos_Footer.psd", "Sponsor footer"),
 ]
+# The teams, series and event every graphic can use ({{Global!Left name}}...).
+GLOBAL = {"event": "NACE VARSITY", "stage": "PLAYOFFS", "best_of": 3, "game": "",
+          "left": {"name": "St. Clair Saints", "short": "SCC", "logo": "", "color": "#0b6b3a", "score": 0},
+          "right": {"name": "Opponent", "short": "OPP", "logo": "", "color": "#b8191c", "score": 0},
+          "custom": [["Game title", "ROCKET LEAGUE | PLAYOFFS"]]}
 
 MATCH_CSV = """Field,Value
 Left,SCC
@@ -52,13 +73,21 @@ def main(psd_dir, stinger_dir):
     with open(path, "w", encoding="utf-8") as f:
         f.write(MATCH_CSV)
     ws.data["sources"] = [{"id": new_id("s"), "name": "Match", "type": "file", "path": rel, "refresh": 2}]
+    # The badge as the left team's logo.
+    rel, path = ws.unique_asset("St Clair Saints.png", "logos")
+    shutil.copy(os.path.join(ROOT, "web", "assets-ui", "badge.png"), path)
+    ws.data["global"] = dict(GLOBAL, left=dict(GLOBAL["left"], logo=rel))
+    # The home screen's picture for workspaces made from it.
+    shutil.copy(os.path.join(ROOT, "web", "assets-ui", "badge.png"), os.path.join(out, "cover.png"))
+    ws.data["picture"] = "cover.png"
     tokens = {
-        "Scorebug & footer": {"0 LEFT": "{{Match!Left score}}", "0 RIGHT": "{{Match!Right score}}",
-                              "NACE VARSITYhhhhhhhhhh": "{{Match!Event}}",
-                              "ROCKET LEAGUE | PLAYOFFSssssssss": "{{Match!Game}}",
+        "Scorebug & footer": {"0 LEFT": "{{Global!Left score}}", "0 RIGHT": "{{Global!Right score}}",
+                              "NACE VARSITYhhhhhhhhhh": "{{Global!Event}}",
+                              "ROCKET LEAGUE | PLAYOFFSssssssss": "{{Global!Game title}}",
                               "00:03:1411111": "{{countdown:19:30}}", "STARTING SOONnnnn": "STARTING SOON"},
-        "Schedule": {"07:25 PM EST LOCAL TIME": "{{time}} EST\nLOCAL TIME", "SG": "{{Match!Left}}",
-                     "GMU": "{{Match!Right}}"},
+        "Schedule": {"07:25 PM EST LOCAL TIME": "{{time}} EST\nLOCAL TIME", "SG": "{{Global!Left short}}",
+                     "GMU": "{{Global!Right short}}"},
+        "Replay overlay": {"ST. CLAIR SAINTS": "{{Global!Left name}}"},
     }
     for comp in ws.data["compositions"]:
         for layer in comp["layers"]:

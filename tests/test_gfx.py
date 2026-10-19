@@ -5,6 +5,7 @@ import shutil
 import tempfile
 import time
 import urllib.error
+import urllib.parse
 import unittest
 import urllib.request
 import zipfile
@@ -174,7 +175,8 @@ class ServerTests(unittest.TestCase):
         tmp = tempfile.mkdtemp()
         settings = Settings(os.path.join(tmp, "settings.json"))
         settings.update({"http_port": 8796})
-        engine = Engine(settings, os.path.join(tmp, "workspace"), starter=os.path.join(ROOT, "starter"))
+        engine = Engine(settings, os.path.join(tmp, "workspaces"), starter=os.path.join(ROOT, "starter"),
+                        library_dir=os.path.join(tmp, "library"), legacy_dir=os.path.join(tmp, "none"))
         engine.updater.check_in_background = lambda: None
         start(engine)
         base = "http://127.0.0.1:8796"
@@ -189,7 +191,8 @@ class ServerTests(unittest.TestCase):
             return json.loads(urllib.request.urlopen(req, timeout=30).read())
         try:
             for path in ("/control", "/output", "/runtime.js", "/control.js", "/composer.js", "/pages.js",
-                         "/control.css", "/vendor/lottie.min.js", "/fonts/Inter.ttf", "/assets-ui/icon.png"):
+                         "/control.css", "/vendor/lottie.min.js", "/fonts/Inter.ttf", "/assets-ui/icon.png", "/home.js",
+                         "/assets-ui/logo.png", "/assets-ui/badge.png"):
                 self.assertTrue(get(path), path)
             state = json.loads(get("/api/state"))
             self.assertGreaterEqual(len(state["project"]["compositions"]), 4)   # the starter graphics
@@ -238,6 +241,57 @@ class ServerTests(unittest.TestCase):
             # Transitions are checked.
             with self.assertRaises(urllib.error.HTTPError):
                 post("/api/transitions", {"transitions": [{"type": "spin"}]})
+            # Fonts go in the library every workspace shares, and are known by their other names.
+            with open(os.path.join(ROOT, "web", "fonts", "Inter.ttf"), "rb") as f:
+                font = f.read()
+            r = post("/api/upload", font, {"X-Filename": "MyFont.ttf"})
+            self.assertEqual(r["assets"], ["library/fonts/MyFont.ttf"])
+            self.assertEqual(get("/library/fonts/MyFont.ttf"), font)
+            fonts = json.loads(get("/api/state"))["fonts"]
+            mine = next(f for f in fonts if f["path"] == "library/fonts/MyFont.ttf")
+            self.assertIn("MyFont", mine["aliases"])
+            # Global configuration: set, a logo, and what HUDs read.
+            g = post("/api/global", {"global": {"left": {"name": "St. Clair Saints", "short": "SCC"}, "best_of": 5}})["global"]
+            self.assertEqual((g["left"]["short"], g["best_of"]), ("SCC", 5))
+            g = post("/api/global/logo?side=right&name=gmu.png", buf.getvalue(), {"X-Filename": "gmu.png"})["global"]
+            self.assertTrue(g["right"]["logo"].startswith("assets/logos/"))
+            hud_view = json.loads(get("/api/global"))["global"]
+            self.assertEqual(hud_view["right"]["logo_url"], base + "/" + g["right"]["logo"])
+            tables = json.loads(get("/api/state"))["data"]["tables"]
+            self.assertIn(["Left short", "SCC"], tables["Global"])
+            # A game HUD's data: its own table, and the series score into Global.
+            post("/api/ingest", {"source": "League HUD", "game": "lol", "fields": {"Blue kills": 7, "Game time": "12:34"},
+                                 "series": {"left": {"score": 2}, "right": {"score": 1}, "best_of": 5}})
+            state2 = json.loads(get("/api/state"))
+            self.assertIn(["Blue kills", "7"], state2["data"]["tables"]["League HUD"])
+            self.assertEqual((state2["global"]["left"]["score"], state2["global"]["right"]["score"]), (2, 1))
+            self.assertIn(["Game", "4"], state2["data"]["tables"]["Global"])
+            self.assertIn("League HUD", state2["data"]["feeds"])
+            # Workspaces: a new empty one with a picture, opened; the SCC pack added to it; back again.
+            first_id = state2["workspace"]["id"]
+            wid = post("/api/workspaces/create", {"name": "NACE Spring", "template": "empty", "open": False})["id"]
+            post(f"/api/workspaces/picture?id={wid}&name=cover.png", buf.getvalue(), {"X-Filename": "cover.png"})
+            listed = {w["id"]: w for w in json.loads(get("/api/workspaces"))["workspaces"]}
+            self.assertTrue(listed[wid]["picture"])
+            self.assertEqual(get(f"/api/workspace-picture/{wid}"), buf.getvalue())
+            post("/api/workspaces/open", {"id": wid})
+            s3 = json.loads(get("/api/state"))
+            self.assertEqual((s3["workspace"]["id"], len(s3["project"]["compositions"])), (wid, 0))
+            self.assertEqual(s3["global"]["left"]["name"], "")          # its own global configuration
+            self.assertTrue(any(f["path"] == "library/fonts/MyFont.ttf" for f in s3["fonts"]))   # the same fonts
+            pack = json.loads(get("/api/pack"))["graphics"]
+            added = post("/api/pack/import", {})["added"]
+            self.assertEqual(len(added), len(pack))
+            s3 = json.loads(get("/api/state"))
+            comp0 = s3["project"]["compositions"][0]
+            src = next(l["src"] for l in comp0["layers"] if l.get("src"))
+            self.assertTrue(get("/" + urllib.parse.quote(src)))
+            with self.assertRaises(urllib.error.HTTPError):
+                post("/api/workspaces/delete", {"id": wid})                # (it's open)
+            post("/api/workspaces/open", {"id": first_id})
+            post("/api/workspaces/delete", {"id": wid})
+            self.assertNotIn(wid, [w["id"] for w in json.loads(get("/api/workspaces"))["workspaces"]])
+            self.assertEqual(settings.get()["workspace"], first_id)
             # The stream sends the whole state.
             stream = urllib.request.urlopen(base + "/api/stream", timeout=5)
             line = b""

@@ -70,6 +70,33 @@ and can be set by scrubbing the video.
 per graphic), the network settings and the other engines on the network, the
 HTML export, a workspace backup, and the log.
 
+## Workspaces
+
+The app opens on **Home**: your workspaces, one per event or show, each with
+its own graphics, files, data, transitions and global configuration. **+ New
+workspace** asks for a name and a picture, and starts from the SCC graphics
+or empty. Fonts are shared by every workspace (`library/fonts`), and are
+matched by any of their names, so a PSD that records "Carbon-Bold" finds the
+file whose font is called "Carbon-Black". Workspaces live in `workspaces/`
+next to the app.
+
+## Global configuration
+
+The **Global** tab holds the event's basics: both teams (name, short name,
+logo, colour, score), best of, game, event, stage, and any fields you add.
+Every graphic can use them as `{{Global!Left name}}`, `{{Global!Right logo}}`,
+`{{Global!Left score}}`...; picture fields in Control list the team logos,
+and every field's ⛓ menu links it to one.
+
+## Game HUDs
+
+The League, VALORANT, CoD and Rocket League HUDs have a **GFX Engine** page:
+scan the network, connect, and the HUD sends its live stats (a data table
+named after it, e.g. `{{League HUD!KILLS LEFT}}`) and the series score (into
+Global) about once a second. **Use Global Information** takes the teams'
+names, short names and logos from here into the HUD. The HUD side is in
+`hud-link/` (copied into each HUD).
+
 ## Outputs and the network
 
     http://<this PC>:8782/output                Program (with transitions and stingers)

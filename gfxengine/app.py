@@ -5,6 +5,9 @@ the web server for the control panel and the outputs.
     /output               Program, 1920x1080, see-through (OBS / vMix browser source)
     /output?bus=preview   Preview
     /output?comp=<id>     one graphic as it is on Program (its own browser source)
+
+Game HUDs connect to it: they POST /api/ingest (their stats and the series
+score) and GET /api/global (the teams' names, short names and logos).
 """
 
 import json
@@ -22,15 +25,16 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
-from . import discover, export
+from . import discover, export, globalcfg
 from .assets import Assets
-from .config import WEB_DIR, WORKSPACE_DIR, Settings, safe_join
+from .config import WEB_DIR, Settings, safe_join
 from .data import Sources
 from .live import Live
 from .log import log, since
 from .media import Jobs, ffmpeg_path, stinger_cut
 from .project import Workspace, blank_comp, blank_layer, new_id
 from .updater import Updater, clean_up_old_update
+from .workspaces import Workspaces
 
 for ext, kind in ((".ttf", "font/ttf"), (".otf", "font/otf"), (".woff", "font/woff"), (".woff2", "font/woff2"),
                   (".svg", "image/svg+xml"), (".webm", "video/webm"), (".mp4", "video/mp4"), (".json", "application/json"),
@@ -45,23 +49,58 @@ def _is_local(ip):
 
 
 class Engine:
-    def __init__(self, settings=None, workspace_dir=WORKSPACE_DIR, starter=None):
-        from .config import STARTER_DIR
+    def __init__(self, settings=None, workspaces_dir=None, starter=None, library_dir=None, legacy_dir=None):
+        from . import config
         self.settings = settings or Settings()
-        self.ws = Workspace(workspace_dir, STARTER_DIR if starter is None else starter)
-        self.live = Live(self.ws)
+        self.workspaces = Workspaces(workspaces_dir or config.WORKSPACES_DIR,
+                                     config.STARTER_DIR if starter is None else starter,
+                                     legacy=config.LEGACY_WORKSPACE_DIR if legacy_dir is None else legacy_dir)
+        self.library_dir = library_dir or config.LIBRARY_DIR
         self.jobs = Jobs()
-        self.assets = Assets(self.ws, self.jobs)
-        self.sources = Sources(self.ws)
         self.updater = Updater()
         self.server = None
         self.assets_rev = 0
         self.version = 0
+        # Data sent by game HUDs ("League HUD" -> its fields), kept while the engine runs.
+        self.feeds = {}
+        self.feeds_rev = 0
+        self.ws = self.live = self.assets = self.sources = None
         self._cond = threading.Condition()
-        for thing in (self.ws, self.live, self.sources, self.jobs):
-            thing.listeners.append(self.changed)
+        self._open_lock = threading.Lock()
+        self.jobs.listeners.append(self.changed)
         self.jobs.listeners.append(self._job_changed)
+        wid = self.settings.get().get("workspace")
+        if not self.workspaces.path(wid):
+            listed = self.workspaces.list()
+            wid = listed[0]["id"] if listed else self.workspaces.create("SCC Broadcast", "scc")
+        self.open(wid)
         self.beacon = discover.Beacon(self._beacon_info)
+
+    def open(self, wid):
+        """Opens a workspace: its graphics go on the control panel and the outputs."""
+        folder = self.workspaces.path(wid)
+        if not folder:
+            raise KeyError("No such workspace")
+        with self._open_lock:
+            old = (self.ws, self.sources)
+            ws = Workspace(folder, starter=None)
+            live = Live(ws)
+            assets = Assets(ws, self.jobs, self.library_dir)
+            sources = Sources(ws)
+            for thing in (ws, live, sources):
+                thing.listeners.append(self.changed)
+            self.ws, self.live, self.assets, self.sources = ws, live, assets, sources
+            if old[1]:
+                old[1].stop()
+            if old[0]:
+                old[0].close()
+            if self.settings.get().get("workspace") != wid:
+                self.settings.update({"workspace": wid})
+            self.workspace_id = wid
+        self.assets_rev += 1
+        threading.Thread(target=sources.refresh, daemon=True).start()
+        log(f"Opened the workspace {ws.get()['name']}")
+        self.changed()
 
     def _beacon_info(self):
         s = self.settings.get()
@@ -83,15 +122,34 @@ class Engine:
         with self._cond:
             self._cond.wait(timeout)
 
+    def global_config(self):
+        return globalcfg.clean(self.ws.get().get("global"))
+
+    def data_snapshot(self):
+        """The tables graphics read: the data sources, "Global", and what game HUDs send."""
+        snap = self.sources.snapshot()
+        g = self.global_config()
+        snap["tables"]["Global"] = globalcfg.rows(g)
+        for name, feed in self.feeds.items():
+            snap["tables"][name] = feed["rows"]
+        snap["rev"] = f"{snap['rev']}.{self.ws.rev}.{self.feeds_rev}"
+        snap["feeds"] = {name: {"from": f["from"], "game": f["game"], "age": round(time.time() - f["at"], 1)}
+                         for name, f in self.feeds.items()}
+        return snap
+
     def state(self):
         """Everything the pages show (the outputs only use project, live and data)."""
         s = self.settings.get()
+        project = self.ws.get()
         return {
             "app": {"name": self.name(), "version": self.updater.current, "port": s["http_port"],
                     "network": s["allow_network"], "addresses": discover.own_addresses(),
                     "ffmpeg": bool(ffmpeg_path()), "platform": platform.system()},
+            "workspace": {"id": self.workspace_id, "name": project.get("name", ""),
+                          "picture": bool(project.get("picture"))},
             "rev": self.ws.rev, "assets_rev": self.assets_rev,
-            "project": self.ws.get(), "live": self.live.get(), "data": self.sources.snapshot(),
+            "project": project, "live": self.live.get(), "data": self.data_snapshot(),
+            "global": globalcfg.clean(project.get("global")),
             "fonts": self.assets.fonts(), "jobs": self.jobs.list(), "update": self.updater.info(),
         }
 
@@ -101,6 +159,139 @@ class Engine:
         if self.server:
             self.server.stop()
         self.ws.close()
+
+    # --- global configuration, and the game HUDs ----------------------------
+
+    def set_global(self, changes):
+        g = self.global_config()
+        for k, v in (changes or {}).items():
+            if k in ("left", "right") and isinstance(v, dict):
+                g[k].update(v)
+            else:
+                g[k] = v
+        g = globalcfg.clean(g)
+        self.ws.set_global(g)
+        return g
+
+    def save_global_logo(self, side, filename, blob):
+        if side not in ("left", "right"):
+            raise ValueError("left or right")
+        ext = os.path.splitext(filename or "")[1].lower()
+        if ext not in (".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif"):
+            raise ValueError("The logo must be a PNG, JPG, WEBP, SVG or GIF")
+        base = re.sub(r"[^\w\- ]+", "_", os.path.splitext(os.path.basename(filename))[0]) or side
+        rel, path = self.ws.unique_asset(base + ext, "logos")
+        with open(path, "wb") as f:
+            f.write(blob)
+        self.assets_rev += 1
+        return self.set_global({side: {"logo": rel}})
+
+    def ingest(self, body, client):
+        """A game HUD's data: its fields (a table named after the HUD) and the
+        series score (into Global)."""
+        name = re.sub(r"[!{}#|]", "", str(body.get("source") or "Game")).strip()[:40] or "Game"
+        fields = body.get("fields") or {}
+        if not isinstance(fields, dict):
+            raise ValueError("fields must be an object")
+        rows = [["Field", "Value"]] + [[str(k)[:80], "" if v is None else str(v)[:500]] for k, v in fields.items()]
+        old = self.feeds.get(name)
+        self.feeds[name] = {"rows": rows, "from": client, "game": str(body.get("game") or ""), "at": time.time()}
+        if not old or old["rows"] != rows:
+            self.feeds_rev += 1
+            if not old:
+                log(f"{name} connected from {client}")
+        # The series into Global: a value the HUD changed (or its first, for the
+        # score, unless 0), and names only where Global has none - so connecting a HUD
+        # doesn't undo what was set here.
+        series = body.get("series") or {}
+        prev = (old or {}).get("series") or {}
+        self.feeds[name]["series"] = series
+        if series:
+            g = self.global_config()
+            changes = {}
+            for side in ("left", "right"):
+                team, before = series.get(side) or {}, prev.get(side) or {}
+                for key in ("score", "name", "short", "color"):
+                    if team.get(key) in (None, ""):
+                        continue
+                    value = int(team[key]) if key == "score" else str(team[key])
+                    first = key not in before
+                    moved = not first and before.get(key) != team[key]
+                    blank = key != "score" and not g[side][key]
+                    first_score = first and key == "score" and value > 0   # (a HUD at 0-0 keeps the score set here)
+                    if (moved or blank or first_score) and value != g[side][key]:
+                        changes.setdefault(side, {})[key] = value
+            bo = series.get("best_of")
+            if bo and int(bo) != g["best_of"] and ("best_of" not in prev or prev.get("best_of") != bo):
+                changes["best_of"] = int(bo)
+            if changes:
+                self.set_global(changes)
+        self.changed()
+
+    # --- workspaces ------------------------------------------------------
+
+    def workspaces_info(self):
+        return {"workspaces": self.workspaces.list(), "current": self.workspace_id}
+
+    def create_workspace(self, name, template="scc", open_it=True):
+        wid = self.workspaces.create(name, template)
+        if open_it:
+            self.open(wid)
+        return wid
+
+    def rename_workspace(self, wid, name):
+        if wid == self.workspace_id:
+            self.ws.rename(name)
+        else:
+            self.workspaces.rename(wid, name)
+        self.changed()
+
+    def set_workspace_picture(self, wid, filename, blob):
+        pic = self.workspaces.set_picture(wid, filename, blob)
+        if wid == self.workspace_id:
+            self.ws.set_picture(pic)
+        else:
+            self.workspaces.set_field(wid, "picture", pic)
+        self.changed()
+        return pic
+
+    def delete_workspace(self, wid):
+        if wid == self.workspace_id:
+            raise ValueError("Open another workspace before deleting this one")
+        self.workspaces.delete(wid)
+        self.changed()
+
+    def pack(self):
+        """The SCC graphics that come with the engine, and which this workspace has."""
+        have = {c["name"] for c in self.ws.get()["compositions"]}
+        return [{"id": c["id"], "name": c["name"], "have": c["name"] in have,
+                 "w": c.get("width", 1920), "h": c.get("height", 1080)}
+                for c in self.workspaces.starter_project().get("compositions", [])]
+
+    def import_pack(self, ids=None):
+        """Copies graphics from the SCC pack (all this workspace doesn't have, or ids) with their files."""
+        starter = self.workspaces.starter
+        project = self.workspaces.starter_project()
+        have = {c["name"] for c in self.ws.get()["compositions"]}
+        comps = [c for c in project.get("compositions", [])
+                 if (c["id"] in ids if ids else c["name"] not in have)]
+        for comp in comps:
+            used = set()
+            export._walk_assets(comp, used)
+            for rel in used:
+                src = os.path.join(starter, rel)
+                dest = self.ws.asset_path(rel)
+                if dest and os.path.isfile(src) and not os.path.exists(dest):
+                    os.makedirs(os.path.dirname(dest), exist_ok=True)
+                    shutil.copy2(src, dest)
+            comp = json.loads(json.dumps(comp))
+            comp["id"] = new_id("c")
+            self.ws.add_comp(comp)
+        if comps:
+            self.assets_rev += 1
+            log(f"Added {len(comps)} graphic(s) from the SCC pack")
+        self.changed()
+        return [c["name"] for c in comps]
 
     # --- changes that touch several parts ----------------------------------
 
@@ -158,7 +349,7 @@ class Engine:
         return result
 
     def stinger_cut(self, src):
-        path = self.ws.asset_path(src)
+        path = self.assets.path_of(src)
         if not path or not os.path.isfile(path):
             raise ValueError("No such video")
         return stinger_cut(path)
@@ -312,6 +503,22 @@ def make_handler(engine):
                 for e in found:
                     engine.beacon.add(e["ip"], e["port"], e.get("name", e["ip"]), e.get("version", ""))
                 return self._json({"engines": engine.beacon.engines()})
+            if path == "/api/workspaces":
+                return self._json(engine.workspaces_info())
+            if path.startswith("/api/workspace-picture/"):
+                full = engine.workspaces.picture(unquote(path.rsplit("/", 1)[1]))
+                return self._file(full) if full else self._json({"error": "not found"}, 404)
+            if path == "/api/global":
+                # For game HUDs ("Use Global Information"): logos as addresses on this engine.
+                g = engine.global_config()
+                host = self.headers.get("Host") or f"localhost:{engine.settings.get()['http_port']}"
+                for side in ("left", "right"):
+                    logo = g[side]["logo"]
+                    g[side]["logo_url"] = (f"http://{host}/{quote(logo)}" if logo and not re.match(r"https?://", logo)
+                                           else logo)
+                return self._json({"global": g, "workspace": engine.ws.get()["name"], "engine": engine.name()})
+            if path == "/api/pack":
+                return self._json({"graphics": engine.pack()})
             if path.startswith("/api/source/"):
                 return self._json(engine.sources.table(path.rsplit("/", 1)[1]))
             if path == "/api/stinger-cut":
@@ -320,7 +527,7 @@ def make_handler(engine):
                 ids = [i for i in (q.get("comps") or [""])[0].split(",") if i]
                 bus = (q.get("bus") or ["preview"])[0]
                 values = engine.live.get().get(bus, {}).get("values", {})
-                blob = export.build(engine.ws, engine.assets, ids, values, engine.sources.snapshot()["tables"])
+                blob = export.build(engine.ws, engine.assets, ids, values, engine.data_snapshot()["tables"])
                 name = re.sub(r"[^\w\- ]+", "", (q.get("name") or [engine.ws.get()["name"]])[0]).strip() or "graphics"
                 return self._send(blob, "application/zip", headers={
                     "Content-Disposition": f"attachment; filename=\"{name}.zip\"; filename*=UTF-8''{quote(name)}.zip"})
@@ -335,8 +542,8 @@ def make_handler(engine):
                     shutil.rmtree(tmp, ignore_errors=True)
                 return self._send(blob, "application/zip", headers={
                     "Content-Disposition": f"attachment; filename=\"GFX workspace {time.strftime('%Y-%m-%d')}.zip\""})
-            if path.startswith("/assets/"):
-                full = engine.ws.asset_path(unquote(path[1:]))
+            if path.startswith(("/assets/", "/library/")):
+                full = engine.assets.path_of(unquote(path[1:]))
                 if not full or not os.path.isfile(full):
                     return self._json({"error": "not found"}, 404)
                 return self._file(full)
@@ -357,6 +564,15 @@ def make_handler(engine):
                     name = unquote(self.headers.get("X-Filename") or (q.get("name") or [""])[0])
                     fps = float((q.get("fps") or ["0"])[0]) or None
                     return self._json(engine.upload(name, self.rfile, length, fps))
+                if path in ("/api/workspaces/picture", "/api/global/logo"):
+                    # (the picture's bytes are the body)
+                    name = unquote(self.headers.get("X-Filename") or (q.get("name") or [""])[0])
+                    if length > 30 << 20:
+                        raise ValueError("That picture is too big (30 MB at most)")
+                    blob = self.rfile.read(length)
+                    if path == "/api/global/logo":
+                        return self._json({"global": engine.save_global_logo((q.get("side") or [""])[0], name, blob)})
+                    return self._json({"picture": engine.set_workspace_picture((q.get("id") or [""])[0], name, blob)})
                 body = json.loads(self.rfile.read(length) or b"{}")
                 result = {"ok": True}
                 ws, live = engine.ws, engine.live
@@ -376,6 +592,24 @@ def make_handler(engine):
                     result = {"layer": blank_layer(body.get("type", "text"))}
                 elif path == "/api/project":
                     ws.rename(body.get("name", ""))
+                # --- workspaces ---
+                elif path == "/api/workspaces/create":
+                    result = {"id": engine.create_workspace(body.get("name", ""), body.get("template", "scc"),
+                                                            body.get("open", True))}
+                elif path == "/api/workspaces/open":
+                    engine.open(body["id"])
+                elif path == "/api/workspaces/rename":
+                    engine.rename_workspace(body["id"], body.get("name", ""))
+                elif path == "/api/workspaces/delete":
+                    engine.delete_workspace(body["id"])
+                elif path == "/api/pack/import":
+                    result = {"added": engine.import_pack(body.get("ids"))}
+                # --- global configuration, game HUDs ---
+                elif path == "/api/global":
+                    result = {"global": engine.set_global(body.get("global") or {})}
+                elif path == "/api/ingest":
+                    engine.ingest(body, self.client_address[0])
+                    result = {"ok": True, "global": engine.global_config()}
                 # --- on air ---
                 elif path == "/api/cue":
                     live.cue(body["id"], bool(body.get("on", True)))
@@ -398,7 +632,8 @@ def make_handler(engine):
                     engine.sources.refresh(body.get("id"))
                 # --- files ---
                 elif path == "/api/asset/delete":
-                    ws.delete_asset(body["path"])
+                    engine.assets.delete(body["path"])
+                    ws.touch_assets()
                     engine.assets_rev += 1
                     engine.changed()
                 elif path == "/api/open":

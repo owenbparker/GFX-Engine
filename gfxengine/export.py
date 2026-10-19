@@ -29,7 +29,7 @@ def _walk_assets(value, found):
     elif isinstance(value, list):
         for v in value:
             _walk_assets(v, found)
-    elif isinstance(value, str) and value.startswith("assets/"):
+    elif isinstance(value, str) and value.startswith(("assets/", "library/")):
         found.add(value)
 
 
@@ -41,9 +41,10 @@ def build(workspace, assets, comp_ids, values=None, tables=None):
     used = set()
     _walk_assets(comps, used)
     _walk_assets(values, used)
+    _walk_assets(tables, used)     # (pictures a field takes from the data, e.g. {{Global!Left logo}})
     # The fonts the text uses (by PostScript name), from the assets.
     families = {l.get("font") for c in comps for l in c["layers"] if l.get("type") == "text"}
-    fonts = [f for f in assets.fonts() if f["postscript"] in families]
+    fonts = [f for f in assets.fonts() if families & set(f.get("aliases") or [f["postscript"]])]
     used.update(f["path"] for f in fonts)
     data = {"name": project["name"], "compositions": comps, "values": values,
             "fonts": fonts, "tables": tables or {}, "standalone": True}
@@ -59,10 +60,10 @@ def build(workspace, assets, comp_ids, values=None, tables=None):
         for name in os.listdir(os.path.join(WEB_DIR, "fonts")):
             z.write(os.path.join(WEB_DIR, "fonts", name), "fonts/" + name)
         for rel in sorted(used):
-            path = workspace.asset_path(rel)
+            path = assets.path_of(rel)
             if not path or not os.path.isfile(path):
                 continue
-            if rel.endswith(".json"):
+            if rel.endswith(".json") and rel.startswith("assets/"):
                 # A Lottie animation: its images are beside it.
                 folder = os.path.dirname(path)
                 if os.path.normpath(folder) != os.path.normpath(workspace.assets_dir):

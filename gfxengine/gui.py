@@ -41,7 +41,8 @@ def smoke_test(engine, port):
     and has FFmpeg and its window library. Writes smoke-test.txt next to the app."""
     results, ok = [], True
     for path in ("/control", "/output", "/runtime.js", "/control.js", "/control.css", "/vendor/lottie.min.js",
-                 "/fonts/Inter.ttf", "/api/state", "/api/assets", "/api/hello"):
+                 "/fonts/Inter.ttf", "/home.js", "/assets-ui/logo.png", "/api/state", "/api/assets", "/api/hello",
+                 "/api/workspaces", "/api/global"):
         try:
             with urllib.request.urlopen(f"http://127.0.0.1:{port}{path}", timeout=10) as r:
                 results.append(f"OK   {path} ({len(r.read())} bytes)")
@@ -121,7 +122,7 @@ def main():
         engine.stop()
         return 0 if ok else 1
 
-    url = f"http://127.0.0.1:{port}/control"
+    url = f"http://127.0.0.1:{port}/control#home"
     try:
         import webview
         try:

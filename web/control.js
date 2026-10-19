@@ -260,8 +260,14 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
   function assetOptions(kind, current) {
     const kinds = kind === "image" ? ["image"] : kind === "video" ? ["video", "image"] : kind === "lottie" ? ["lottie"] : [kind];
     const opts = App.assets.filter(a => kinds.includes(a.kind));
-    return [h("option", { value: "" }, "(as designed)"),
-      ...opts.map(a => h("option", { value: a.path, selected: a.path === current }, a.path.replace(/^assets\//, "")))];
+    const out = [h("option", { value: "" }, "(as designed)")];
+    if (kind === "image") {
+      const g = ["Left logo", "Right logo"].map(k => `{{Global!${k}}}`);
+      out.push(h("optgroup", { label: "Global configuration" },
+        ...g.map((t, i) => h("option", { value: t, selected: t === current }, i ? "Right team's logo" : "Left team's logo"))));
+    }
+    out.push(...opts.map(a => h("option", { value: a.path, selected: a.path === current }, a.path.replace(/^(assets|library)\//, ""))));
+    return out;
   }
 
   function renderFields(s, force) {
@@ -276,7 +282,8 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const differs = onAir && fields.some(l => (pvVals[l.field] ?? "") !== (pgVals[l.field] ?? ""));
     $("#fields-send").classList.toggle("differs", differs);
     $("#fields-send").disabled = !fields.length;
-    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev]);
+    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev,
+      Object.keys(s.data.feeds || {}), (s.data.tables.Global || []).map(r => r[0])]);
     if (!force && box.dataset.sig === sig) {
       // Same fields: only bring in values changed elsewhere (not the one being typed in).
       for (const l of fields) {
@@ -312,16 +319,36 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
       }
       const res = h("div", { class: "resolved", "data-resolved": l.field });
       updateResolved(res, l, v ?? "");
+      // Text or a colour can follow the global configuration (or a game HUD's data).
+      const link = l.type === "image" ? null : h("select", { class: "small link", title: "Use the global configuration (or a connected game HUD)",
+        onchange: e => {
+          if (!e.target.value) return;
+          input.value = e.target.value; push(comp.id, l.field, e.target.value); updateResolved(res, l, e.target.value);
+          e.target.value = "";
+        } }, linkOptions(s, l.type));
       return h("div", { class: "field" },
         h("label", {}, l.field, h("span", { class: "kind" }, l.type), h("span", { class: "live", "data-live": l.field },
           onAir && (pvVals[l.field] ?? "") !== (pgVals[l.field] ?? "") ? "≠ ON AIR" : "")),
-        h("div", { class: "row-gap" }, input,
+        h("div", { class: "row-gap" }, input, link,
           h("button", { class: "ghost small", title: "Back to the design's own", onclick: () => { input.value = ""; push(comp.id, l.field, null); updateResolved(res, l, ""); } }, "↺")),
         res);
     }));
   }
+  function linkOptions(s, type) {
+    const out = [h("option", { value: "" }, "⛓")];
+    const tables = s.data.tables || {};
+    const names = ["Global", ...Object.keys(s.data.feeds || {})];
+    for (const n of names) {
+      let rows = (tables[n] || []).slice(1);
+      if (type === "rect") rows = rows.filter(r => /colou?r/i.test(r[0]));
+      if (!rows.length) continue;
+      out.push(h("optgroup", { label: n === "Global" ? "Global configuration" : n },
+        ...rows.map(r => h("option", { value: `{{${n}!${r[0]}}}` }, `${r[0]}${r[1] ? " — " + String(r[1]).slice(0, 30) : ""}`))));
+    }
+    return out;
+  }
   function updateResolved(el, layer, value) {
-    if (layer.type !== "text") { el.textContent = ""; return; }
+    if (layer.type !== "text") { el.textContent = /\{\{/.test(value || "") ? `${value} → ${GFX.resolve(value)}` : ""; return; }
     const raw = value || layer.text;
     el.textContent = /\{\{/.test(raw) ? "→ " + GFX.resolve(raw) : value ? "" : "Shows: " + layer.text;
   }

@@ -37,10 +37,15 @@
     fonts = fonts || [];
     const key = JSON.stringify(fonts.map(f => f.path)) + GFX.base;
     if (fontStyle && fontStyle.dataset.key === key) return;
-    assetFonts = new Set(fonts.map(f => f.postscript));
+    // Each font by its PostScript name, then by its other names (its file
+    // name, full name...), which a design may know it by; the first claim wins.
+    const named = new Map();
+    for (const f of fonts) if (f.postscript && !named.has(f.postscript.toLowerCase())) named.set(f.postscript.toLowerCase(), [f.postscript, f]);
+    for (const f of fonts) for (const a of f.aliases || []) if (a && !named.has(a.toLowerCase())) named.set(a.toLowerCase(), [a, f]);
+    assetFonts = new Set([...named.keys()]);
     const css = BUILTIN.map(([fam, file, weight]) =>
       `@font-face{font-family:"${fam}";src:url("${url(file)}");font-weight:${weight};font-display:block}`);
-    for (const f of fonts) css.push(`@font-face{font-family:"${cssq(f.postscript)}";src:url("${url(encodeURI(f.path))}");font-display:block}`);
+    for (const [name, f] of named.values()) css.push(`@font-face{font-family:"${cssq(name)}";src:url("${url(encodeURI(f.path))}");font-display:block}`);
     if (!fontStyle) { fontStyle = document.createElement("style"); document.head.appendChild(fontStyle); }
     fontStyle.dataset.key = key;
     fontStyle.textContent = css.join("\n");
@@ -50,12 +55,12 @@
   // [font-family stack, weight] for a text layer.
   GFX.fontFor = function (layer) {
     const name = layer.font || "Inter";
-    if (assetFonts.has(name)) return [`"${cssq(name)}", "Inter", sans-serif`, "normal"];
+    if (assetFonts.has(name.toLowerCase())) return [`"${cssq(name)}", "Inter", sans-serif`, "normal"];
     if (GFX.builtinFonts.includes(name)) return [`"${name}", "Inter", sans-serif`, layer.weight || 400];
     for (const [re, fam, weight] of STANDINS) if (re.test(name)) return [`"${cssq(name)}", "${fam}", "Inter", sans-serif`, weight];
     return [`"${cssq(name)}", "Inter", sans-serif`, layer.weight || 400];
   };
-  GFX.hasFont = name => assetFonts.has(name) || GFX.builtinFonts.includes(name);
+  GFX.hasFont = name => assetFonts.has(String(name || "").toLowerCase()) || GFX.builtinFonts.includes(name);
 
   // --- data and fields -----------------------------------------------------------
   const ctx = { tables: {} };
@@ -105,8 +110,9 @@
   GFX.content = function (layer, values) {
     const v = layer.field && values && values[layer.field] != null && values[layer.field] !== "" ? values[layer.field] : null;
     if (layer.type === "text") return v != null ? String(v) : layer.text || "";
-    if (layer.type === "rect") return v != null ? String(v) : layer.fill;
-    return v != null ? String(v) : layer.src || "";
+    // (a picture or colour can come from the data too: {{Global!Left logo}})
+    const own = v != null ? String(v) : (layer.type === "rect" ? layer.fill : layer.src) || "";
+    return hasTokens(own) ? GFX.resolve(own).trim() : own;
   };
 
   // --- building graphics -----------------------------------------------------------

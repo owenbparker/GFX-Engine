@@ -54,16 +54,43 @@ def kind_of(name):
 
 
 class Assets:
-    def __init__(self, workspace, jobs):
+    """A workspace's files, and the font library every workspace shares
+    (library/fonts, served as library/...)."""
+
+    def __init__(self, workspace, jobs, library_dir=None):
         self.ws = workspace
         self.jobs = jobs
+        self.library_dir = library_dir
         self.meta = media.load_meta(workspace.assets_dir)
+        self.library_meta = media.load_meta(library_dir) if library_dir else {}
+        if library_dir:
+            os.makedirs(os.path.join(library_dir, "fonts"), exist_ok=True)
+            self._share_fonts()
+
+    def _share_fonts(self):
+        """Fonts added to a workspace before the library existed go into it too."""
+        lib = os.path.join(self.library_dir, "fonts")
+        have = {f.lower() for f in os.listdir(lib)}
+        for folder, _, files in os.walk(self.ws.assets_dir):
+            for f in files:
+                if fontnames.is_font(f) and f.lower() not in have:
+                    shutil.copy(os.path.join(folder, f), os.path.join(lib, f))
+                    have.add(f.lower())
+
+    def path_of(self, rel):
+        """A file on disk for "assets/..." (this workspace) or "library/..." (shared)."""
+        rel = (rel or "").replace("\\", "/")
+        if rel.startswith("library/") and self.library_dir:
+            path = os.path.normpath(os.path.join(self.library_dir, rel[len("library/"):]))
+            return path if path.startswith(os.path.normpath(self.library_dir) + os.sep) else None
+        return self.ws.asset_path(rel)
 
     def _meta(self, rel, path):
         """Cached facts about a file (font names, video length...), by size and time."""
         st = os.stat(path)
         key = f"{st.st_size}:{int(st.st_mtime)}"
-        cached = self.meta.get(rel)
+        store = self.library_meta if rel.startswith("library/") else self.meta
+        cached = store.get(rel)
         if cached and cached.get("key") == key:
             return cached
         kind = kind_of(rel)
@@ -81,33 +108,41 @@ class Assets:
                     entry["width"], entry["height"] = im.size
             except Exception:
                 pass
-        self.meta[rel] = entry
-        media.save_meta(self.ws.assets_dir, self.meta)
+        store[rel] = entry
+        media.save_meta(self.library_dir if store is self.library_meta else self.ws.assets_dir, store)
         return entry
 
     def list(self):
         out = []
-        root = self.ws.assets_dir
-        for folder, dirs, files in os.walk(root):
-            dirs[:] = sorted(d for d in dirs if not d.startswith("."))
-            for f in sorted(files):
-                if f.startswith(".") or f.endswith(".part"):
-                    continue
-                path = os.path.join(folder, f)
-                rel = "assets/" + os.path.relpath(path, root).replace(os.sep, "/")
-                entry = {"path": rel, "name": f, "folder": os.path.dirname(rel)[len("assets"):].lstrip("/"),
-                         "kind": kind_of(f), "size": os.path.getsize(path)}
-                try:
-                    meta = self._meta(rel, path)
-                    entry.update({k: v for k, v in meta.items() if k != "key"})
-                except OSError:
-                    continue
-                out.append(entry)
+        roots = [(self.ws.assets_dir, "assets")]
+        if self.library_dir:
+            roots.append((self.library_dir, "library"))
+        for root, prefix in roots:
+            for folder, dirs, files in os.walk(root):
+                dirs[:] = sorted(d for d in dirs if not d.startswith("."))
+                for f in sorted(files):
+                    if f.startswith(".") or f.endswith(".part"):
+                        continue
+                    if prefix == "assets" and fontnames.is_font(f) and self.library_dir:
+                        continue   # (fonts are in the library)
+                    path = os.path.join(folder, f)
+                    rel = prefix + "/" + os.path.relpath(path, root).replace(os.sep, "/")
+                    folder_name = os.path.dirname(rel)[len(prefix):].lstrip("/")
+                    entry = {"path": rel, "name": f, "kind": kind_of(f), "size": os.path.getsize(path),
+                             "folder": "fonts (every workspace)" if prefix == "library" else folder_name,
+                             "shared": prefix == "library"}
+                    try:
+                        meta = self._meta(rel, path)
+                        entry.update({k: v for k, v in meta.items() if k != "key"})
+                    except OSError:
+                        continue
+                    out.append(entry)
         return out
 
     def fonts(self):
-        """[{"postscript", "family", "style", "path"}] for every font in the assets."""
-        return [{"postscript": a.get("postscript"), "family": a.get("family"), "style": a.get("style"), "path": a["path"]}
+        """[{"postscript", "family", "style", "path", "aliases"}] for every font."""
+        return [{"postscript": a.get("postscript"), "family": a.get("family"), "style": a.get("style"),
+                 "path": a["path"], "aliases": a.get("aliases") or [a.get("postscript")]}
                 for a in self.list() if a["kind"] == "font"]
 
     # --- adding --------------------------------------------------------
@@ -142,12 +177,29 @@ class Assets:
             info = media.probe(src_path)
             if not media.playable(src_path, info):
                 return self._convert(name, src_path, info)
-        rel, dest = self.ws.unique_asset(name, "fonts" if kind == "font" else "")
+        if kind == "font" and self.library_dir:
+            rel, dest = self._library_file(name)
+        else:
+            rel, dest = self.ws.unique_asset(name, "fonts" if kind == "font" else "")
         shutil.move(src_path, dest)
         result["assets"].append(rel)
         if kind == "data":
             result["sources"].append({"name": os.path.splitext(os.path.basename(name))[0], "type": "file", "path": rel})
         return result
+
+    def _library_file(self, name):
+        """library/fonts/<name> (replacing a font of the same name)."""
+        base = "".join(ch if ch.isalnum() or ch in " -_.()" else "_" for ch in os.path.basename(name)).strip() or "font"
+        return "library/fonts/" + base, os.path.join(self.library_dir, "fonts", base)
+
+    def delete(self, rel):
+        path = self.path_of(rel)
+        if not path or not os.path.exists(path):
+            raise KeyError("No such file")
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        else:
+            os.remove(path)
 
     def _convert(self, name, src_path, info):
         base = os.path.splitext(os.path.basename(name))[0]
@@ -222,7 +274,10 @@ class Assets:
                 continue
             kind = kind_of(f)
             if kind in ("image", "font", "video", "audio", "lottie", "data"):
-                rel, dest = self.ws.unique_asset(os.path.basename(f), "fonts" if kind == "font" else "")
+                if kind == "font" and self.library_dir:
+                    rel, dest = self._library_file(os.path.basename(f))
+                else:
+                    rel, dest = self.ws.unique_asset(os.path.basename(f), "fonts" if kind == "font" else "")
                 shutil.copy(f, dest)
                 result["assets"].append(rel)
         shutil.rmtree(tmp, ignore_errors=True)

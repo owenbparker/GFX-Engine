@@ -4,16 +4,18 @@
 <meta charset="utf-8">
 <title>SCC GFX Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="assets-ui/icon.png">
+<link rel="icon" href="assets-ui/badge.png">
 <link rel="stylesheet" href="control.css">
 </head>
 <body>
 <header id="top">
-  <div class="brand"><img src="assets-ui/icon.png" alt=""><b>GFX Engine</b></div>
-  <input id="project-name" class="project-name" title="The workspace's name" spellcheck="false">
+  <button class="brand" id="brand" title="Workspaces"><img src="assets-ui/badge.png" alt=""><span><b>GFX</b> ENGINE</span></button>
+  <div class="ws-chip"><button id="ws-pic" class="ws-pic" title="Workspaces"></button><input id="project-name" class="project-name" title="The workspace's name" spellcheck="false"></div>
   <nav id="tabs">
+    <button data-tab="home" hidden>Home</button>
     <button data-tab="control">Control</button>
     <button data-tab="composer">Composer</button>
+    <button data-tab="global">Global</button>
     <button data-tab="assets">Assets</button>
     <button data-tab="data">Data</button>
     <button data-tab="transitions">Transitions</button>
@@ -25,6 +27,63 @@
     <span id="version" class="muted small"></span>
   </div>
 </header>
+
+<!-- HOME: the workspaces -->
+<main id="page-home" class="page" hidden>
+  <div class="home">
+    <div class="home-hero">
+      <img src="assets-ui/logo.png" alt="St. Clair Saints GFX Engine" class="home-logo">
+    </div>
+    <div class="home-head">
+      <h2>My Workspaces</h2>
+      <span class="muted">One per event or show: its own graphics, files, data, transitions and global settings. Fonts are shared by all of them.</span>
+    </div>
+    <div id="ws-grid" class="ws-grid"></div>
+  </div>
+</main>
+
+<!-- GLOBAL: the event's basics, used by every graphic and sent to/from the game HUDs -->
+<main id="page-global" class="page" hidden>
+  <div class="page-head">
+    <h2>Global configuration</h2>
+    <span class="muted">Set these once: every graphic in this workspace can use them, and connected game HUDs keep the score up to date.</span>
+    <div class="spacer"></div>
+    <button id="g-swap" class="small" title="Swap the left and right teams">⇄ Swap sides</button>
+    <button id="g-reset" class="small" title="Both scores back to 0">Reset series</button>
+  </div>
+  <div class="global">
+    <section class="panel team-card" data-side="left"></section>
+    <section class="panel series-card">
+      <div class="panel-head"><h3>Series</h3></div>
+      <div class="pad">
+        <div id="g-score" class="g-score"></div>
+        <div class="two">
+          <label>Best of<select id="g-bestof"><option>1</option><option>3</option><option>5</option><option>7</option><option>9</option></select></label>
+          <label>Game<input id="g-game" placeholder="(from the score)"></label>
+        </div>
+        <label>Event<input id="g-event" placeholder="e.g. NACE Varsity"></label>
+        <label>Stage<input id="g-stage" placeholder="e.g. Playoffs - Semi-final"></label>
+      </div>
+    </section>
+    <section class="panel team-card" data-side="right"></section>
+    <section class="panel g-custom">
+      <div class="panel-head"><h3>More fields</h3><button class="small" id="g-custom-add">+ Add</button></div>
+      <div id="g-custom" class="pad"></div>
+    </section>
+    <section class="panel g-tokens">
+      <div class="panel-head"><h3>Using them in graphics</h3></div>
+      <div class="pad">
+        <p class="muted small">Click to copy, then paste into a text layer or a field. A picture layer or field can use a logo the same way
+          (in Control, its list has the team logos).</p>
+        <div id="g-token-list" class="token-list"></div>
+      </div>
+    </section>
+    <section class="panel g-feeds">
+      <div class="panel-head"><h3>Game HUDs</h3><span class="muted small">In a HUD: Connect to GFX Engine</span></div>
+      <div id="g-feeds" class="pad"></div>
+    </section>
+  </div>
+</main>
 
 <!-- CONTROL: Preview / Program, the take bar, the rundown and the fields -->
 <main id="page-control" class="page" hidden>
@@ -181,11 +240,38 @@
   </div>
 </main>
 
+<div id="dialog" class="dialog-back" hidden>
+  <form class="dialog panel" id="dialog-form" method="dialog">
+    <div class="panel-head"><h3 id="dialog-title">New workspace</h3></div>
+    <div class="pad">
+      <div class="ws-new">
+        <label class="pic-pick" title="Choose a picture"><span id="dlg-pic" class="ws-pic big"></span>
+          <input type="file" id="dlg-file" accept="image/png,image/jpeg,image/webp,image/gif" hidden><span class="small">Picture…</span></label>
+        <div style="flex:1">
+          <label>Name<input id="dlg-name" placeholder="e.g. NACE Spring 2027" maxlength="80" required></label>
+          <div id="dlg-template-row">
+            <label>Start with</label>
+            <label class="toggle"><input type="radio" name="dlg-template" value="scc" checked> The SCC graphics (scorebug, lower thirds, screens, stingers…)</label>
+            <label class="toggle"><input type="radio" name="dlg-template" value="empty"> Nothing (an empty workspace)</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dialog-btns">
+      <button type="button" id="dlg-delete" class="danger" hidden>Delete workspace</button>
+      <div class="spacer"></div>
+      <button type="button" id="dlg-cancel">Cancel</button>
+      <button type="submit" class="primary" id="dlg-ok">Create</button>
+    </div>
+  </form>
+</div>
+
 <div id="toast" class="toast" hidden></div>
 <script src="vendor/lottie.min.js"></script>
 <script src="runtime.js"></script>
 <script src="control.js"></script>
 <script src="composer.js"></script>
 <script src="pages.js"></script>
+<script src="home.js"></script>
 </body>
 </html>

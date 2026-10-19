@@ -43,7 +43,7 @@ def _woff_name_table(data):
 def names(path):
     """{"postscript", "family", "style"} for a font file (from its file name if unreadable)."""
     fallback = os.path.splitext(os.path.basename(path))[0]
-    out = {"postscript": fallback, "family": fallback, "style": ""}
+    out = {"postscript": fallback, "family": fallback, "style": "", "aliases": [fallback]}
     try:
         with open(path, "rb") as f:
             data = f.read()
@@ -71,8 +71,23 @@ def names(path):
         out["postscript"] = get(6) or get(4).replace(" ", "-") or fallback
         out["family"] = get(16) or get(1) or fallback
         out["style"] = get(17) or get(2)
+        # Other names a design may know it by (a PSD records the PostScript name
+        # its font had on the designer's PC, which can differ from this file's).
+        full = get(4)
+        out["aliases"] = _unique([out["postscript"], full.replace(" ", "-"), full.replace(" ", ""),
+                                  f"{out['family']}-{out['style']}".replace(" ", ""), fallback,
+                                  f"{get(1)}-{get(2)}".replace(" ", "") if get(1) else ""])
     except (OSError, struct.error, ValueError):
         pass
+    return out
+
+
+def _unique(names):
+    seen, out = set(), []
+    for n in names:
+        if n and n.lower() not in seen and n != "-":
+            seen.add(n.lower())
+            out.append(n)
     return out
 
 

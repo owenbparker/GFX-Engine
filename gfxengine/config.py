@@ -1,8 +1,9 @@
 """Where things live, and the app's own settings (settings.json).
 
 The graphics themselves (compositions, transitions, data sources) and their
-files are the workspace: workspace/project.json and workspace/assets/, next
-to the app (next to GFXEngine.exe in the desktop build).
+files are workspaces: workspaces/<id>/project.json and assets/, next to the
+app (next to GFXEngine.exe in the desktop build). Fonts are shared by every
+workspace, in library/fonts.
 """
 
 import copy
@@ -17,7 +18,9 @@ RESOURCE_DIR = getattr(sys, "_MEIPASS", ROOT) if FROZEN else ROOT
 DATA_DIR = os.path.dirname(os.path.abspath(sys.executable)) if FROZEN else ROOT
 WEB_DIR = os.path.join(RESOURCE_DIR, "web")
 STARTER_DIR = os.path.join(RESOURCE_DIR, "starter")
-WORKSPACE_DIR = os.path.join(DATA_DIR, "workspace")
+WORKSPACES_DIR = os.path.join(DATA_DIR, "workspaces")
+LEGACY_WORKSPACE_DIR = os.path.join(DATA_DIR, "workspace")   # (v1.0.1: one workspace)
+LIBRARY_DIR = os.path.join(DATA_DIR, "library")             # shared by every workspace (fonts)
 SETTINGS_PATH = os.path.join(DATA_DIR, "settings.json")
 
 # Not the League (8777, 8779), VALORANT (8778), CoD (8780), RL (8781) HUDs'
@@ -32,6 +35,8 @@ DEFAULTS = {
     "allow_network": True,
     # This engine's name on the network.
     "name": "",
+    # The workspace open (its folder in workspaces/).
+    "workspace": "",
 }
 
 _lock = threading.Lock()

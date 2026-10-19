@@ -7,3 +7,5 @@ smoke-test.txt
 _update/
 build/
 dist/
+workspaces/
+library/
