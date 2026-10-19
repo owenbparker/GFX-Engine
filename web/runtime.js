@@ -1,0 +1,546 @@
+// The GFX Engine player: draws graphics (compositions of layers) and plays
+// them in and out, and the transitions between Preview and Program.
+//
+// Used by the outputs (output.html), the control panel's thumbnails and
+// Composer canvas, and exported HTML graphics.
+(function () {
+  "use strict";
+  const GFX = (window.GFX = {});
+  const W = 1920, H = 1080;
+  GFX.W = W; GFX.H = H;
+  GFX.base = "";          // where assets/ and fonts/ are (another engine, for ?live=)
+
+  const url = p => (!p ? "" : /^(https?:|data:|blob:)/.test(p) ? p : GFX.base + (GFX.base && !p.startsWith("/") ? "/" : "") + p);
+  GFX.url = url;
+
+  // --- fonts ------------------------------------------------------------------
+  // Fonts that come with the engine, and stand-ins for broadcast fonts that
+  // can't (Gotham, Trade Gothic...) until their files are added to the assets.
+  const BUILTIN = [
+    ["Inter", "fonts/Inter.ttf", "100 900"],
+    ["Bebas Neue", "fonts/BebasNeue.ttf", "400"],
+    ...[400, 500, 700, 800, 900].map(w => ["Montserrat", `fonts/Montserrat-${w}.woff2`, String(w)]),
+    ...[500, 600, 700].map(w => ["Barlow Condensed", `fonts/BarlowCondensed-${w}.woff2`, String(w)]),
+  ];
+  GFX.builtinFonts = ["Inter", "Montserrat", "Barlow Condensed", "Bebas Neue"];
+  const STANDINS = [
+    [/gotham.*(black|ultra)/i, "Montserrat", 900], [/gotham.*bold/i, "Montserrat", 700],
+    [/gotham.*medium/i, "Montserrat", 500], [/gotham/i, "Montserrat", 400],
+    [/(trade.?gothic|tradegothic).*(cond|cn|20)/i, "Barlow Condensed", 700], [/trade.?gothic/i, "Barlow Condensed", 600],
+    [/redzone|carbon|bebas|impact|anton|oswald/i, "Bebas Neue", 400],
+    [/(helvetica|arial|roboto|sf.?pro|segoe).*(black|heavy)/i, "Inter", 900],
+    [/(helvetica|arial|roboto|sf.?pro|segoe).*bold/i, "Inter", 700],
+  ];
+  let assetFonts = new Set();
+  let fontStyle = null;
+  GFX.loadFonts = function (fonts) {
+    fonts = fonts || [];
+    const key = JSON.stringify(fonts.map(f => f.path)) + GFX.base;
+    if (fontStyle && fontStyle.dataset.key === key) return;
+    assetFonts = new Set(fonts.map(f => f.postscript));
+    const css = BUILTIN.map(([fam, file, weight]) =>
+      `@font-face{font-family:"${fam}";src:url("${url(file)}");font-weight:${weight};font-display:block}`);
+    for (const f of fonts) css.push(`@font-face{font-family:"${cssq(f.postscript)}";src:url("${url(encodeURI(f.path))}");font-display:block}`);
+    if (!fontStyle) { fontStyle = document.createElement("style"); document.head.appendChild(fontStyle); }
+    fontStyle.dataset.key = key;
+    fontStyle.textContent = css.join("\n");
+    if (document.fonts) document.fonts.ready.then(() => GFX.refit());
+  };
+  const cssq = s => String(s).replace(/["\\]/g, "");
+  // [font-family stack, weight] for a text layer.
+  GFX.fontFor = function (layer) {
+    const name = layer.font || "Inter";
+    if (assetFonts.has(name)) return [`"${cssq(name)}", "Inter", sans-serif`, "normal"];
+    if (GFX.builtinFonts.includes(name)) return [`"${name}", "Inter", sans-serif`, layer.weight || 400];
+    for (const [re, fam, weight] of STANDINS) if (re.test(name)) return [`"${cssq(name)}", "${fam}", "Inter", sans-serif`, weight];
+    return [`"${cssq(name)}", "Inter", sans-serif`, layer.weight || 400];
+  };
+  GFX.hasFont = name => assetFonts.has(name) || GFX.builtinFonts.includes(name);
+
+  // --- data and fields -----------------------------------------------------------
+  const ctx = { tables: {} };
+  GFX.setData = function (tables) { ctx.tables = tables || {}; GFX.retext(); };
+
+  const colIndex = s => [...s.toUpperCase()].reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0) - 1;
+  GFX.lookup = function (rows, ref) {
+    ref = ref.trim();
+    let m = /^([A-Za-z]{1,3})(\d{1,5})$/.exec(ref);
+    if (m) { const r = rows[+m[2] - 1]; return (r && r[colIndex(m[1])]) || ""; }
+    m = /^(.*)#\s*(\d+)$/.exec(ref);
+    if (m && rows.length) {
+      const c = rows[0].findIndex(h => h.trim().toLowerCase() === m[1].trim().toLowerCase());
+      if (c >= 0) { const r = rows[+m[2]]; return (r && r[c]) || ""; }
+    }
+    const row = rows.find(r => r[0] && r[0].trim().toLowerCase() === ref.toLowerCase());
+    return row ? row[1] || "" : "";
+  };
+  const pad = n => String(n).padStart(2, "0");
+  function token(t) {
+    const now = new Date();
+    const low = t.toLowerCase();
+    if (low === "time") { const h = now.getHours() % 12 || 12; return `${pad(h)}:${pad(now.getMinutes())} ${now.getHours() < 12 ? "AM" : "PM"}`; }
+    if (low === "time24") return `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    if (low === "date") return now.toLocaleDateString(undefined, { weekday: "short", month: "numeric", day: "numeric" }).toUpperCase();
+    let m = /^countdown:\s*(\d{1,2}):(\d{2})$/i.exec(t);
+    if (m) {
+      // To a time of day (today, or tomorrow if it's gone).
+      const target = new Date(now); target.setHours(+m[1], +m[2], 0, 0);
+      let s = Math.max(0, Math.round((target - now) / 1000));
+      if (target < now && now - target > 12 * 3600e3) { target.setDate(target.getDate() + 1); s = Math.round((target - now) / 1000); }
+      const h = Math.floor(s / 3600);
+      return (h ? `${h}:${pad(Math.floor(s / 60) % 60)}` : pad(Math.floor(s / 60))) + `:${pad(s % 60)}`;
+    }
+    m = /^([^!]+)!(.+)$/.exec(t);
+    if (m) {
+      const name = Object.keys(ctx.tables).find(k => k.toLowerCase() === m[1].trim().toLowerCase());
+      return name ? GFX.lookup(ctx.tables[name], m[2]) : "";
+    }
+    return "{{" + t + "}}";
+  }
+  GFX.resolve = s => String(s == null ? "" : s).replace(/\{\{\s*([^{}]+?)\s*\}\}/g, (_, t) => token(t));
+  const hasTokens = s => /\{\{[^{}]+\}\}/.test(String(s || ""));
+  const ticking = s => /\{\{\s*(time|time24|date|countdown:[^}]*)\s*\}\}/i.test(String(s || ""));
+
+  // What a layer shows: its field's value if set, else its own.
+  GFX.content = function (layer, values) {
+    const v = layer.field && values && values[layer.field] != null && values[layer.field] !== "" ? values[layer.field] : null;
+    if (layer.type === "text") return v != null ? String(v) : layer.text || "";
+    if (layer.type === "rect") return v != null ? String(v) : layer.fill;
+    return v != null ? String(v) : layer.src || "";
+  };
+
+  // --- building graphics -----------------------------------------------------------
+  const live = new Set();   // text elements that change with time or data
+
+  function el(tag, cls, style) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (style) Object.assign(e.style, style);
+    return e;
+  }
+
+  function buildContent(layer, value, opts) {
+    const t = layer.type;
+    if (t === "image") {
+      if (!value) return el("div");
+      const img = el("img", "gfx-media", { objectFit: fitOf(layer.fit) });
+      img.draggable = false;
+      img.src = url(encodeURI(value));
+      return img;
+    }
+    if (t === "video") {
+      if (!value) return el("div");
+      const v = el("video", "gfx-media", { objectFit: fitOf(layer.fit) });
+      v.src = url(encodeURI(value));
+      v.muted = opts.muted || !layer.audio;
+      v.loop = layer.loop !== false;
+      v.playsInline = true;
+      v.preload = "auto";
+      if (opts.still) v.addEventListener("loadeddata", () => { try { v.currentTime = Math.min(1, (v.duration || 2) / 2); } catch (e) { /* not seekable */ } }, { once: true });
+      else { v.autoplay = true; v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }); }
+      return v;
+    }
+    if (t === "lottie") {
+      const box = el("div", "gfx-media");
+      if (value && window.lottie) {
+        const anim = window.lottie.loadAnimation({ container: box, renderer: "svg", loop: layer.loop !== false,
+          autoplay: !opts.still, path: url(encodeURI(value)), rendererSettings: { preserveAspectRatio: layer.fit === "fill" ? "none" : layer.fit === "cover" ? "xMidYMid slice" : "xMidYMid meet" } });
+        box._lottie = anim;
+        if (opts.still) anim.addEventListener("DOMLoaded", () => anim.goToAndStop(Math.floor(anim.totalFrames / 2), true));
+      }
+      return box;
+    }
+    if (t === "rect") {
+      return el("div", "gfx-rect", {
+        background: value || "transparent", borderRadius: (layer.radius || 0) + "px",
+        border: layer.strokeWidth ? `${layer.strokeWidth}px solid ${layer.stroke || "#fff"}` : "none",
+      });
+    }
+    if (t === "text") {
+      const box = el("div", "gfx-text");
+      const [family, weight] = GFX.fontFor(layer);
+      Object.assign(box.style, {
+        fontFamily: family, fontWeight: weight, fontStyle: layer.italic ? "italic" : "normal",
+        fontSize: layer.size + "px", color: layer.color,
+        lineHeight: layer.lineHeight || 1.15, letterSpacing: ((layer.tracking || 0) / 1000) + "em",
+        textTransform: layer.caps ? "uppercase" : "none", textAlign: layer.align || "left",
+        justifyContent: { left: "flex-start", center: "center", right: "flex-end" }[layer.align || "left"],
+        alignItems: { top: "flex-start", middle: "center", bottom: "flex-end" }[layer.valign || "top"],
+        textShadow: layer.shadow ? "0 2px 8px rgba(0,0,0,.6)" : "none",
+      });
+      const span = el("span", "gfx-t");
+      box.appendChild(span);
+      box._layer = layer;
+      box._raw = value;
+      setText(box, opts);
+      if (!opts.still && (hasTokens(value))) live.add(box);
+      return box;
+    }
+    return el("div");
+  }
+  const fitOf = f => ({ fill: "fill", contain: "contain", cover: "cover" }[f] || "contain");
+
+  function setText(box, opts) {
+    const layer = box._layer;
+    const text = GFX.resolve(box._raw);
+    if (box._shown === text && !opts) return;
+    box._shown = text;
+    const span = box.firstChild;
+    if (layer.scroll > 0) {
+      // A ticker: the text twice in a row, sliding along forever.
+      box.classList.add("gfx-scroll");
+      span.textContent = "";
+      const a = el("span", "gfx-tick"); a.textContent = text;
+      const b = el("span", "gfx-tick"); b.textContent = text;
+      span.append(a, b);
+      requestAnimationFrame(() => {
+        const w = a.offsetWidth || 1;
+        span.getAnimations().forEach(x => x.cancel());
+        span.animate([{ transform: "translateX(0)" }, { transform: `translateX(${-w}px)` }],
+          { duration: (w / layer.scroll) * 1000, iterations: Infinity });
+      });
+      return;
+    }
+    span.textContent = text;
+    fit(box);
+  }
+
+  // Text that doesn't fit its box: made smaller ("shrink") or narrower ("squeeze").
+  function fit(box) {
+    const layer = box._layer, span = box.firstChild;
+    if (!layer || !span || layer.scroll > 0) return;
+    span.style.transform = "";
+    box.style.fontSize = layer.size + "px";
+    if (!layer.fit || layer.fit === "none") return;
+    const bw = box.clientWidth, bh = box.clientHeight;
+    const sw = span.scrollWidth, sh = span.scrollHeight;
+    if (!bw || !sw) return;
+    if (layer.fit === "squeeze") {
+      if (sw > bw) {
+        span.style.transform = `scaleX(${bw / sw})`;
+        span.style.transformOrigin = { left: "0 50%", center: "50% 50%", right: "100% 50%" }[layer.align || "left"];
+      }
+      return;
+    }
+    const k = Math.min(1, bw / sw, sh > bh * 1.05 ? bh / sh : 1);
+    if (k < 1) box.style.fontSize = Math.max(layer.size * 0.25, layer.size * k * 0.99) + "px";
+  }
+  GFX.refit = () => document.querySelectorAll(".gfx-text").forEach(fit);
+  GFX.retext = () => document.querySelectorAll(".gfx-text").forEach(b => { if (hasTokens(b._raw)) setText(b); });
+  setInterval(() => { for (const b of live) { if (!b.isConnected) live.delete(b); else if (ticking(b._raw)) setText(b); } }, 1000);
+
+  function buildLayer(layer, values, opts) {
+    const value = GFX.content(layer, values);
+    const outer = el("div", "gfx-L", {
+      left: layer.x + "px", top: layer.y + "px", width: layer.w + "px", height: layer.h + "px",
+      opacity: layer.opacity == null ? 1 : layer.opacity,
+      transform: layer.rotation ? `rotate(${layer.rotation}deg)` : "",
+      mixBlendMode: layer.blend && layer.blend !== "normal" ? layer.blend : "",
+    });
+    outer.dataset.id = layer.id;
+    const inner = el("div", "gfx-A");
+    inner.appendChild(buildContent(layer, value, opts));
+    outer.appendChild(inner);
+    outer._value = value;
+    outer._layer = layer;
+    outer._sig = JSON.stringify(layer);
+    return outer;
+  }
+
+  // A graphic's element. opts: {still: no playing media (thumbnails),
+  // muted, showHidden: include hidden layers (Composer)}.
+  GFX.buildComp = function (comp, values, opts) {
+    opts = opts || {};
+    const root = el("div", "gfx-comp");
+    root.dataset.comp = comp.id;
+    root.style.zIndex = 10 + (comp.layer || 0);
+    for (const layer of comp.layers || []) {
+      if (layer.visible === false && !opts.showHidden) continue;
+      const L = buildLayer(layer, values, opts);
+      if (layer.visible === false) L.style.visibility = "hidden";
+      root.appendChild(L);
+    }
+    root._comp = comp;
+    root._values = values;
+    root._opts = opts;
+    return root;
+  };
+
+  // New values (or an edited graphic) for a graphic already showing:
+  // only the layers that change are rebuilt.
+  GFX.updateComp = function (root, comp, values) {
+    const opts = root._opts || {};
+    const existing = new Map([...root.children].map(c => [c.dataset.id, c]));
+    const wanted = (comp.layers || []).filter(l => l.visible !== false || opts.showHidden);
+    let prev = null;
+    for (const layer of wanted) {
+      let L = existing.get(layer.id);
+      const value = GFX.content(layer, values);
+      if (!L || L._sig !== JSON.stringify(layer) || L._value !== value) {
+        const fresh = buildLayer(layer, values, opts);
+        if (layer.visible === false) fresh.style.visibility = "hidden";
+        if (L) { destroy(L); L.replaceWith(fresh); } else root.insertBefore(fresh, prev ? prev.nextSibling : root.firstChild);
+        L = fresh;
+      } else if (L.previousSibling !== prev && prev !== L) {
+        root.insertBefore(L, prev ? prev.nextSibling : root.firstChild);
+      }
+      existing.delete(layer.id);
+      prev = L;
+    }
+    for (const L of existing.values()) { destroy(L); L.remove(); }
+    root._comp = comp;
+    root._values = values;
+    root.style.zIndex = 10 + (comp.layer || 0);
+  };
+
+  function destroy(node) {
+    node.querySelectorAll(".gfx-media").forEach(m => {
+      if (m._lottie) m._lottie.destroy();
+      if (m.tagName === "VIDEO") { m.pause(); m.removeAttribute("src"); m.load(); }
+    });
+  }
+  GFX.destroy = destroy;
+
+  // --- animation -----------------------------------------------------------
+  const EASE = "cubic-bezier(.2,.8,.2,1)";
+  const EASE_OUT = "cubic-bezier(.6,0,.8,.3)";
+  // Keyframes for an animation coming in (reversed for going out).
+  function frames(type, layer) {
+    const d = Math.max(40, Math.min(240, (layer.w || 300) * 0.15));
+    const dv = Math.max(30, Math.min(160, (layer.h || 100) * 0.5));
+    switch (type) {
+      case "fade": return [{ opacity: 0 }, { opacity: 1 }];
+      case "slide-left": return [{ opacity: 0, transform: `translateX(${d}px)` }, { opacity: 1, transform: "none" }];
+      case "slide-right": return [{ opacity: 0, transform: `translateX(${-d}px)` }, { opacity: 1, transform: "none" }];
+      case "slide-up": return [{ opacity: 0, transform: `translateY(${dv}px)` }, { opacity: 1, transform: "none" }];
+      case "slide-down": return [{ opacity: 0, transform: `translateY(${-dv}px)` }, { opacity: 1, transform: "none" }];
+      case "wipe-right": return [{ clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0 0 0)" }];
+      case "wipe-left": return [{ clipPath: "inset(0 0 0 100%)" }, { clipPath: "inset(0 0 0 0)" }];
+      case "wipe-down": return [{ clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0 0)" }];
+      case "wipe-up": return [{ clipPath: "inset(100% 0 0 0)" }, { clipPath: "inset(0 0 0 0)" }];
+      case "grow-x": return [{ transform: "scaleX(0)", transformOrigin: "0 50%" }, { transform: "scaleX(1)", transformOrigin: "0 50%" }];
+      case "grow-y": return [{ transform: "scaleY(0)", transformOrigin: "50% 100%" }, { transform: "scaleY(1)", transformOrigin: "50% 100%" }];
+      case "scale": return [{ opacity: 0, transform: "scale(.85)" }, { opacity: 1, transform: "none" }];
+      case "pop": return [{ opacity: 0, transform: "scale(.6)" }, { opacity: 1, transform: "scale(1.06)", offset: .7 }, { opacity: 1, transform: "none" }];
+      case "blur": return [{ opacity: 0, filter: "blur(20px)" }, { opacity: 1, filter: "blur(0)" }];
+      default: return null;
+    }
+  }
+  GFX.animTypes = ["none", "fade", "slide-left", "slide-right", "slide-up", "slide-down", "wipe-right", "wipe-left",
+    "wipe-down", "wipe-up", "grow-x", "grow-y", "scale", "pop", "blur"];
+
+  // Plays a graphic's layers in (or out). Resolves when done.
+  GFX.play = function (root, dir) {
+    const runs = [];
+    for (const L of root.children) {
+      const layer = L._layer;
+      const a = (layer && layer.anim && layer.anim[dir]) || { type: "fade", dur: 300, delay: 0 };
+      const f = frames(a.type, layer || {});
+      const inner = L.firstChild;
+      if (!f || !inner) { if (dir === "out") inner && (inner.style.opacity = 0); continue; }
+      const anim = inner.animate(dir === "in" ? f : f.slice().reverse(), {
+        duration: Math.max(1, +a.dur || 300), delay: Math.max(0, +a.delay || 0),
+        easing: a.ease || (dir === "in" ? EASE : EASE_OUT), fill: "both" });
+      runs.push(anim.finished.catch(() => {}));
+    }
+    return Promise.all(runs);
+  };
+  GFX.finish = root => root.querySelectorAll(".gfx-A").forEach(a => a.getAnimations().forEach(x => { try { x.finish(); } catch (e) { x.cancel(); } }));
+
+  // --- a bus: the graphics on Program or Preview, kept in step with the engine --
+  //
+  // opts: {bus: "program" | "preview", comp: one graphic only, monitor: muted,
+  //        stingers: play stinger videos (default: yes, except one-graphic outputs)}
+  GFX.Bus = class Bus {
+    constructor(stage, opts) {
+      this.stage = stage;
+      this.opts = Object.assign({ bus: "program" }, opts || {});
+      this.scene = el("div", "gfx-scene");
+      stage.appendChild(this.scene);
+      this.shown = new Map();     // comp id -> element
+      this.leaving = new Set();
+      this.seen = null;            // {rev, take, seq}
+      this.stingers = new Map();   // src -> <video>, ready to go
+      this.cleanup = [];
+    }
+
+    wanted(state) {
+      const bus = state.live[this.opts.bus] || { on: [], values: {} };
+      let on = bus.on || [];
+      if (this.opts.comp) on = on.filter(id => id === this.opts.comp);
+      const comps = new Map(state.project.compositions.map(c => [c.id, c]));
+      return { ids: on.filter(id => comps.has(id)), comps, values: bus.values || {} };
+    }
+
+    apply(state) {
+      GFX.loadFonts(state.fonts);
+      this.preload(state.project.transitions || []);
+      const want = this.wanted(state);
+      const bus = state.live[this.opts.bus] || {};
+      const take = (state.live.take || {}).seq || 0;
+      const first = !this.seen;
+      const tookNow = !first && this.opts.bus === "program" && take !== this.seen.take;
+      const t = (state.live.take || {}).transition || { type: "cut" };
+      this.seen = { rev: state.rev, take, seq: bus.seq };
+      if (tookNow) {
+        if (this.opts.comp) {
+          // One graphic's own output: only its own coming and going matters.
+          const was = this.shown.has(this.opts.comp), now = want.ids.length > 0;
+          if (was === now) return this.sync(want, "update");
+          if (t.type === "stinger" && !this.opts.stingers) return this.transition(want, { type: "delay", ms: +t.cut || 0 });
+        }
+        return this.transition(want, t);
+      }
+      return this.sync(want, first ? "cut" : this.opts.bus === "preview" ? "cut" : "update");
+    }
+
+    // Shows exactly `want`: new graphics in (with mode's effect), gone ones out,
+    // the rest updated in place.
+    sync(want, mode, t) {
+      t = t || {};
+      const ids = new Set(want.ids);
+      for (const [id, root] of this.shown) {
+        if (!ids.has(id)) {
+          this.shown.delete(id);
+          this.out(root, mode, t);
+        } else {
+          GFX.updateComp(root, want.comps.get(id), want.values[id] || {});
+        }
+      }
+      for (const id of want.ids) {
+        if (this.shown.has(id)) continue;
+        const root = GFX.buildComp(want.comps.get(id), want.values[id] || {}, { muted: this.opts.monitor });
+        this.scene.appendChild(root);
+        this.shown.set(id, root);
+        this.in(root, mode, t);
+      }
+      // Stacking: the graphic's "layer" setting, then its place in the list.
+      want.ids.forEach((id, i) => {
+        const root = this.shown.get(id);
+        if (root) root.style.zIndex = 10 + (want.comps.get(id).layer || 0) * 1000 + i;
+      });
+    }
+
+    in(root, mode, t) {
+      if (mode === "animate") GFX.play(root, "in");
+      else if (mode === "fade") root.animate([{ opacity: 0 }, { opacity: 1 }], { duration: t.dur || 500, easing: "linear" });
+      else if (mode === "wipe") root.animate(wipe(t.direction, true), { duration: t.dur || 600, easing: EASE });
+      requestAnimationFrame(() => root.querySelectorAll(".gfx-text").forEach(fit));
+    }
+
+    out(root, mode, t) {
+      let done;
+      this.leaving.add(root);
+      if (mode === "animate") done = GFX.play(root, "out");
+      else if (mode === "fade") done = root.animate([{ opacity: 1 }, { opacity: 0 }], { duration: t.dur || 500, easing: "linear", fill: "forwards" }).finished;
+      else if (mode === "wipe") done = root.animate(wipe(t.direction, false), { duration: t.dur || 600, easing: EASE, fill: "forwards" }).finished;
+      else done = Promise.resolve();
+      done.catch(() => {}).then(() => { this.leaving.delete(root); destroy(root); root.remove(); });
+    }
+
+    // Ends whatever transition is still playing, at once.
+    hurry() {
+      for (const fn of this.cleanup.splice(0)) fn();
+      for (const root of this.leaving) { destroy(root); root.remove(); }
+      this.leaving.clear();
+      for (const root of this.shown.values()) { root.getAnimations().forEach(a => a.finish()); GFX.finish(root); }
+    }
+
+    transition(want, t) {
+      this.hurry();
+      switch (t.type) {
+        case "cut": return this.sync(want, "cut");
+        case "fade": return this.sync(want, "fade", t);
+        case "wipe": return this.sync(want, "wipe", t);
+        case "animate": return this.sync(want, "animate", t);
+        case "dip": {
+          const cover = el("div", "gfx-cover", { background: t.color || "#000", opacity: 0 });
+          this.stage.appendChild(cover);
+          const half = (t.dur || 800) / 2;
+          const a = cover.animate([{ opacity: 0 }, { opacity: 1 }], { duration: half, fill: "forwards" });
+          const end = () => { cover.remove(); };
+          this.cleanup.push(() => { this.sync(want, "cut"); end(); });
+          a.finished.then(() => {
+            this.cleanup = this.cleanup.filter(f => f !== end);
+            this.sync(want, "cut");
+            cover.animate([{ opacity: 1 }, { opacity: 0 }], { duration: half, fill: "forwards" }).finished.then(end, end);
+          }, () => {});
+          return;
+        }
+        case "stinger": return this.stinger(want, t);
+        case "delay": {
+          const timer = setTimeout(() => this.sync(want, "cut"), t.ms || 0);
+          this.cleanup.push(() => { clearTimeout(timer); this.sync(want, "cut"); });
+          return;
+        }
+        default: return this.sync(want, "cut");
+      }
+    }
+
+    stinger(want, t) {
+      if (!t.src) return this.sync(want, "cut");
+      const v = this.stingerVideo(t.src);
+      v.muted = !!this.opts.monitor || t.audio === false;
+      v.volume = t.volume == null ? 1 : +t.volume;
+      v.currentTime = 0;
+      v.style.visibility = "visible";
+      let swapped = false;
+      const swap = () => { if (!swapped) { swapped = true; this.sync(want, "cut"); } };
+      const cutAt = Math.max(0, +t.cut || 0) / 1000;
+      const hide = () => { v.pause(); v.style.visibility = "hidden"; v.removeEventListener("timeupdate", tick); };
+      const tick = () => { if (v.currentTime >= cutAt) swap(); };
+      // timeupdate fires only ~4 times a second: a timer catches the cut on time.
+      const timer = setTimeout(swap, cutAt * 1000 + 30);
+      v.addEventListener("timeupdate", tick);
+      v.onended = () => { swap(); hide(); };
+      this.cleanup.push(() => { clearTimeout(timer); swap(); hide(); });
+      const started = v.play();
+      if (started) started.catch(() => { v.muted = true; v.play().catch(() => { clearTimeout(timer); swap(); hide(); }); });
+    }
+
+    stingerVideo(src) {
+      let v = this.stingers.get(src);
+      if (!v) {
+        v = el("video", "gfx-stinger");
+        v.src = url(encodeURI(src));
+        v.preload = "auto";
+        v.playsInline = true;
+        v.muted = true;
+        this.stage.appendChild(v);
+        this.stingers.set(src, v);
+      }
+      return v;
+    }
+
+    // Stinger videos load before they're needed, so they start on the button.
+    preload(transitions) {
+      if (this.opts.bus !== "program" || (this.opts.comp && !this.opts.stingers)) return;
+      for (const t of transitions) if (t.type === "stinger" && t.src && t.enabled !== false) this.stingerVideo(t.src);
+    }
+  };
+
+  function wipe(direction, entering) {
+    const from = { left: "inset(0 0 0 100%)", right: "inset(0 100% 0 0)", up: "inset(100% 0 0 0)", down: "inset(0 0 100% 0)" }[direction || "left"];
+    const to = { left: "inset(0 100% 0 0)", right: "inset(0 0 0 100%)", up: "inset(0 0 100% 0)", down: "inset(100% 0 0 0)" }[direction || "left"];
+    return entering ? [{ clipPath: from }, { clipPath: "inset(0 0 0 0)" }] : [{ clipPath: "inset(0 0 0 0)" }, { clipPath: to }];
+  }
+
+  // --- styles ---------------------------------------------------------------
+  const css = document.createElement("style");
+  css.textContent = `
+    .gfx-stage{position:relative;width:${W}px;height:${H}px;overflow:hidden}
+    .gfx-scene,.gfx-comp{position:absolute;inset:0;pointer-events:none}
+    .gfx-L{position:absolute;box-sizing:border-box}
+    .gfx-A{position:absolute;inset:0}
+    .gfx-media{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .gfx-rect{position:absolute;inset:0;box-sizing:border-box}
+    .gfx-text{position:absolute;inset:0;display:flex;white-space:pre;overflow:visible}
+    .gfx-t{display:inline-block;max-width:none}
+    .gfx-scroll{overflow:hidden}
+    .gfx-scroll .gfx-t{display:flex;white-space:pre}
+    .gfx-tick{padding-right:1.5em}
+    .gfx-cover{position:absolute;inset:0;z-index:9000}
+    .gfx-stinger{position:absolute;inset:0;width:100%;height:100%;z-index:9500;visibility:hidden;object-fit:cover;pointer-events:none}
+  `;
+  document.head.appendChild(css);
+})();

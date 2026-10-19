@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+settings.json
+settings.json.tmp
+workspace/
+smoke-test.txt
+_update/
+build/
+dist/

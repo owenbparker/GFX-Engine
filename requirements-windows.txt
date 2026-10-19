@@ -1,0 +1,6 @@
+# Desktop app (Windows): the app window, Photoshop and Excel import, and FFmpeg for video.
+pywebview
+pillow
+psd-tools
+openpyxl
+imageio-ffmpeg

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GFX Output</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
+  body.checker { background: repeating-conic-gradient(#2a2d31 0 25%, #1f2225 0 50%) 0 0 / 24px 24px; }
+  body.black { background: #000; }
+  body.green { background: #00b140; }
+  #stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+</style>
+</head>
+<body>
+<div id="stage" class="gfx-stage"></div>
+<!--export-->
+<script src="vendor/lottie.min.js"></script>
+<script src="runtime.js"></script>
+<script>
+// The output: Program (or Preview, or one graphic) at 1920x1080, scaled to
+// fit the window. Address options:
+//   ?bus=preview         Preview instead of Program
+//   ?comp=<id>           just that graphic, as it is on Program
+//   ?monitor=1           muted (the control panel's monitors)
+//   ?bg=checker|black|green
+//   ?live=http://PC:8782 another engine's output (exported graphics too)
+//   ?autoplay=0          exported graphics: wait for play()
+(function () {
+  "use strict";
+  const q = new URLSearchParams(location.search);
+  const stage = document.getElementById("stage");
+  if (q.get("bg")) document.body.classList.add(q.get("bg"));
+  function scale() {
+    const k = Math.min(innerWidth / GFX.W, innerHeight / GFX.H);
+    stage.style.transform = `translate(${(innerWidth - GFX.W * k) / 2}px, ${(innerHeight - GFX.H * k) / 2}px) scale(${k})`;
+  }
+  addEventListener("resize", scale);
+  scale();
+
+  const bus = new GFX.Bus(stage, { bus: q.get("bus") || "program", comp: q.get("comp") || null,
+    monitor: q.get("monitor") === "1", stingers: q.get("stingers") === "1" });
+  window.gfxBus = bus;
+
+  const exported = window.GFX_EXPORT;
+  const remote = q.get("live");
+  if (exported && !remote) return standalone(exported);
+
+  // Following an engine.
+  GFX.base = remote ? remote.replace(/\/+$/, "") : "";
+  let dataRev = null;
+  function apply(state) {
+    if (state.data && state.data.rev !== dataRev) { dataRev = state.data.rev; GFX.setData(state.data.tables); }
+    bus.apply(state);
+  }
+  let source;
+  function connect() {
+    source = new EventSource(GFX.base + "/api/stream");
+    source.onmessage = e => { try { apply(JSON.parse(e.data)); } catch (err) { console.error(err); } };
+    source.onerror = () => { /* EventSource reconnects by itself */ };
+  }
+  fetch(GFX.base + "/api/state").then(r => r.json()).then(apply).catch(() => {}).finally(connect);
+
+  // --- exported graphics, on their own --------------------------------------
+  function standalone(data) {
+    const ids = data.compositions.map(c => c.id);
+    const values = JSON.parse(JSON.stringify(data.values || {}));
+    // ?Field=Value sets that field on every graphic that has it.
+    for (const [k, v] of q) {
+      if (["bus", "comp", "monitor", "bg", "live", "autoplay", "stingers"].includes(k)) continue;
+      for (const id of ids) (values[id] = values[id] || {})[k] = v;
+    }
+    let on = [], seq = 0;
+    GFX.setData(data.tables);
+    const state = () => ({ rev: 0, fonts: data.fonts, project: { compositions: data.compositions, transitions: [] },
+      live: { program: { on, values, seq }, preview: { on: [], values: {} }, take: { seq, transition: { type: "animate" } } } });
+    function show(list) { on = list; seq++; bus.apply(state()); }
+    bus.apply(state());
+    // CasparCG / SPX template functions.
+    window.play = () => show(ids.slice());
+    window.stop = () => show([]);
+    window.remove = window.stop;
+    window.next = () => { show([]); setTimeout(() => show(ids.slice()), 50); };
+    window.update = function (raw) {
+      let fields = {};
+      if (typeof raw === "string" && raw.trim().startsWith("<")) {
+        // CasparCG: <templateData><componentData id="Field"><data id="text" value="..."/></componentData>...
+        const xml = new DOMParser().parseFromString(raw, "text/xml");
+        for (const c of xml.querySelectorAll("componentData")) {
+          const d = c.querySelector("data");
+          if (d) fields[c.getAttribute("id")] = d.getAttribute("value");
+        }
+      } else {
+        try { fields = typeof raw === "string" ? JSON.parse(raw) : raw || {}; } catch (e) { return; }
+      }
+      for (const id of ids) values[id] = Object.assign(values[id] || {}, fields);
+      bus.sync(bus.wanted(state()), "update");
+    };
+    if (q.get("autoplay") !== "0") (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => setTimeout(window.play, 100));
+  }
+})();
+</script>
+</body>
+</html>
