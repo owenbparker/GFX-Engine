@@ -36,6 +36,39 @@
      "loop": true
     },
     {
+     "id": "l5213a198",
+     "name": "Background loop",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "screen",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!BG loop}}",
+     "fit": "cover",
+     "loop": true,
+     "audio": false,
+     "tint": "{{Global!BG loop colour}}",
+     "brightness": "{{Global!BG loop brightness}}",
+     "speed": "{{Global!BG loop speed}}"
+    },
+    {
      "id": "l4bf6581b",
      "name": "Rectangle 2",
      "type": "image",
@@ -495,9 +528,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Schedule/REPLACE WITH SPONSORS.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Sponsors}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Schedule/REPLACE WITH SPONSORS.png"
     },
     {
      "id": "l9177cc28",
@@ -575,7 +609,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 63.8
     },
     {
      "id": "lcd912f12",
@@ -614,7 +649,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 27.4
     },
     {
      "id": "l21869b35",
@@ -653,7 +689,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 18.1
     },
     {
      "id": "l53c286ab",
@@ -692,7 +729,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 9.4
     },
     {
      "id": "lcd49806b",
@@ -731,7 +769,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 10.1
     },
     {
      "id": "lf80fb3be",
@@ -770,7 +809,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 8.7
     },
     {
      "id": "leddc59b5",
@@ -809,7 +849,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 21.7
     },
     {
      "id": "l4279428f",
@@ -848,7 +889,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 11.3
     },
     {
      "id": "lc893f5a8",
@@ -887,7 +929,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 12.1
     },
     {
      "id": "l9d663467",
@@ -926,7 +969,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 10.4
     },
     {
      "id": "l773d0b24",
@@ -965,7 +1009,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 18.1
     },
     {
      "id": "la231a1f8",
@@ -1004,7 +1049,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 9.4
     },
     {
      "id": "ldf44f50b",
@@ -1043,7 +1089,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 10.1
     },
     {
      "id": "l9c2a6d16",
@@ -1082,7 +1129,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 8.7
     },
     {
      "id": "l047bcbff",
@@ -1121,16 +1169,17 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 69.3
     },
     {
      "id": "l54906ac7",
      "name": "0",
      "type": "text",
-     "x": 879,
-     "y": 846,
-     "w": 182,
-     "h": 174,
+     "x": 810,
+     "y": 866,
+     "w": 120,
+     "h": 126,
      "opacity": 1.0,
      "rotation": 0,
      "visible": true,
@@ -1148,9 +1197,9 @@
        "delay": 0
       }
      },
-     "text": "0",
+     "text": "{{Global!Right score}}",
      "font": "TradeGothic-BoldCondTwenty",
-     "size": 124.54,
+     "size": 90,
      "color": "#ffffff",
      "align": "center",
      "valign": "top",
@@ -1160,16 +1209,17 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 77.4
     },
     {
      "id": "lcdd015ea",
      "name": "0",
      "type": "text",
-     "x": 535,
-     "y": 846,
-     "w": 182,
-     "h": 174,
+     "x": 676,
+     "y": 866,
+     "w": 120,
+     "h": 126,
      "opacity": 1.0,
      "rotation": 0,
      "visible": true,
@@ -1187,9 +1237,9 @@
        "delay": 0
       }
      },
-     "text": "0",
+     "text": "{{Global!Left score}}",
      "font": "TradeGothic-BoldCondTwenty",
-     "size": 124.54,
+     "size": 90,
      "color": "#ffffff",
      "align": "center",
      "valign": "top",
@@ -1199,7 +1249,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 77.4
     },
     {
      "id": "l3c796324",
@@ -1238,7 +1289,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 69.3
     },
     {
      "id": "l93014e52",
@@ -1265,7 +1317,7 @@
        "delay": 0
       }
      },
-     "text": "NACE VARSITY",
+     "text": "{{Global!Event}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 42.9,
      "color": "#ffffff",
@@ -1277,7 +1329,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 36.9
     },
     {
      "id": "l91cd10bc",
@@ -1304,7 +1357,7 @@
        "delay": 0
       }
      },
-     "text": "ROCKET LEAGUE | PLAYOFFS",
+     "text": "{{Global!Game title}}",
      "font": "Gotham-Bold",
      "size": 24.03,
      "color": "#ffc52a",
@@ -1316,7 +1369,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 20.7
     },
     {
      "id": "l3dee81c5",
@@ -1355,7 +1409,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 24.1
     }
    ],
    "width": 1920,
@@ -1836,9 +1891,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Scorebug _ footer/SPONSOR REPLACE.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Sponsors}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Scorebug _ footer/SPONSOR REPLACE.png"
     },
     {
      "id": "l414516e3",
@@ -1877,7 +1933,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 43.3
     },
     {
      "id": "lbd944acf",
@@ -1916,7 +1973,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 43.3
     },
     {
      "id": "l5588ffe4",
@@ -1955,7 +2013,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 36.9
     },
     {
      "id": "l86a98b36",
@@ -1994,7 +2053,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 20.7
     },
     {
      "id": "ladd270ee",
@@ -2033,7 +2093,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 39.9
     },
     {
      "id": "l9fda8539",
@@ -2060,9 +2121,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Scorebug _ footer/TEAM RIGHT.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Global!Right logo}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Scorebug _ footer/TEAM RIGHT.png"
     },
     {
      "id": "l3a15967f",
@@ -2089,9 +2151,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Scorebug _ footer/TEAM LEFT.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Global!Left logo}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Scorebug _ footer/TEAM LEFT.png"
     },
     {
      "id": "l8e2c5bef",
@@ -2130,7 +2193,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 16.9
     }
    ],
    "width": 1920,
@@ -2265,7 +2329,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 60.2
     },
     {
      "id": "l170a43d4",
@@ -2304,7 +2369,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 24.1
     }
    ],
    "width": 1920,
@@ -2343,6 +2409,39 @@
      "src": "assets/Team stats/Layer 1.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l058c91a8",
+     "name": "Background loop",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "screen",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!BG loop}}",
+     "fit": "cover",
+     "loop": true,
+     "audio": false,
+     "tint": "{{Global!BG loop colour}}",
+     "brightness": "{{Global!BG loop brightness}}",
+     "speed": "{{Global!BG loop speed}}"
     },
     {
      "id": "l9f52be8e",
@@ -2464,9 +2563,9 @@
      "id": "lad1b7c44",
      "name": "KILLS",
      "type": "text",
-     "x": 1474,
+     "x": 1418,
      "y": 486,
-     "w": 85,
+     "w": 160,
      "h": 34,
      "opacity": 1.0,
      "rotation": 0,
@@ -2485,11 +2584,11 @@
        "delay": 0
       }
      },
-     "text": "KILLS",
+     "text": "{{Stats!Stat 1 title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 24.0,
      "color": "#ffffff",
-     "align": "left",
+     "align": "center",
      "valign": "top",
      "tracking": 25.0,
      "caps": true,
@@ -2497,15 +2596,16 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 20.6
     },
     {
      "id": "l0fce7f69",
      "name": "DEATHS",
      "type": "text",
-     "x": 1586,
+     "x": 1544,
      "y": 486,
-     "w": 110,
+     "w": 160,
      "h": 34,
      "opacity": 1.0,
      "rotation": 0,
@@ -2524,11 +2624,11 @@
        "delay": 0
       }
      },
-     "text": "DEATHS",
+     "text": "{{Stats!Stat 2 title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 24.0,
      "color": "#ffffff",
-     "align": "left",
+     "align": "center",
      "valign": "top",
      "tracking": 25.0,
      "caps": true,
@@ -2536,15 +2636,16 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 20.6
     },
     {
      "id": "l49757633",
      "name": "ADR",
      "type": "text",
-     "x": 1725,
+     "x": 1663,
      "y": 486,
-     "w": 69,
+     "w": 160,
      "h": 34,
      "opacity": 1.0,
      "rotation": 0,
@@ -2563,11 +2664,11 @@
        "delay": 0
       }
      },
-     "text": "ADR",
+     "text": "{{Stats!Stat 3 title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 24.0,
      "color": "#ffffff",
-     "align": "left",
+     "align": "center",
      "valign": "top",
      "tracking": 25.0,
      "caps": true,
@@ -2575,7 +2676,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 20.6
     },
     {
      "id": "l781ffd19",
@@ -2697,9 +2799,9 @@
      "id": "lee943950",
      "name": "KILLS",
      "type": "text",
-     "x": 574,
+     "x": 518,
      "y": 486,
-     "w": 85,
+     "w": 160,
      "h": 34,
      "opacity": 1.0,
      "rotation": 0,
@@ -2718,11 +2820,11 @@
        "delay": 0
       }
      },
-     "text": "KILLS",
+     "text": "{{Stats!Stat 1 title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 24.0,
      "color": "#ffffff",
-     "align": "left",
+     "align": "center",
      "valign": "top",
      "tracking": 25.0,
      "caps": true,
@@ -2730,15 +2832,16 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 20.6
     },
     {
      "id": "l268ad988",
      "name": "DEATHS",
      "type": "text",
-     "x": 686,
+     "x": 644,
      "y": 486,
-     "w": 110,
+     "w": 160,
      "h": 34,
      "opacity": 1.0,
      "rotation": 0,
@@ -2757,11 +2860,11 @@
        "delay": 0
       }
      },
-     "text": "DEATHS",
+     "text": "{{Stats!Stat 2 title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 24.0,
      "color": "#ffffff",
-     "align": "left",
+     "align": "center",
      "valign": "top",
      "tracking": 25.0,
      "caps": true,
@@ -2769,15 +2872,16 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 20.6
     },
     {
      "id": "l220c6fea",
      "name": "ADR",
      "type": "text",
-     "x": 825,
+     "x": 763,
      "y": 486,
-     "w": 69,
+     "w": 160,
      "h": 34,
      "opacity": 1.0,
      "rotation": 0,
@@ -2796,11 +2900,11 @@
        "delay": 0
       }
      },
-     "text": "ADR",
+     "text": "{{Stats!Stat 3 title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 24.0,
      "color": "#ffffff",
-     "align": "left",
+     "align": "center",
      "valign": "top",
      "tracking": 25.0,
      "caps": true,
@@ -2808,7 +2912,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 20.6
     },
     {
      "id": "la43b0186",
@@ -2893,7 +2998,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 5 stat 3}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -2905,7 +3010,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "le6a2d91e",
@@ -2932,7 +3038,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 5 stat 2}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -2944,7 +3050,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l799e9913",
@@ -2971,7 +3078,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 5 stat 1}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -2983,7 +3090,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l7c4c1480",
@@ -3010,7 +3118,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERTAGGGGGGGG",
+     "text": "{{Stats!Right player 5}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 33.0,
      "color": "#ffffff",
@@ -3022,7 +3130,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 28.4
     },
     {
      "id": "ld1887eb4",
@@ -3049,7 +3158,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 4 stat 3}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3061,7 +3170,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l8791a103",
@@ -3088,7 +3198,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 4 stat 2}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3100,7 +3210,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l308916b2",
@@ -3127,7 +3238,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 4 stat 1}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3139,7 +3250,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l47d50fb0",
@@ -3166,7 +3278,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERTAGGGGGGGG",
+     "text": "{{Stats!Right player 4}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 33.0,
      "color": "#ffffff",
@@ -3178,7 +3290,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 28.4
     },
     {
      "id": "l1af4d1e6",
@@ -3205,7 +3318,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 3 stat 3}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3217,7 +3330,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l4a963bf2",
@@ -3244,7 +3358,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 3 stat 2}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3256,7 +3370,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "lcb79bd99",
@@ -3283,7 +3398,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 3 stat 1}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3295,7 +3410,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "le4aef351",
@@ -3322,7 +3438,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERTAGGGGGGGG",
+     "text": "{{Stats!Right player 3}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 33.0,
      "color": "#ffffff",
@@ -3334,7 +3450,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 28.4
     },
     {
      "id": "l5f579bf0",
@@ -3361,7 +3478,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 2 stat 3}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3373,7 +3490,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "lba3f16ac",
@@ -3400,7 +3518,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 2 stat 2}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3412,7 +3530,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "la04cd797",
@@ -3439,7 +3558,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 2 stat 1}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3451,7 +3570,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "ld03654f5",
@@ -3478,7 +3598,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERTAGGGGGGGG",
+     "text": "{{Stats!Right player 2}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 33.0,
      "color": "#ffffff",
@@ -3490,7 +3610,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 28.4
     },
     {
      "id": "l5608eda8",
@@ -3517,7 +3638,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 1 stat 3}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3529,7 +3650,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l7098c6e9",
@@ -3556,7 +3678,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 1 stat 2}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3568,7 +3690,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l640096d6",
@@ -3595,7 +3718,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Right player 1 stat 1}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3607,7 +3730,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "lde7a9a8c",
@@ -3634,7 +3758,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERTAGGGGGGGG",
+     "text": "{{Stats!Right player 1}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 33.0,
      "color": "#ffffff",
@@ -3646,7 +3770,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 28.4
     },
     {
      "id": "l40a62096",
@@ -3673,7 +3798,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 5 stat 3}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3685,7 +3810,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l86d04ea9",
@@ -3712,7 +3838,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 5 stat 2}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3724,7 +3850,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l665f1c65",
@@ -3751,7 +3878,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 5 stat 1}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3763,7 +3890,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l711ba17d",
@@ -3790,7 +3918,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERTAGGGGGGGG",
+     "text": "{{Stats!Left player 5}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 33.0,
      "color": "#ffffff",
@@ -3802,7 +3930,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 28.4
     },
     {
      "id": "l7c5078d7",
@@ -3829,7 +3958,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 4 stat 3}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3841,7 +3970,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l488c94ec",
@@ -3868,7 +3998,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 4 stat 2}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3880,7 +4010,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l73ba3d77",
@@ -3907,7 +4038,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 4 stat 1}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3919,7 +4050,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l7af57230",
@@ -3946,7 +4078,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERTAGGGGGGGG",
+     "text": "{{Stats!Left player 4}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 33.0,
      "color": "#ffffff",
@@ -3958,7 +4090,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 28.4
     },
     {
      "id": "l413a7e8c",
@@ -3985,7 +4118,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 3 stat 3}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -3997,7 +4130,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "lc1042049",
@@ -4024,7 +4158,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 3 stat 2}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -4036,7 +4170,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l3f19d5d8",
@@ -4063,7 +4198,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 3 stat 1}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -4075,7 +4210,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "leaee51e7",
@@ -4102,7 +4238,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERTAGGGGGGGG",
+     "text": "{{Stats!Left player 3}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 33.0,
      "color": "#ffffff",
@@ -4114,7 +4250,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 28.4
     },
     {
      "id": "l6742082d",
@@ -4141,7 +4278,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 2 stat 3}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -4153,7 +4290,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l34aabdc3",
@@ -4180,7 +4318,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 2 stat 2}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -4192,7 +4330,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "laf952c34",
@@ -4219,7 +4358,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 2 stat 1}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -4231,7 +4370,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l200518a5",
@@ -4258,7 +4398,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERTAGGGGGGGG",
+     "text": "{{Stats!Left player 2}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 33.0,
      "color": "#ffffff",
@@ -4270,7 +4410,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 28.4
     },
     {
      "id": "lc79f0b17",
@@ -4297,7 +4438,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 1 stat 3}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -4309,7 +4450,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l9841f310",
@@ -4336,7 +4478,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 1 stat 2}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -4348,7 +4490,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "la30fff40",
@@ -4375,7 +4518,7 @@
        "delay": 0
       }
      },
-     "text": "000",
+     "text": "{{Stats!Left player 1 stat 1}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 30.66,
      "color": "#ffffff",
@@ -4387,7 +4530,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 26.4
     },
     {
      "id": "l62af9328",
@@ -4414,7 +4558,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERTAGGGGGGGG",
+     "text": "{{Stats!Left player 1}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 33.0,
      "color": "#ffffff",
@@ -4426,7 +4570,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 28.4
     },
     {
      "id": "lbc693d20",
@@ -4867,10 +5012,10 @@
      "id": "lc4a65df2",
      "name": "0",
      "type": "text",
-     "x": 826,
-     "y": 309,
-     "w": 151,
-     "h": 144,
+     "x": 837,
+     "y": 318,
+     "w": 120,
+     "h": 120,
      "opacity": 1.0,
      "rotation": 0,
      "visible": true,
@@ -4888,9 +5033,9 @@
        "delay": 0
       }
      },
-     "text": "0",
+     "text": "{{Global!Left score}}",
      "font": "TradeGothicLTStd-BdCn20",
-     "size": 103.2,
+     "size": 86,
      "color": "#ffffff",
      "align": "center",
      "valign": "top",
@@ -4900,16 +5045,17 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 74.0
     },
     {
      "id": "ld8315d44",
      "name": "SsssssssssG",
      "type": "text",
-     "x": 320,
-     "y": 309,
-     "w": 756,
-     "h": 144,
+     "x": 297,
+     "y": 303,
+     "w": 560,
+     "h": 112,
      "opacity": 1.0,
      "rotation": 0,
      "visible": true,
@@ -4927,9 +5073,9 @@
        "delay": 0
       }
      },
-     "text": "SsssssssssG",
+     "text": "{{Global!Left name}}",
      "font": "TradeGothicLTStd-BdCn20",
-     "size": 103.2,
+     "size": 80,
      "color": "#ffffff",
      "align": "left",
      "valign": "top",
@@ -4939,16 +5085,17 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 68.8
     },
     {
      "id": "lb957dc6f",
      "name": "XssssssssX",
      "type": "text",
-     "x": 903,
-     "y": 309,
-     "w": 696,
-     "h": 144,
+     "x": 1070,
+     "y": 303,
+     "w": 560,
+     "h": 112,
      "opacity": 1.0,
      "rotation": 0,
      "visible": true,
@@ -4966,9 +5113,9 @@
        "delay": 0
       }
      },
-     "text": "XssssssssX",
+     "text": "{{Global!Right name}}",
      "font": "TradeGothicLTStd-BdCn20",
-     "size": 103.2,
+     "size": 80,
      "color": "#ffffff",
      "align": "right",
      "valign": "top",
@@ -4978,16 +5125,17 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 68.8
     },
     {
      "id": "l2e178e9c",
      "name": "0",
      "type": "text",
-     "x": 945,
-     "y": 309,
-     "w": 151,
-     "h": 144,
+     "x": 965,
+     "y": 318,
+     "w": 120,
+     "h": 120,
      "opacity": 1.0,
      "rotation": 0,
      "visible": true,
@@ -5005,9 +5153,9 @@
        "delay": 0
       }
      },
-     "text": "0",
+     "text": "{{Global!Right score}}",
      "font": "TradeGothicLTStd-BdCn20",
-     "size": 103.2,
+     "size": 86,
      "color": "#ffffff",
      "align": "center",
      "valign": "top",
@@ -5017,7 +5165,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 74.0
     },
     {
      "id": "lc792f694",
@@ -5073,9 +5222,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Team stats/SCS_COLOUR.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Global!Left logo}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Team stats/SCS_COLOUR.png"
     },
     {
      "id": "l61ce5978",
@@ -5102,9 +5252,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Team stats/Triangle 1.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Global!Right logo}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Team stats/Triangle 1.png"
     },
     {
      "id": "l350a514b",
@@ -5131,7 +5282,7 @@
        "delay": 0
       }
      },
-     "text": "NACE VARSITY",
+     "text": "{{Global!Event}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 50.81,
      "color": "#ffffff",
@@ -5143,7 +5294,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 43.7
     },
     {
      "id": "l0782abe1",
@@ -5170,7 +5322,7 @@
        "delay": 0
       }
      },
-     "text": "OVERWATCH | PLAYOFFS",
+     "text": "{{Global!Game title}}",
      "font": "Gotham-Bold",
      "size": 28.45,
      "color": "#ffc52a",
@@ -5182,7 +5334,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 24.5
     }
    ],
    "width": 1920,
@@ -6193,9 +6346,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Team graphic/Replace With Tournament Logo.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Global!Tournament logo}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Team graphic/Replace With Tournament Logo.png"
     },
     {
      "id": "l3ce45836",
@@ -6222,7 +6376,7 @@
        "delay": 0
       }
      },
-     "text": "OVERWATCH ",
+     "text": "{{Global!Game title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 39.97,
      "color": "#ffffff",
@@ -6234,7 +6388,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 34.4
     },
     {
      "id": "lffd3324c",
@@ -6386,9 +6541,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Player graphic (1)/Replace With Tournament Logo.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Global!Tournament logo}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Player graphic (1)/Replace With Tournament Logo.png"
     },
     {
      "id": "lb34351cb",
@@ -6444,7 +6600,7 @@
        "delay": 0
       }
      },
-     "text": "OVERWATCH ",
+     "text": "{{Global!Game title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 39.97,
      "color": "#ffffff",
@@ -6456,7 +6612,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 34.4
     },
     {
      "id": "l9cd7204e",
@@ -6483,7 +6640,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERgggggggggggTAG",
+     "text": "{{Stats!Left player 1}}",
      "font": "VTFRedzone-Classic",
      "size": 86.03,
      "color": "#ffffff",
@@ -6495,7 +6652,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 74.0
     }
    ],
    "width": 1920,
@@ -6647,9 +6805,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Player graphic (2)/Replace With Tournament Logo.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Global!Tournament logo}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Player graphic (2)/Replace With Tournament Logo.png"
     },
     {
      "id": "ldc699096",
@@ -6705,7 +6864,7 @@
        "delay": 0
       }
      },
-     "text": "OVERWATCH ",
+     "text": "{{Global!Game title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 39.97,
      "color": "#ffffff",
@@ -6717,7 +6876,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 34.4
     },
     {
      "id": "lc974a5a4",
@@ -6744,7 +6904,7 @@
        "delay": 0
       }
      },
-     "text": "GAfffffffffffffffMERTAG",
+     "text": "{{Stats!Left player 2}}",
      "font": "VTFRedzone-Classic",
      "size": 78.89,
      "color": "#ffffff",
@@ -6756,7 +6916,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 67.8
     },
     {
      "id": "l3bd59855",
@@ -6783,7 +6944,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERTgggggggggggggAG",
+     "text": "{{Stats!Left player 1}}",
      "font": "VTFRedzone-Classic",
      "size": 78.89,
      "color": "#ffffff",
@@ -6795,7 +6956,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 67.8
     }
    ],
    "width": 1920,
@@ -6976,9 +7138,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Player graphic (3)/Replace With Tournament Logo.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Global!Tournament logo}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Player graphic (3)/Replace With Tournament Logo.png"
     },
     {
      "id": "lcde89d56",
@@ -7005,7 +7168,7 @@
        "delay": 0
       }
      },
-     "text": "OVERWATCH ",
+     "text": "{{Global!Game title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 39.97,
      "color": "#ffffff",
@@ -7017,7 +7180,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 34.4
     },
     {
      "id": "l27e97db5",
@@ -7073,7 +7237,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERggggggggggTAG",
+     "text": "{{Stats!Left player 1}}",
      "font": "VTFRedzone-Classic",
      "size": 63.94,
      "color": "#ffffff",
@@ -7085,7 +7249,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 55.0
     },
     {
      "id": "l9eade50a",
@@ -7112,7 +7277,7 @@
        "delay": 0
       }
      },
-     "text": "GAMEgggggggggRTAG",
+     "text": "{{Stats!Left player 2}}",
      "font": "VTFRedzone-Classic",
      "size": 63.94,
      "color": "#ffffff",
@@ -7124,7 +7289,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 55.0
     },
     {
      "id": "l48d0576d",
@@ -7151,7 +7317,7 @@
        "delay": 0
       }
      },
-     "text": "GAMEgggggggggRTAG",
+     "text": "{{Stats!Left player 3}}",
      "font": "VTFRedzone-Classic",
      "size": 63.94,
      "color": "#ffffff",
@@ -7163,7 +7329,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 55.0
     }
    ],
    "width": 1920,
@@ -7373,9 +7540,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Player graphic (4)/Replace With Tournament Logo.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Global!Tournament logo}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Player graphic (4)/Replace With Tournament Logo.png"
     },
     {
      "id": "l45567b41",
@@ -7402,7 +7570,7 @@
        "delay": 0
       }
      },
-     "text": "OVERWATCH ",
+     "text": "{{Global!Game title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 39.97,
      "color": "#ffffff",
@@ -7414,7 +7582,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 34.4
     },
     {
      "id": "l6a2913d1",
@@ -7470,7 +7639,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERggggggggTAG",
+     "text": "{{Stats!Left player 4}}",
      "font": "VTFRedzone-Classic",
      "size": 50.79,
      "color": "#ffffff",
@@ -7482,7 +7651,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 43.7
     },
     {
      "id": "l854d0b32",
@@ -7509,7 +7679,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERggggggggTAG",
+     "text": "{{Stats!Left player 3}}",
      "font": "VTFRedzone-Classic",
      "size": 50.79,
      "color": "#ffffff",
@@ -7521,7 +7691,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 43.7
     },
     {
      "id": "l44208897",
@@ -7548,7 +7719,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERggggggggTAG",
+     "text": "{{Stats!Left player 2}}",
      "font": "VTFRedzone-Classic",
      "size": 50.79,
      "color": "#ffffff",
@@ -7560,7 +7731,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 43.7
     },
     {
      "id": "la9165908",
@@ -7587,7 +7759,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERggggggggTAG",
+     "text": "{{Stats!Left player 1}}",
      "font": "VTFRedzone-Classic",
      "size": 50.79,
      "color": "#ffffff",
@@ -7599,7 +7771,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 43.7
     }
    ],
    "width": 1920,
@@ -7809,7 +7982,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERggggggTAG",
+     "text": "{{Stats!Left player 5}}",
      "font": "VTFRedzone-Classic",
      "size": 45.68,
      "color": "#ffffff",
@@ -7821,7 +7994,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 39.3
     },
     {
      "id": "l8cc10c87",
@@ -7848,7 +8022,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERggggggTAG",
+     "text": "{{Stats!Left player 4}}",
      "font": "VTFRedzone-Classic",
      "size": 45.68,
      "color": "#ffffff",
@@ -7860,7 +8034,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 39.3
     },
     {
      "id": "l53eb51d0",
@@ -7887,7 +8062,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERggggggTAG",
+     "text": "{{Stats!Left player 3}}",
      "font": "VTFRedzone-Classic",
      "size": 45.68,
      "color": "#ffffff",
@@ -7899,7 +8074,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 39.3
     },
     {
      "id": "laa920d18",
@@ -7926,7 +8102,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERggggggTAG",
+     "text": "{{Stats!Left player 2}}",
      "font": "VTFRedzone-Classic",
      "size": 45.68,
      "color": "#ffffff",
@@ -7938,7 +8114,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 39.3
     },
     {
      "id": "l6204d0b3",
@@ -7965,7 +8142,7 @@
        "delay": 0
       }
      },
-     "text": "GAMERTAggggggG",
+     "text": "{{Stats!Left player 1}}",
      "font": "VTFRedzone-Classic",
      "size": 45.68,
      "color": "#ffffff",
@@ -7977,7 +8154,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 39.3
     },
     {
      "id": "lcca1f0a1",
@@ -8033,9 +8211,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Player graphic (5)/Replace With Tournament Logo.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Global!Tournament logo}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Player graphic (5)/Replace With Tournament Logo.png"
     },
     {
      "id": "l9f3d69b3",
@@ -8062,7 +8241,7 @@
        "delay": 0
       }
      },
-     "text": "OVERWATCH ",
+     "text": "{{Global!Game title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 39.97,
      "color": "#ffffff",
@@ -8074,7 +8253,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 34.4
     },
     {
      "id": "l122eb0f1",
@@ -8142,6 +8322,39 @@
      "src": "assets/Player stats/Layer 1.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l80508107",
+     "name": "Background loop",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "screen",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!BG loop}}",
+     "fit": "cover",
+     "loop": true,
+     "audio": false,
+     "tint": "{{Global!BG loop colour}}",
+     "brightness": "{{Global!BG loop brightness}}",
+     "speed": "{{Global!BG loop speed}}"
     },
     {
      "id": "ledf55637",
@@ -8719,7 +8932,7 @@
        "delay": 0
       }
      },
-     "text": "20",
+     "text": "{{Stats!MVP stat 3}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 81.46,
      "color": "#ffffff",
@@ -8731,7 +8944,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 70.1
     },
     {
      "id": "lbbfba33e",
@@ -8758,7 +8972,7 @@
        "delay": 0
       }
      },
-     "text": "MULTIKILL (%)",
+     "text": "{{Stats!Stat 3 title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 40.0,
      "color": "#ffffff",
@@ -8770,7 +8984,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 34.4
     },
     {
      "id": "l3b4f6bc0",
@@ -8797,7 +9012,7 @@
        "delay": 0
       }
      },
-     "text": "1.25",
+     "text": "{{Stats!MVP K/D}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 81.46,
      "color": "#ffffff",
@@ -8809,7 +9024,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 70.1
     },
     {
      "id": "l05c94e03",
@@ -8848,7 +9064,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 34.4
     },
     {
      "id": "ld7ecd968",
@@ -8875,7 +9092,7 @@
        "delay": 0
       }
      },
-     "text": "85",
+     "text": "{{Stats!MVP stat 2}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 81.46,
      "color": "#ffffff",
@@ -8887,7 +9104,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 70.1
     },
     {
      "id": "lb8e37bbf",
@@ -8914,7 +9132,7 @@
        "delay": 0
       }
      },
-     "text": "ADR",
+     "text": "{{Stats!Stat 2 title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 40.0,
      "color": "#ffffff",
@@ -8926,7 +9144,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 34.4
     },
     {
      "id": "l83453f71",
@@ -8953,7 +9172,7 @@
        "delay": 0
       }
      },
-     "text": "2.0",
+     "text": "{{Stats!MVP stat 1}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 81.46,
      "color": "#ffffff",
@@ -8965,7 +9184,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 70.1
     },
     {
      "id": "l4a9bbd7c",
@@ -8992,7 +9212,7 @@
        "delay": 0
       }
      },
-     "text": "RATING (2.0)",
+     "text": "{{Stats!Stat 1 title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 40.0,
      "color": "#ffffff",
@@ -9004,7 +9224,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 34.4
     },
     {
      "id": "l6485be7d",
@@ -9060,9 +9281,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Player stats/Tournament Logo Replace Me.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Global!Tournament logo}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Player stats/Tournament Logo Replace Me.png"
     },
     {
      "id": "la8760caa",
@@ -9118,7 +9340,7 @@
        "delay": 0
       }
      },
-     "text": "GAME NAME",
+     "text": "{{Global!Game title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 39.97,
      "color": "#ffffff",
@@ -9130,15 +9352,16 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 34.4
     },
     {
      "id": "l31ed25bd",
      "name": "TEAM NAME",
      "type": "text",
-     "x": 68,
-     "y": 277,
-     "w": 59,
+     "x": 929,
+     "y": 255,
+     "w": 560,
      "h": 42,
      "opacity": 1.0,
      "rotation": 0,
@@ -9157,11 +9380,11 @@
        "delay": 0
       }
      },
-     "text": "team name",
+     "text": "{{Stats!MVP team}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 30.0,
      "color": "#ffffff",
-     "align": "right",
+     "align": "left",
      "valign": "top",
      "tracking": 500.0,
      "caps": true,
@@ -9169,7 +9392,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 25.8
     },
     {
      "id": "l1d6ff235",
@@ -9225,7 +9449,7 @@
        "delay": 0
       }
      },
-     "text": "TESTING",
+     "text": "{{Stats!MVP}}",
      "font": "VTFRedzone-Classic",
      "size": 53.9,
      "color": "#ffffff",
@@ -9237,7 +9461,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 46.4
     },
     {
      "id": "l9b31de22",
@@ -9305,6 +9530,39 @@
      "src": "assets/Group bracket/Layer 1.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l3f472977",
+     "name": "Background loop",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "screen",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!BG loop}}",
+     "fit": "cover",
+     "loop": true,
+     "audio": false,
+     "tint": "{{Global!BG loop colour}}",
+     "brightness": "{{Global!BG loop brightness}}",
+     "speed": "{{Global!BG loop speed}}"
     },
     {
      "id": "lde163dfb",
@@ -10010,7 +10268,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 30.0
     },
     {
      "id": "lea7fe9c9",
@@ -10600,7 +10859,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 30.0
     },
     {
      "id": "l17bd930f",
@@ -11190,7 +11450,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 30.0
     },
     {
      "id": "l3f2ff8d8",
@@ -11780,7 +12041,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 30.0
     },
     {
      "id": "l91bd183f",
@@ -11807,9 +12069,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Group bracket/Replace with Logo.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Global!Tournament logo}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Group bracket/Replace with Logo.png"
     },
     {
      "id": "l6e050129",
@@ -11848,7 +12111,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 17.2
     },
     {
      "id": "l023583be",
@@ -11887,7 +12151,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 17.2
     }
    ],
    "width": 1920,
@@ -11926,6 +12191,39 @@
      "src": "assets/Top 8 bracket/Layer 1.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l96c3dce1",
+     "name": "Background loop",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "screen",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!BG loop}}",
+     "fit": "cover",
+     "loop": true,
+     "audio": false,
+     "tint": "{{Global!BG loop colour}}",
+     "brightness": "{{Global!BG loop brightness}}",
+     "speed": "{{Global!BG loop speed}}"
     },
     {
      "id": "l8ff5cd2d",
@@ -12689,7 +12987,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 30.0
     },
     {
      "id": "l2476a1b7",
@@ -12716,9 +13015,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Top 8 bracket/Replace Me With Tourney.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Global!Tournament logo}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Top 8 bracket/Replace Me With Tourney.png"
     },
     {
      "id": "led3eed03",
@@ -12757,7 +13057,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 17.2
     },
     {
      "id": "l139eafc6",
@@ -12796,7 +13097,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 17.2
     }
    ],
    "width": 1920,
@@ -12835,6 +13137,39 @@
      "src": "assets/Final four/Layer 1.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "lb5de24b3",
+     "name": "Background loop",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "screen",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!BG loop}}",
+     "fit": "cover",
+     "loop": true,
+     "audio": false,
+     "tint": "{{Global!BG loop colour}}",
+     "brightness": "{{Global!BG loop brightness}}",
+     "speed": "{{Global!BG loop speed}}"
     },
     {
      "id": "l5d0cc221",
@@ -13192,7 +13527,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 30.0
     },
     {
      "id": "l5ea5dd9a",
@@ -13231,7 +13567,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 45.6
     },
     {
      "id": "l2b7e21dc",
@@ -13270,7 +13607,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 63.7
     },
     {
      "id": "l919aac68",
@@ -13309,7 +13647,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 76.0
     },
     {
      "id": "lb6be0d28",
@@ -13348,7 +13687,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 38.7
     },
     {
      "id": "l8beeb42e",
@@ -13387,7 +13727,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 76.0
     },
     {
      "id": "ld89068f6",
@@ -13426,7 +13767,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 38.7
     },
     {
      "id": "l8725b586",
@@ -13465,7 +13807,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 76.0
     },
     {
      "id": "lc1df461b",
@@ -13504,7 +13847,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 38.7
     },
     {
      "id": "l9493b109",
@@ -13543,7 +13887,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 76.0
     },
     {
      "id": "lacf2ef7d",
@@ -13582,7 +13927,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 38.7
     },
     {
      "id": "l01453505",
@@ -13621,7 +13967,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 76.0
     },
     {
      "id": "le814dcb2",
@@ -13660,7 +14007,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 38.7
     },
     {
      "id": "l3784f482",
@@ -13699,7 +14047,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 76.0
     },
     {
      "id": "lf11e99fc",
@@ -13738,7 +14087,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 38.7
     },
     {
      "id": "le8111c67",
@@ -13765,9 +14115,10 @@
        "delay": 0
       }
      },
-     "src": "assets/Final four/TOURNAMENT LOGO_ REPLACE ME.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Global!Tournament logo}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Final four/TOURNAMENT LOGO_ REPLACE ME.png"
     },
     {
      "id": "la0bd40b4",
@@ -13806,7 +14157,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 17.2
     },
     {
      "id": "l8d1a0eb9",
@@ -13874,7 +14226,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 17.2
     }
    ],
    "width": 1920,
@@ -14531,7 +14884,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 39.3
     },
     {
      "id": "lfefc3970",
@@ -14570,7 +14924,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 23.9
     },
     {
      "id": "l79f43abf",
@@ -14582,7 +14937,7 @@
      "h": 42,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
      "field": "ST. CLAIR SAINTS",
      "anim": {
@@ -14609,7 +14964,8 @@
      "fit": "shrink",
      "weight": 400,
      "italic": false,
-     "scroll": 0
+     "scroll": 0,
+     "baseline": 25.8
     },
     {
      "id": "l447ebafc",
@@ -15306,7 +15662,73 @@
     "Game title",
     "ROCKET LEAGUE | PLAYOFFS"
    ]
+  ],
+  "sponsors": [
+   {
+    "logo": "assets/sponsors/Subway.png",
+    "secs": 10
+   },
+   {
+    "logo": "assets/sponsors/NAC Esports.png",
+    "secs": 10
+   }
   ]
  },
- "picture": "cover.png"
+ "picture": "cover.png",
+ "pack_history": {
+  "Schedule": [
+   "ed271e0cf8d424b0"
+  ],
+  "Scorebug & footer": [
+   "04910753a20533bb"
+  ],
+  "Caster lower third": [
+   "2320941025e868b7"
+  ],
+  "Team stats": [
+   "f5206d0a5a78daf3"
+  ],
+  "Title screen": [
+   "a617db4af2bfcbff"
+  ],
+  "Starting soon": [
+   "f0d27a8e45cadce1"
+  ],
+  "Team graphic": [
+   "7c3006ffe1242e71"
+  ],
+  "Player graphic (1)": [
+   "8c1dee324e6f133d"
+  ],
+  "Player graphic (2)": [
+   "f57f5269c6bfdb57"
+  ],
+  "Player graphic (3)": [
+   "66f9983151e42156"
+  ],
+  "Player graphic (4)": [
+   "539fff97b1538910"
+  ],
+  "Player graphic (5)": [
+   "7f5069cf9c4782d0"
+  ],
+  "Player stats": [
+   "7870e4bac7a22c3d"
+  ],
+  "Group bracket": [
+   "277e2bab153a8817"
+  ],
+  "Top 8 bracket": [
+   "669bd4475847cdfe"
+  ],
+  "Final four": [
+   "bf940e4ee1610913"
+  ],
+  "Replay overlay": [
+   "0dedc50699b7a414"
+  ],
+  "Sponsor footer": [
+   "7bf16bdaabfc4d94"
+  ]
+ }
 }

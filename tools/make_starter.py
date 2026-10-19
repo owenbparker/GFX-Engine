@@ -9,6 +9,7 @@ SCC_Replay.mov and SCCIntroStinger.webm. The St. Clair badge (the left
 team's logo) comes from packaging/.
 """
 
+import json
 import os
 import shutil
 import sys
@@ -19,6 +20,7 @@ sys.path.insert(0, ROOT)
 from gfxengine import media  # noqa: E402
 from gfxengine.project import DEFAULT_TRANSITIONS, Workspace, new_id  # noqa: E402
 from gfxengine.psdimport import import_psd  # noqa: E402
+import scc_pack  # noqa: E402  (tools/)
 
 SCREENS = "24-11 SCS_Stream Overlay Graphics/SCREENS/"
 GRAPHICS = [
@@ -60,6 +62,11 @@ Ticker,WELCOME TO ST. CLAIR SAINTS ESPORTS  |  FOLLOW @SCCSAINTS FOR HIGHLIGHTS 
 
 def main(psd_dir, stinger_dir):
     out = os.path.join(ROOT, "starter")
+    try:   # (what the workspaces may still have, so they can be brought up to date)
+        with open(os.path.join(out, "project.json"), encoding="utf-8") as f:
+            previous = json.load(f)
+    except (OSError, ValueError):
+        previous = {}
     shutil.rmtree(out, ignore_errors=True)
     ws = Workspace(out, starter=None)
     ws.data["name"] = "SCC Broadcast"
@@ -136,6 +143,7 @@ def main(psd_dir, stinger_dir):
         print(label, rel, "cut at", cut, "ms")
     ws.data["transitions"] = [dict(t) for t in DEFAULT_TRANSITIONS] + stingers
     ws.data["default_transition"] = stingers[0]["id"]
+    scc_pack.remember(previous, scc_pack.link(ws.data, out))
     ws.save()
     for leftover in ("live.json",):
         p = os.path.join(out, leftover)

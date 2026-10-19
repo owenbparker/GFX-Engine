@@ -50,6 +50,7 @@
   GFX.base = remote ? remote.replace(/\/+$/, "") : "";
   let dataRev = null;
   function apply(state) {
+    if (state.data) GFX.setClock(state.data.now);
     if (state.data && state.data.rev !== dataRev) { dataRev = state.data.rev; GFX.setData(state.data.tables); }
     bus.apply(state);
   }

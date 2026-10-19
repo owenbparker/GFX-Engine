@@ -88,6 +88,24 @@ Every graphic can use them as `{{Global!Left name}}`, `{{Global!Right logo}}`,
 `{{Global!Left score}}`...; picture fields in Control list the team logos,
 and every field's ⛓ menu links it to one.
 
+It also has the **tournament logo**, the **sponsors** and the **background
+loop**, which every SCC graphic uses, so changing them here changes them all:
+
+- The team logos and tournament logo fill every logo spot (the design's own
+  picture shows while there's none).
+- Sponsors rotate in every sponsor spot, each for the seconds you give it,
+  with a lift-and-fade between them. All spots show the same sponsor at the
+  same time; the list shows which one is on air and how long it has left, and
+  a sponsor layer can show that as a bar too (Composer: "Show a bar with the
+  time it has left"). In Composer, a picture layer's source can be
+  `{{Sponsors}}`.
+- The background loop plays behind the full-screen boards (schedule, stats,
+  brackets). Turn it off, pick its colour, brightness and speed, or drop in
+  another video.
+
+The SCC graphics in a workspace are brought up to date when the engine has
+newer versions of them, unless you've changed them in Composer.
+
 ## Game HUDs
 
 The League, VALORANT, CoD and Rocket League HUDs have a **GFX Engine** page:
@@ -96,6 +114,14 @@ named after it, e.g. `{{League HUD!KILLS LEFT}}`) and the series score (into
 Global) about once a second. **Use Global Information** takes the teams'
 names, short names and logos from here into the HUD. The HUD side is in
 `hud-link/` (copied into each HUD).
+
+The players' stats from whichever HUD is connected also go into one table,
+`Stats`, the same for every game: `{{Stats!Left player 1}}`,
+`{{Stats!Left player 1 stat 1}}`, `{{Stats!Stat 1 title}}` (KILLS, GOALS...),
+`{{Stats!MVP}}`, `{{Stats!Status}}` (LIVE or FINAL). The team stats, player
+stats and player graphics use it. The last game's stats are kept after it
+ends (and over a restart) until the next game starts or you press **Clear
+stats** in Global.
 
 ## Outputs and the network
 

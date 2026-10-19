@@ -25,7 +25,7 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
-from . import discover, export, globalcfg
+from . import discover, export, globalcfg, pack
 from .assets import Assets
 from .config import WEB_DIR, Settings, safe_join
 from .data import Sources
@@ -33,6 +33,7 @@ from .live import Live
 from .log import log, since
 from .media import Jobs, ffmpeg_path, stinger_cut
 from .project import Workspace, blank_comp, blank_layer, new_id
+from .stats import Stats
 from .updater import Updater, clean_up_old_update
 from .workspaces import Workspaces
 
@@ -64,7 +65,7 @@ class Engine:
         # Data sent by game HUDs ("League HUD" -> its fields), kept while the engine runs.
         self.feeds = {}
         self.feeds_rev = 0
-        self.ws = self.live = self.assets = self.sources = None
+        self.ws = self.live = self.assets = self.sources = self.stats = None
         self._cond = threading.Condition()
         self._open_lock = threading.Lock()
         self.jobs.listeners.append(self.changed)
@@ -75,6 +76,18 @@ class Engine:
             wid = listed[0]["id"] if listed else self.workspaces.create("SCC Broadcast", "scc")
         self.open(wid)
         self.beacon = discover.Beacon(self._beacon_info)
+        threading.Thread(target=self._watch_stats, daemon=True).start()
+
+    def _watch_stats(self):
+        """The stats go from LIVE to FINAL when the HUD stops sending: tell the pages."""
+        was = None
+        while True:
+            time.sleep(2)
+            now = self.stats.live() if self.stats else False
+            if was is not None and now != was:
+                self.feeds_rev += 1
+                self.changed()
+            was = now
 
     def open(self, wid):
         """Opens a workspace: its graphics go on the control panel and the outputs."""
@@ -84,12 +97,14 @@ class Engine:
         with self._open_lock:
             old = (self.ws, self.sources)
             ws = Workspace(folder, starter=None)
+            updated = pack.upgrade(ws, self.workspaces.starter)
             live = Live(ws)
             assets = Assets(ws, self.jobs, self.library_dir)
             sources = Sources(ws)
             for thing in (ws, live, sources):
                 thing.listeners.append(self.changed)
             self.ws, self.live, self.assets, self.sources = ws, live, assets, sources
+            self.stats = Stats(folder)
             if old[1]:
                 old[1].stop()
             if old[0]:
@@ -100,6 +115,8 @@ class Engine:
         self.assets_rev += 1
         threading.Thread(target=sources.refresh, daemon=True).start()
         log(f"Opened the workspace {ws.get()['name']}")
+        if updated:
+            log(f"Updated the SCC graphics: {', '.join(updated)}")
         self.changed()
 
     def _beacon_info(self):
@@ -130,9 +147,14 @@ class Engine:
         snap = self.sources.snapshot()
         g = self.global_config()
         snap["tables"]["Global"] = globalcfg.rows(g)
+        snap["tables"]["Sponsors"] = globalcfg.sponsor_rows(g)
+        snap["tables"]["Stats"] = self.stats.rows({side: g[side]["name"] for side in ("left", "right")})
         for name, feed in self.feeds.items():
             snap["tables"][name] = feed["rows"]
-        snap["rev"] = f"{snap['rev']}.{self.ws.rev}.{self.feeds_rev}"
+        snap["rev"] = f"{snap['rev']}.{self.ws.rev}.{self.feeds_rev}.{int(self.stats.live())}"
+        snap["now"] = time.time()   # (the outputs line their clocks up with it: the sponsors change together)
+        snap["stats"] = {"live": self.stats.live(), "kept": bool(self.stats.data),
+                         "from": (self.stats.data or {}).get("source", ""), "at": (self.stats.data or {}).get("at", 0)}
         snap["feeds"] = {name: {"from": f["from"], "game": f["game"], "age": round(time.time() - f["at"], 1)}
                          for name, f in self.feeds.items()}
         return snap
@@ -163,27 +185,42 @@ class Engine:
     # --- global configuration, and the game HUDs ----------------------------
 
     def set_global(self, changes):
-        g = self.global_config()
+        old = self.global_config()
+        g = json.loads(json.dumps(old))
         for k, v in (changes or {}).items():
-            if k in ("left", "right") and isinstance(v, dict):
+            if k in ("left", "right", "bgloop") and isinstance(v, dict):
                 g[k].update(v)
             else:
                 g[k] = v
-        g = globalcfg.clean(g)
+        g = globalcfg.sponsors_changed(old, globalcfg.clean(g))
         self.ws.set_global(g)
         return g
 
     def save_global_logo(self, side, filename, blob):
-        if side not in ("left", "right"):
-            raise ValueError("left or right")
+        """A picture for Global: a team's logo ("left", "right"), the tournament's
+        logo ("tournament"), one more sponsor ("sponsor") or the background loop
+        ("bgloop", a video)."""
+        if side not in ("left", "right", "tournament", "sponsor", "bgloop"):
+            raise ValueError("left, right, tournament, sponsor or bgloop")
         ext = os.path.splitext(filename or "")[1].lower()
-        if ext not in (".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif"):
+        if side == "bgloop":
+            if ext not in (".mp4", ".webm", ".mov", ".m4v"):
+                raise ValueError("The loop must be an MP4, WEBM or MOV video")
+        elif ext not in (".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif"):
             raise ValueError("The logo must be a PNG, JPG, WEBP, SVG or GIF")
         base = re.sub(r"[^\w\- ]+", "_", os.path.splitext(os.path.basename(filename))[0]) or side
-        rel, path = self.ws.unique_asset(base + ext, "logos")
+        rel, path = self.ws.unique_asset(base + ext, {"sponsor": "sponsors", "bgloop": "loops"}.get(side, "logos"))
         with open(path, "wb") as f:
             f.write(blob)
         self.assets_rev += 1
+        if side == "tournament":
+            return self.set_global({"tournament_logo": rel})
+        if side == "sponsor":
+            g = self.global_config()
+            secs = g["sponsors"][-1]["secs"] if g["sponsors"] else 10
+            return self.set_global({"sponsors": g["sponsors"] + [{"logo": rel, "secs": secs}]})
+        if side == "bgloop":
+            return self.set_global({"bgloop": {"src": rel, "on": True}})
         return self.set_global({side: {"logo": rel}})
 
     def ingest(self, body, client):
@@ -195,11 +232,14 @@ class Engine:
             raise ValueError("fields must be an object")
         rows = [["Field", "Value"]] + [[str(k)[:80], "" if v is None else str(v)[:500]] for k, v in fields.items()]
         old = self.feeds.get(name)
+        was_live = self.stats.live()
         self.feeds[name] = {"rows": rows, "from": client, "game": str(body.get("game") or ""), "at": time.time()}
         if not old or old["rows"] != rows:
             self.feeds_rev += 1
             if not old:
                 log(f"{name} connected from {client}")
+        if self.stats.update(name, str(body.get("game") or ""), fields) or was_live != self.stats.live():
+            self.feeds_rev += 1
         # The series into Global: a value the HUD changed (or its first, for the
         # score, unless 0), and names only where Global has none - so connecting a HUD
         # doesn't undo what was set here.
@@ -294,6 +334,11 @@ class Engine:
         return [c["name"] for c in comps]
 
     # --- changes that touch several parts ----------------------------------
+
+    def clear_stats(self):
+        self.stats.clear()
+        self.feeds_rev += 1
+        self.changed()
 
     def delete_comp(self, cid):
         self.ws.delete_comp(cid)
@@ -567,8 +612,9 @@ def make_handler(engine):
                 if path in ("/api/workspaces/picture", "/api/global/logo"):
                     # (the picture's bytes are the body)
                     name = unquote(self.headers.get("X-Filename") or (q.get("name") or [""])[0])
-                    if length > 30 << 20:
-                        raise ValueError("That picture is too big (30 MB at most)")
+                    video = path == "/api/global/logo" and (q.get("side") or [""])[0] == "bgloop"
+                    if length > (400 << 20 if video else 30 << 20):
+                        raise ValueError("That file is too big (" + ("400" if video else "30") + " MB at most)")
                     blob = self.rfile.read(length)
                     if path == "/api/global/logo":
                         return self._json({"global": engine.save_global_logo((q.get("side") or [""])[0], name, blob)})
@@ -607,6 +653,8 @@ def make_handler(engine):
                 # --- global configuration, game HUDs ---
                 elif path == "/api/global":
                     result = {"global": engine.set_global(body.get("global") or {})}
+                elif path == "/api/stats/clear":
+                    engine.clear_stats()
                 elif path == "/api/ingest":
                     engine.ingest(body, self.client_address[0])
                     result = {"ok": True, "global": engine.global_config()}

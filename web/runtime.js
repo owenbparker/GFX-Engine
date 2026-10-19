@@ -64,7 +64,11 @@
 
   // --- data and fields -----------------------------------------------------------
   const ctx = { tables: {} };
-  GFX.setData = function (tables) { ctx.tables = tables || {}; GFX.retext(); };
+  GFX.setData = function (tables) { ctx.tables = tables || {}; GFX.retext(); tickRotators(); };
+  // The engine's clock (seconds), so every output changes sponsor at the same moment.
+  let clockOffset = 0;
+  GFX.setClock = function (engineNow) { if (engineNow) clockOffset = engineNow * 1000 - Date.now(); };
+  GFX.now = () => Date.now() + clockOffset;
 
   const colIndex = s => [...s.toUpperCase()].reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0) - 1;
   GFX.lookup = function (rows, ref) {
@@ -112,8 +116,63 @@
     if (layer.type === "text") return v != null ? String(v) : layer.text || "";
     // (a picture or colour can come from the data too: {{Global!Left logo}})
     const own = v != null ? String(v) : (layer.type === "rect" ? layer.fill : layer.src) || "";
-    return hasTokens(own) ? GFX.resolve(own).trim() : own;
+    if (SPONSORS.test(own)) return "{{Sponsors}}";
+    const out = hasTokens(own) ? GFX.resolve(own).trim() : own;
+    // A picture linked to Global with nothing there yet shows the design's own.
+    return !out && layer.placeholder ? layer.placeholder : out;
   };
+
+  // --- the sponsors: one after another, each for its own seconds ---------------
+  // A picture layer whose file is {{Sponsors}} shows Global's sponsors in turn.
+  const SPONSORS = /^\s*\{\{\s*sponsors\s*\}\}\s*$/i;
+  GFX.sponsors = function () {
+    return (ctx.tables.Sponsors || []).slice(1).filter(r => r[0])
+      .map(r => ({ logo: r[0], secs: Math.max(1, +r[1] || 10), epoch: +r[2] || 0 }));
+  };
+  // {index, left (s), secs, list} of the sponsor on now.
+  GFX.sponsorNow = function (list) {
+    list = list || GFX.sponsors();
+    if (!list.length) return { index: -1, left: 0, secs: 0, list };
+    const total = list.reduce((n, s) => n + s.secs, 0);
+    let t = ((GFX.now() / 1000 - list[0].epoch) % total + total) % total;
+    for (let i = 0; i < list.length; i++) {
+      if (t < list[i].secs) return { index: i, left: list[i].secs - t, secs: list[i].secs, list };
+      t -= list[i].secs;
+    }
+    return { index: list.length - 1, left: 0, secs: list[list.length - 1].secs, list };
+  };
+  const rotators = new Set();
+  function sponsorBox(layer, opts) {
+    const box = el("div", "gfx-media gfx-rot");
+    box._layer = layer;
+    box._opts = opts;
+    if (layer.timer) box.appendChild(el("div", "gfx-rot-bar"));
+    rotators.add(box);
+    turn(box, true);
+    return box;
+  }
+  function turn(box, first) {
+    const layer = box._layer, now = GFX.sponsorNow();
+    const logo = now.index >= 0 ? now.list[now.index].logo : layer.placeholder || "";
+    const key = now.index + "|" + logo;
+    const bar = box.querySelector(".gfx-rot-bar");
+    if (bar) bar.style.transform = `scaleX(${now.secs ? Math.max(0, now.left / now.secs) : 0})`;
+    if (box._key === key) return;
+    box._key = key;
+    const img = el("img", "gfx-rot-img", { objectFit: fitOf(layer.fit) });
+    img.draggable = false;
+    if (logo) img.src = url(encodeURI(logo));
+    const old = [...box.querySelectorAll(".gfx-rot-img")];
+    box.insertBefore(img, bar || null);
+    if (first || box._opts.still || !old.length) { old.forEach(o => o.remove()); return; }
+    // The old one lifts away, the new one rises into place.
+    for (const o of old) o.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateY(-35%) scale(.92)", filter: "blur(4px)" }],
+      { duration: 450, easing: EASE_OUT, fill: "forwards" }).finished.then(() => o.remove(), () => o.remove());
+    img.animate([{ opacity: 0, transform: "translateY(35%) scale(.92)", filter: "blur(4px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
+      { duration: 650, delay: 200, easing: EASE, fill: "backwards" });
+  }
+  function tickRotators() { for (const b of rotators) { if (!b.isConnected && b._seen) rotators.delete(b); else { if (b.isConnected) b._seen = true; turn(b); } } }
+  setInterval(tickRotators, 100);
 
   // --- building graphics -----------------------------------------------------------
   const live = new Set();   // text elements that change with time or data
@@ -127,6 +186,8 @@
 
   function buildContent(layer, value, opts) {
     const t = layer.type;
+    if (t === "image" && value === "{{Sponsors}}") return sponsorBox(layer, opts);
+    if (t === "video" && layer.tint) return tintedVideo(layer, value, opts);
     if (t === "image") {
       if (!value) return el("div");
       const img = el("img", "gfx-media", { objectFit: fitOf(layer.fit) });
@@ -146,6 +207,33 @@
       else { v.autoplay = true; v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }); }
       return v;
     }
+    return buildOther(layer, value, opts);
+  }
+
+  // A video in one colour (the background loop): the video in grey, the colour
+  // multiplied over it; the layer's blend (screen) lets the board show through
+  // its dark parts. Colour, brightness and speed can come from Global.
+  function tintedVideo(layer, value, opts) {
+    const box = el("div", "gfx-media gfx-tint");
+    if (!value) return box;
+    const v = el("video", "gfx-media", { objectFit: "cover",
+      filter: `grayscale(1) brightness(${+GFX.resolve(layer.brightness ?? 1.6) || 1.6})` });
+    v.src = url(encodeURI(value));
+    v.muted = true; v.loop = true; v.playsInline = true; v.preload = "auto";
+    const speed = Math.max(0.1, Math.min(4, +GFX.resolve(layer.speed ?? 1) || 1));
+    v.addEventListener("loadedmetadata", () => { v.playbackRate = speed; });
+    if (opts.still) v.addEventListener("loadeddata", () => { try { v.currentTime = 2; } catch (e) { /* */ } }, { once: true });
+    else { v.autoplay = true; v.play().catch(() => {}); }
+    // (the colour only once there's a picture to colour: on its own it would fill the box)
+    const tint = el("div", "gfx-media", { background: GFX.resolve(layer.tint) || "#ffffff", mixBlendMode: "multiply", visibility: "hidden" });
+    v.addEventListener("loadeddata", () => { tint.style.visibility = ""; });
+    v.addEventListener("error", () => { v.remove(); tint.remove(); });
+    box.append(v, tint);
+    return box;
+  }
+
+  function buildOther(layer, value, opts) {
+    const t = layer.type;
     if (t === "lottie") {
       const box = el("div", "gfx-media");
       if (value && window.lottie) {
@@ -173,6 +261,7 @@
         justifyContent: { left: "flex-start", center: "center", right: "flex-end" }[layer.align || "left"],
         alignItems: { top: "flex-start", middle: "center", bottom: "flex-end" }[layer.valign || "top"],
         textShadow: layer.shadow ? "0 2px 8px rgba(0,0,0,.6)" : "none",
+        fontVariant: layer.smallCaps ? "small-caps" : "normal",
       });
       const span = el("span", "gfx-t");
       box.appendChild(span);
@@ -211,8 +300,25 @@
     fit(box);
   }
 
+  // Text from a Photoshop file sits on its baseline where Photoshop put it,
+  // whatever the font's own spacing above the letters.
+  function baseline(box) {
+    const layer = box._layer, span = box.firstChild;
+    if (!layer || !span || layer.baseline == null || layer.scroll > 0 || (layer.valign || "top") !== "top") return;
+    span.style.marginTop = "";
+    let mark = span.querySelector(":scope > .gfx-bl");
+    if (!mark) { mark = el("i", "gfx-bl"); }
+    span.insertBefore(mark, span.firstChild);
+    if (!box.isConnected || !box.offsetHeight) return;
+    span.style.marginTop = (layer.baseline - mark.offsetTop) + "px";
+  }
+
   // Text that doesn't fit its box: made smaller ("shrink") or narrower ("squeeze").
   function fit(box) {
+    fitSize(box);
+    baseline(box);
+  }
+  function fitSize(box) {
     const layer = box._layer, span = box.firstChild;
     if (!layer || !span || layer.scroll > 0) return;
     span.style.transform = "";
@@ -235,6 +341,9 @@
   GFX.retext = () => document.querySelectorAll(".gfx-text").forEach(b => { if (hasTokens(b._raw)) setText(b); });
   setInterval(() => { for (const b of live) { if (!b.isConnected) live.delete(b); else if (ticking(b._raw)) setText(b); } }, 1000);
 
+  // What else a layer's look takes from the data (a tinted loop's colour...).
+  const extraOf = layer => layer.tint ? [layer.tint, layer.brightness, layer.speed].map(v => GFX.resolve(v ?? "")).join("|") : "";
+
   function buildLayer(layer, values, opts) {
     const value = GFX.content(layer, values);
     const outer = el("div", "gfx-L", {
@@ -248,6 +357,7 @@
     inner.appendChild(buildContent(layer, value, opts));
     outer.appendChild(inner);
     outer._value = value;
+    outer._extra = extraOf(layer);
     outer._layer = layer;
     outer._sig = JSON.stringify(layer);
     return outer;
@@ -282,7 +392,7 @@
     for (const layer of wanted) {
       let L = existing.get(layer.id);
       const value = GFX.content(layer, values);
-      if (!L || L._sig !== JSON.stringify(layer) || L._value !== value) {
+      if (!L || L._sig !== JSON.stringify(layer) || L._value !== value || L._extra !== extraOf(layer)) {
         const fresh = buildLayer(layer, values, opts);
         if (layer.visible === false) fresh.style.visibility = "hidden";
         if (L) { destroy(L); L.replaceWith(fresh); } else root.insertBefore(fresh, prev ? prev.nextSibling : root.firstChild);
@@ -545,6 +655,10 @@
     .gfx-scroll{overflow:hidden}
     .gfx-scroll .gfx-t{display:flex;white-space:pre}
     .gfx-tick{padding-right:1.5em}
+    .gfx-bl{display:inline-block;width:0;height:0;vertical-align:baseline}
+    .gfx-rot{overflow:visible}
+    .gfx-rot-img{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .gfx-rot-bar{position:absolute;left:0;right:0;bottom:-8px;height:3px;background:currentColor;color:#f5c518;transform-origin:0 50%;opacity:.85}
     .gfx-cover{position:absolute;inset:0;z-index:9000}
     .gfx-stinger{position:absolute;inset:0;width:100%;height:100%;z-index:9500;visibility:hidden;object-fit:cover;pointer-events:none}
   `;

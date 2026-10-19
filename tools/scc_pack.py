@@ -1,0 +1,224 @@
+"""The finishing touches on the SCC graphics (starter/), after their PSDs are
+imported: what they take from the global configuration and the game's
+stats, the background loop behind the full-screen boards, and the text the
+importer can't place exactly.
+
+    python tools/scc_pack.py        # applies them to starter/ as it is now
+
+make_starter.py runs this too after importing the PSDs. Each time starter/
+changes, the graphics' previous signatures go into "pack_history", so
+workspaces that still have an untouched older copy get the new one (see
+gfxengine/pack.py).
+"""
+
+import json
+import os
+import shutil
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
+
+from gfxengine.pack import signature  # noqa: E402
+from gfxengine.project import new_id  # noqa: E402
+
+STARTER = os.path.join(ROOT, "starter")
+
+# Boards that fill the screen: the background loop plays over their backdrop.
+LOOP_BOARDS = ("Schedule", "Team stats", "Player stats", "Group bracket", "Top 8 bracket", "Final four")
+# Picture layers -> what they show from Global (the design's own stays as the
+# picture shown while Global has none).
+PICTURES = {
+    "Scorebug & footer": {"TEAM LEFT": "{{Global!Left logo}}", "TEAM RIGHT": "{{Global!Right logo}}",
+                          "SPONSOR REPLACE": "{{Sponsors}}"},
+    "Schedule": {"REPLACE WITH SPONSORS": "{{Sponsors}}"},
+    "Team stats": {"SCS_COLOUR": "{{Global!Left logo}}", "Triangle 1": "{{Global!Right logo}}"},
+    "*": {"Replace With Tournament Logo": "{{Global!Tournament logo}}",
+          "Tournament Logo Replace Me": "{{Global!Tournament logo}}", "Replace with Logo": "{{Global!Tournament logo}}",
+          "Replace Me With Tourney": "{{Global!Tournament logo}}", "TOURNAMENT LOGO, REPLACE ME": "{{Global!Tournament logo}}"},
+}
+# The sponsors a new workspace starts with: the pictures in the sponsor spots.
+SPONSORS = [("assets/Scorebug _ footer/SPONSOR REPLACE.png", "Subway.png"),
+            ("assets/Schedule/REPLACE WITH SPONSORS.png", "NAC Esports.png")]
+# Text placed by hand from the PSDs' renders, where the importer's guess was off:
+# (graphic, layer name, nth with that name) -> x, w, size, align, baseline (from the top of the canvas).
+PLACED = {
+    ("Team stats", "SsssssssssG", 0): dict(x=297, w=560, size=80, align="left", base=372),
+    ("Team stats", "XssssssssX", 0): dict(x=1070, w=560, size=80, align="right", base=372),
+    ("Team stats", "0", 0): dict(x=837, w=120, size=86, align="center", base=392),
+    ("Team stats", "0", 1): dict(x=965, w=120, size=86, align="center", base=392),
+    ("Schedule", "0", 0): dict(x=676, w=120, size=90, align="center", base=943),
+    ("Schedule", "0", 1): dict(x=810, w=120, size=90, align="center", base=943),
+}
+
+
+def _text(comp, name, nth=0):
+    found = [l for l in comp["layers"] if l["type"] == "text" and l["name"] == name]
+    found.sort(key=lambda l: l["x"])
+    return found[nth] if nth < len(found) else None
+
+
+def _rows(layers, xs):
+    """Text layers in a table: [row][column], by position."""
+    rows = {}
+    for l in layers:
+        rows.setdefault(round(l["y"] / 20), []).append(l)
+    out = []
+    for key in sorted(rows):
+        out.append(sorted(rows[key], key=lambda l: l["x"]))
+    return out
+
+
+def link(data, starter=STARTER):
+    comps = {c["name"]: c for c in data["compositions"]}
+
+    # Text sits on the baseline the PSD gave it (the importer puts the top of
+    # the box 0.86 of the size above it), whatever the font.
+    for comp in data["compositions"]:
+        for l in comp["layers"]:
+            if l["type"] == "text" and not l.get("scroll") and "baseline" not in l:
+                l["baseline"] = round(l["size"] * 0.86, 1)
+    for (cname, lname, nth), p in PLACED.items():
+        l = _text(comps[cname], lname, nth) if cname in comps else None
+        if l:
+            l.update(x=p["x"], w=p["w"], size=p["size"], align=p["align"], baseline=round(p["size"] * 0.86, 1),
+                     y=round(p["base"] - p["size"] * 0.86), h=round(p["size"] * 1.4), fit="shrink")
+
+    # Column titles centred over their columns (the stats' titles vary by game).
+    if "Team stats" in comps:
+        ts = comps["Team stats"]
+        cells = [l for l in ts["layers"] if l["type"] == "text" and l["name"] == "000"]
+        for l in ts["layers"]:
+            if l["type"] == "text" and l["name"] in ("KILLS", "DEATHS", "ADR") and l["align"] == "left":
+                col = min(cells, key=lambda c: abs(c["x"] + c["w"] / 2 - (l["x"] + l["w"] / 2)))
+                cx = col["x"] + col["w"] / 2
+                l.update(x=round(cx - 80), w=160, align="center")
+    # The player's team, from a tiny box at the edge (a text box the importer
+    # misread) to under the player's name.
+    if "Player stats" in comps:
+        l = _text(comps["Player stats"], "TEAM NAME")
+        name = _text(comps["Player stats"], "PLAYER NAME")
+        if l and name and l["w"] < 100:
+            l.update(x=name["x"], w=560, align="left", y=name["y"] + round(name["size"] * 1.15), h=42)
+    if "Replay overlay" in comps:
+        l = _text(comps["Replay overlay"], "ST. CLAIR SAINTS")
+        if l and l["w"] < 100:
+            l["visible"] = False
+
+    # Pictures from Global.
+    for comp in data["compositions"]:
+        links = dict(PICTURES["*"], **PICTURES.get(comp["name"], {}))
+        for l in comp["layers"]:
+            if l["type"] == "image" and l["name"] in links and not l["src"].startswith("{{"):
+                l["placeholder"] = l["src"]
+                l["src"] = links[l["name"]]
+                l["fit"] = "contain"
+
+    def text(cname, lname, value, nth=0):
+        l = _text(comps[cname], lname, nth)
+        if l:
+            l["text"] = value
+
+    # Scores, event and teams from Global.
+    if "Team stats" in comps:
+        text("Team stats", "SsssssssssG", "{{Global!Left name}}")
+        text("Team stats", "XssssssssX", "{{Global!Right name}}")
+        text("Team stats", "0", "{{Global!Left score}}", 0)
+        text("Team stats", "0", "{{Global!Right score}}", 1)
+        text("Team stats", "NACE VARSITY", "{{Global!Event}}")
+        text("Team stats", "OVERWATCH | PLAYOFFS", "{{Global!Game title}}")
+        ts = comps["Team stats"]
+        for side, (lo, hi) in (("Left", (0, 960)), ("Right", (960, 1920))):
+            heads = sorted([l for l in ts["layers"] if l["type"] == "text" and l["name"] in ("KILLS", "DEATHS", "ADR")
+                            and lo <= l["x"] < hi], key=lambda l: l["x"])
+            for i, l in enumerate(heads, 1):
+                l["text"] = f"{{{{Stats!Stat {i} title}}}}"
+            for n in range(1, 6):
+                l = _text(ts, f"Player {n} - {side[0]}")
+                if l:
+                    l["text"] = f"{{{{Stats!{side} player {n}}}}}"
+            cells = [l for l in ts["layers"] if l["type"] == "text" and l["name"] == "000" and lo <= l["x"] < hi]
+            for n, row in enumerate(_rows(cells, None), 1):
+                for i, l in enumerate(row, 1):
+                    l["text"] = f"{{{{Stats!{side} player {n} stat {i}}}}}"
+    if "Schedule" in comps:
+        text("Schedule", "0", "{{Global!Left score}}", 0)
+        text("Schedule", "0", "{{Global!Right score}}", 1)
+        sch = comps["Schedule"]
+        bottom = [l for l in sch["layers"] if l["type"] == "text" and l["y"] > 840]
+        for l in bottom:
+            if l["name"] == "NACE VARSITY":
+                l["text"] = "{{Global!Event}}"
+            elif l["name"] == "ROCKET LEAGUE | PLAYOFFS":
+                l["text"] = "{{Global!Game title}}"
+    if "Player stats" in comps:
+        ps = comps["Player stats"]
+        text("Player stats", "PLAYER NAME", "{{Stats!MVP}}")
+        text("Player stats", "TEAM NAME", "{{Stats!MVP team}}")
+        text("Player stats", "GAME", "{{Global!Game title}}")
+        for label, value, (lt, vt) in (("RATING (2.0)", "2.0", ("{{Stats!Stat 1 title}}", "{{Stats!MVP stat 1}}")),
+                                       ("ADR", "85", ("{{Stats!Stat 2 title}}", "{{Stats!MVP stat 2}}")),
+                                       ("K/D", "1.25", ("K/D", "{{Stats!MVP K/D}}")),
+                                       ("MULTIKILL (%)", "20", ("{{Stats!Stat 3 title}}", "{{Stats!MVP stat 3}}"))):
+            text("Player stats", label, lt)
+            text("Player stats", value, vt)
+    for n in range(1, 6):
+        cname = f"Player graphic ({n})"
+        if cname not in comps:
+            continue
+        pg = comps[cname]
+        names = sorted([l for l in pg["layers"] if l["type"] == "text" and l["name"] != "GAME NAME"], key=lambda l: l["x"])
+        for i, l in enumerate(names, 1):
+            l["text"] = f"{{{{Stats!Left player {i}}}}}"
+        text(cname, "GAME NAME", "{{Global!Game title}}")
+    if "Team graphic" in comps:
+        text("Team graphic", "GAME NAME", "{{Global!Game title}}")
+
+    # The background loop over the boards' backdrop.
+    for cname in LOOP_BOARDS:
+        comp = comps.get(cname)
+        if not comp or any(l.get("name") == "Background loop" for l in comp["layers"]):
+            continue
+        comp["layers"].insert(1, {
+            "id": new_id("l"), "name": "Background loop", "type": "video", "x": 0, "y": 0, "w": 1920, "h": 1080,
+            "opacity": 1, "rotation": 0, "visible": True, "blend": "screen", "field": "",
+            "anim": {"in": {"type": "fade", "dur": 600, "delay": 0}, "out": {"type": "fade", "dur": 250, "delay": 0}},
+            "src": "{{Global!BG loop}}", "fit": "cover", "loop": True, "audio": False,
+            "tint": "{{Global!BG loop colour}}", "brightness": "{{Global!BG loop brightness}}", "speed": "{{Global!BG loop speed}}"})
+
+    # The sponsors a new workspace starts with.
+    g = data.setdefault("global", {})
+    if not g.get("sponsors"):
+        g["sponsors"] = []
+        for src, name in SPONSORS:
+            dest = os.path.join(starter, "assets", "sponsors", name)
+            if os.path.isfile(os.path.join(starter, src)):
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                shutil.copy(os.path.join(starter, src), dest)
+                g["sponsors"].append({"logo": f"assets/sponsors/{name}", "secs": 10})
+    return data
+
+
+def remember(old, new):
+    """Adds the old graphics' signatures to the new project's pack_history."""
+    history = dict(old.get("pack_history") or {})
+    for comp in old.get("compositions", []):
+        sigs = history.setdefault(comp["name"], [])
+        if signature(comp) not in sigs:
+            sigs.append(signature(comp))
+    new["pack_history"] = history
+    return new
+
+
+def main():
+    path = os.path.join(STARTER, "project.json")
+    with open(path, encoding="utf-8") as f:
+        old = json.load(f)
+    new = remember(old, link(json.loads(json.dumps(old))))
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(new, f, indent=1)
+    print("Updated", path)
+
+
+if __name__ == "__main__":
+    main()

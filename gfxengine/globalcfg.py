@@ -3,19 +3,39 @@ event), set once per workspace and used by any graphic as the data source
 "Global": {{Global!Left name}}, {{Global!Left logo}}, {{Global!Left score}}...
 (a logo is a picture's path, so an image field can use it too).
 
+It also holds what most graphics share: the tournament's logo, the sponsors
+(shown one after another wherever a graphic has the sponsor spot, each for
+its own number of seconds) and the background loop behind the full-screen
+boards (its video, colour, brightness and speed).
+
 Game HUDs connected to the engine keep the series score up to date, and can
 take the team names, short names and logos from here.
 """
 
 import copy
+import time
 
 DEFAULT = {
     "event": "", "stage": "", "best_of": 3, "game": "",   # game: "" = from the score
     "left": {"name": "", "short": "", "logo": "", "color": "#0b6b3a", "score": 0},
     "right": {"name": "", "short": "", "logo": "", "color": "#b8191c", "score": 0},
     "custom": [],    # [[label, value], ...]
+    "tournament_logo": "",
+    # [{"logo": "assets/sponsors/x.png", "secs": 10}, ...]; the rotation is
+    # counted from sponsor_epoch (when the list last changed) so every output
+    # shows the same one at the same time.
+    "sponsors": [], "sponsor_epoch": 0,
+    "bgloop": {"on": True, "src": "", "color": "#2fa85a", "brightness": 1.6, "speed": 1},
 }
 TEAM_KEYS = ("name", "short", "logo", "color", "score")
+DEFAULT_LOOP = "loops/scc-bg-loop.webm"   # (comes with the engine, in web/)
+
+
+def _num(v, lo, hi, default):
+    try:
+        return max(lo, min(hi, float(v)))
+    except (TypeError, ValueError):
+        return default
 
 
 def clean(g):
@@ -39,7 +59,36 @@ def clean(g):
         out[side] = {k: (v if k == "score" else str(v or "")[:300]) for k, v in out[side].items()}
     out["custom"] = [[str(r[0])[:80], str(r[1])[:500]] for r in (g.get("custom") or [])
                      if isinstance(r, (list, tuple)) and len(r) >= 2 and str(r[0]).strip()]
+    out["tournament_logo"] = str(g.get("tournament_logo") or "")[:300]
+    out["sponsors"] = [{"logo": str(sp.get("logo"))[:300], "secs": _num(sp.get("secs"), 1, 600, 10)}
+                       for sp in (g.get("sponsors") or []) if isinstance(sp, dict) and sp.get("logo")][:40]
+    out["sponsor_epoch"] = _num(g.get("sponsor_epoch"), 0, 1e11, 0)
+    loop = dict(DEFAULT["bgloop"], **(g.get("bgloop") or {}))
+    out["bgloop"] = {"on": bool(loop.get("on")), "src": str(loop.get("src") or "")[:300],
+                     "color": str(loop.get("color") or DEFAULT["bgloop"]["color"])[:30],
+                     "brightness": _num(loop.get("brightness"), 0, 4, 1.6), "speed": _num(loop.get("speed"), 0.1, 4, 1)}
     return out
+
+
+def sponsors_changed(old, new):
+    """The rotation starts again from the first sponsor when the list changes."""
+    if [(s["logo"], s["secs"]) for s in old.get("sponsors", [])] != [(s["logo"], s["secs"]) for s in new["sponsors"]]:
+        new["sponsor_epoch"] = round(time.time(), 3)
+    return new
+
+
+def sponsor_now(g, now=None):
+    """(index of the sponsor showing, seconds it has left) at a moment, or (-1, 0)."""
+    sp = g.get("sponsors") or []
+    if not sp:
+        return -1, 0
+    total = sum(s["secs"] for s in sp)
+    t = ((now or time.time()) - g.get("sponsor_epoch", 0)) % total
+    for i, s in enumerate(sp):
+        if t < s["secs"]:
+            return i, s["secs"] - t
+        t -= s["secs"]
+    return len(sp) - 1, 0
 
 
 def game_number(g):
@@ -56,5 +105,17 @@ def rows(g):
         S = side.title()
         out += [[f"{S} name", t["name"]], [f"{S} short", t["short"]], [f"{S} logo", t["logo"]],
                 [f"{S} color", t["color"]], [f"{S} score", str(t["score"])]]
+    loop = g["bgloop"]
+    sp = g["sponsors"]
+    out += [["Tournament logo", g["tournament_logo"]],
+            ["Sponsor logo", sp[0]["logo"] if sp else ""], ["Sponsors", str(len(sp))],
+            ["BG loop", (loop["src"] or DEFAULT_LOOP) if loop["on"] else ""], ["BG loop colour", loop["color"]],
+            ["BG loop brightness", str(loop["brightness"])], ["BG loop speed", str(loop["speed"])]]
     out += [[k, v] for k, v in g["custom"]]
     return out
+
+
+def sponsor_rows(g):
+    """The "Sponsors" table the sponsor spots rotate through: logo | seconds | from (s)."""
+    g = clean(g)
+    return [["Logo", "Seconds", "Epoch"]] + [[s["logo"], str(s["secs"]), str(g["sponsor_epoch"])] for s in g["sponsors"]]

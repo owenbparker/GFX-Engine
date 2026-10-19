@@ -361,10 +361,16 @@
   function assetSelect(kind, value, onChange) {
     const kinds = kind === "video" ? ["video"] : [kind];
     const list = App.assets.filter(a => kinds.includes(a.kind));
+    // Pictures and the loop can follow the global configuration.
+    const linked = kind === "image" ? [["{{Global!Left logo}}", "Left team's logo"], ["{{Global!Right logo}}", "Right team's logo"],
+      ["{{Global!Tournament logo}}", "Tournament logo"], ["{{Sponsors}}", "Sponsors (in turn)"]]
+      : kind === "video" ? [["{{Global!BG loop}}", "Background loop"]] : [];
+    const known = list.some(a => a.path === value) || linked.some(([v]) => v === value);
     const sel = h("select", { onchange: e => onChange(e.target.value) },
       h("option", { value: "" }, "(none)"),
-      list.map(a => h("option", { value: a.path, selected: a.path === value }, a.path.replace(/^assets\//, ""))),
-      value && !list.some(a => a.path === value) ? h("option", { value, selected: true }, value + " (missing)") : null);
+      linked.length ? h("optgroup", { label: "Global configuration" }, linked.map(([v, t]) => h("option", { value: v, selected: v === value }, t))) : null,
+      h("optgroup", { label: "Files" }, list.map(a => h("option", { value: a.path, selected: a.path === value }, a.path.replace(/^assets\//, "")))),
+      value && !known ? h("option", { value, selected: true }, value + " (missing)") : null);
     const file = h("input", { type: "file", hidden: true, accept: kind === "image" ? "image/*" : kind === "video" ? "video/*,.mov,.webm,.zip" : ".json,.zip",
       onchange: async e => {
         const f = e.target.files[0];
@@ -466,6 +472,10 @@
         lab("File", assetSelect(l.type, l.src, v => { snapshot(); l.src = v; changed({ props: true }); })),
         l.type === "image" && l.src ? h("button", { class: "small", style: { marginTop: "6px" }, onclick: () => naturalSize(l) }, "Actual size") : null,
         lab("Fit", bind(l, "fit", "select", { options: [["contain", "Fit inside"], ["cover", "Fill and crop"], ["fill", "Stretch"]] })),
+        /\{\{\s*sponsors\s*\}\}/i.test(l.src || "") ? bind(l, "timer", "check", { label: "Show a bar with the time it has left" }) : null,
+        l.type === "image" && /\{\{/.test(l.src || "") ? lab("When Global has none", assetSelect("image", l.placeholder || "", v => { snapshot(); l.placeholder = v; changed({ props: true }); })) : null,
+        l.type === "video" ? h("div", { class: "row-gap" },
+          bind(l, "tint", "text", { label: "Tint colour (e.g. {{Global!BG loop colour}})", placeholder: "(none)" })) : null,
         l.type !== "image" ? h("div", { class: "row-gap" }, bind(l, "loop", "check", { label: "Loop" }),
           l.type === "video" ? bind(l, "audio", "check", { label: "Sound (Program output)" }) : null) : null));
     }

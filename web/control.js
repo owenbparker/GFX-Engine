@@ -95,6 +95,7 @@ const App = {
   apply(state) {
     this.state = state;
     GFX.loadFonts(state.fonts);
+    GFX.setClock(state.data.now);
     GFX.setData(state.data.tables);
     if (state.assets_rev !== this.assetsRev) this.loadAssets();
     this.emit("state");
@@ -257,14 +258,15 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
   }, 150);
   $("#fields-send").addEventListener("click", () => { if (selected) api("/api/send", { id: selected }); });
 
+  const GLOBAL_PICTURES = [["{{Global!Left logo}}", "Left team's logo"], ["{{Global!Right logo}}", "Right team's logo"],
+    ["{{Global!Tournament logo}}", "Tournament logo"], ["{{Sponsors}}", "Sponsors (in turn)"]];
   function assetOptions(kind, current) {
     const kinds = kind === "image" ? ["image"] : kind === "video" ? ["video", "image"] : kind === "lottie" ? ["lottie"] : [kind];
     const opts = App.assets.filter(a => kinds.includes(a.kind));
     const out = [h("option", { value: "" }, "(as designed)")];
     if (kind === "image") {
-      const g = ["Left logo", "Right logo"].map(k => `{{Global!${k}}}`);
       out.push(h("optgroup", { label: "Global configuration" },
-        ...g.map((t, i) => h("option", { value: t, selected: t === current }, i ? "Right team's logo" : "Left team's logo"))));
+        ...GLOBAL_PICTURES.map(([t, label]) => h("option", { value: t, selected: t === current }, label))));
     }
     out.push(...opts.map(a => h("option", { value: a.path, selected: a.path === current }, a.path.replace(/^(assets|library)\//, ""))));
     return out;

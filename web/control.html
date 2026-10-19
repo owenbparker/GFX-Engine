@@ -66,6 +66,39 @@
       </div>
     </section>
     <section class="panel team-card" data-side="right"></section>
+    <section class="panel g-brand">
+      <div class="panel-head"><h3>Tournament logo</h3></div>
+      <div class="pad">
+        <div id="g-tourney" class="logo-drop wide" title="Click or drop the tournament's logo">Click or drop the tournament's logo</div>
+        <div class="row-gap" style="justify-content:center"><button class="ghost small" id="g-tourney-clear" hidden>Remove logo</button></div>
+        <p class="muted small">Every tournament logo spot in the graphics shows it.</p>
+      </div>
+    </section>
+    <section class="panel g-sponsors">
+      <div class="panel-head"><h3>Sponsors</h3><span class="muted small">Shown in turn in every sponsor spot</span></div>
+      <div class="pad">
+        <div id="g-sponsor-list" class="sponsor-list"></div>
+        <div id="g-sponsor-add" class="sponsor-add" title="Click or drop sponsor logos">+ Click or drop sponsor logos</div>
+      </div>
+    </section>
+    <section class="panel g-loop">
+      <div class="panel-head"><h3>Background loop</h3>
+        <label class="toggle"><input type="checkbox" id="g-loop-on"> On</label></div>
+      <div class="pad">
+        <div class="loop-preview" id="g-loop-preview"><div class="loop-layer"><video id="g-loop-video" muted loop autoplay playsinline></video><div id="g-loop-tint" class="tint"></div></div></div>
+        <div class="loop-row">
+          <label>Colour<input type="color" id="g-loop-color"></label>
+          <label>Brightness <span id="g-loop-bright-v" class="muted"></span><input type="range" id="g-loop-bright" min="0.2" max="3" step="0.1"></label>
+          <label>Speed <span id="g-loop-speed-v" class="muted"></span><input type="range" id="g-loop-speed" min="0.1" max="3" step="0.1"></label>
+        </div>
+        <div class="row-gap">
+          <button class="small" id="g-loop-file">Choose video…</button>
+          <button class="small ghost" id="g-loop-default" title="The SCC loop that comes with the engine">Use the SCC loop</button>
+          <input type="file" id="g-loop-input" accept="video/*,.mov,.webm,.mp4" hidden>
+        </div>
+        <p class="muted small">Plays behind the schedule and the other full-screen boards.</p>
+      </div>
+    </section>
     <section class="panel g-custom">
       <div class="panel-head"><h3>More fields</h3><button class="small" id="g-custom-add">+ Add</button></div>
       <div id="g-custom" class="pad"></div>
@@ -80,6 +113,7 @@
     </section>
     <section class="panel g-feeds">
       <div class="panel-head"><h3>Game HUDs</h3><span class="muted small">In a HUD: Connect to GFX Engine</span></div>
+      <div class="pad stats-line"><span id="g-stats"></span><button class="ghost small" id="g-stats-clear" title="Forget the last game's stats">Clear stats</button></div>
       <div id="g-feeds" class="pad"></div>
     </section>
   </div>

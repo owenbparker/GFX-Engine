@@ -237,6 +237,123 @@ App.on(s => {
   const saveCustom = debounce(() => { api("/api/global", { global: { custom: g.custom.filter(r => r[0].trim()) } }); renderTokens(); }, 300);
   $("#g-custom-add").addEventListener("click", () => { g.custom.push(["", ""]); renderCustom(); const ins = $("#g-custom").querySelectorAll("input"); ins[ins.length - 2].focus(); });
 
+  // A drop target: click to pick files, or drop them.
+  function dropZone(el, accept, multiple, onFiles) {
+    const input = h("input", { type: "file", accept, multiple, hidden: true,
+      onchange: e => { const fs = [...e.target.files]; e.target.value = ""; if (fs.length) onFiles(fs); } });
+    el.after(input);
+    el.addEventListener("click", () => input.click());
+    el.addEventListener("dragover", e => { e.preventDefault(); e.stopPropagation(); el.classList.add("over"); });
+    el.addEventListener("dragleave", () => el.classList.remove("over"));
+    el.addEventListener("drop", e => {
+      e.preventDefault(); e.stopPropagation(); el.classList.remove("over");
+      const fs = [...e.dataTransfer.files]; if (fs.length) onFiles(fs);
+    });
+  }
+  const pic = p => !p ? "" : /^https?:/.test(p) ? p : "/" + encodeURI(p);
+
+  // The tournament's logo.
+  dropZone($("#g-tourney"), "image/*", false, async ([f]) => {
+    g = (await postFile("/api/global/logo?side=tournament", f)).global; render(true); toast("Tournament logo saved");
+  });
+  $("#g-tourney-clear").addEventListener("click", () => { g.tournament_logo = ""; api("/api/global", { global: { tournament_logo: "" } }); render(true); });
+  function renderBrand() {
+    const d = $("#g-tourney"), logo = pic(g.tournament_logo);
+    d.classList.toggle("has", !!logo);
+    d.style.backgroundImage = logo ? `url("${logo}")` : "";
+    $("#g-tourney-clear").hidden = !logo;
+  }
+
+  // The sponsors, in order, each for its own seconds.
+  dropZone($("#g-sponsor-add"), "image/*", true, async fs => {
+    for (const f of fs) g = (await postFile("/api/global/logo?side=sponsor", f)).global;
+    render(true); toast(fs.length > 1 ? `${fs.length} sponsors added` : "Sponsor added");
+  });
+  const saveSponsors = debounce(() => api("/api/global", { global: { sponsors: g.sponsors } }), 400);
+  function moveSponsor(i, by) {
+    const j = i + by;
+    if (j < 0 || j >= g.sponsors.length) return;
+    [g.sponsors[i], g.sponsors[j]] = [g.sponsors[j], g.sponsors[i]];
+    api("/api/global", { global: { sponsors: g.sponsors } });
+    renderSponsors(true);
+  }
+  function renderSponsors(force) {
+    const list = $("#g-sponsor-list");
+    const sig = JSON.stringify(g.sponsors.map(x => x.logo));
+    if (force || list.dataset.sig !== sig) {
+      list.dataset.sig = sig;
+      list.replaceChildren(...(g.sponsors.length ? g.sponsors.map((sp, i) => h("div", { class: "sponsor", "data-i": i },
+        h("div", { class: "thumb", style: { backgroundImage: `url("${pic(sp.logo)}")` }, title: sp.logo }),
+        h("div", {},
+          h("div", { class: "secs" }, "On for", h("input", { type: "number", min: 1, max: 600, value: sp.secs,
+            onchange: e => { sp.secs = Math.max(1, +e.target.value || 10); saveSponsors(); } }), "seconds"),
+          h("div", { class: "now" })),
+        h("div", { class: "acts" },
+          h("button", { class: "ghost small", title: "Earlier", onclick: () => moveSponsor(i, -1) }, "↑"),
+          h("button", { class: "ghost small", title: "Later", onclick: () => moveSponsor(i, 1) }, "↓"),
+          h("button", { class: "ghost small", title: "Remove", onclick: () => {
+            g.sponsors.splice(i, 1); api("/api/global", { global: { sponsors: g.sponsors } }); renderSponsors(true);
+          } }, "✕")),
+        h("div", { class: "bar" })))
+        : [h("div", { class: "muted small" }, "No sponsors yet: the sponsor spots show the design's own picture.")]));
+    }
+    tickSponsors();
+  }
+  // Which one is on now, and how long it has left.
+  function tickSponsors() {
+    const now = GFX.sponsorNow();
+    $("#g-sponsor-list").querySelectorAll(".sponsor").forEach((row, i) => {
+      const on = i === now.index;
+      row.classList.toggle("on", on);
+      row.querySelector(".now").textContent = on ? `On air now · ${Math.ceil(now.left)} s left` : "";
+      row.querySelector(".bar").style.transform = `scaleX(${on && now.secs ? now.left / now.secs : 0})`;
+    });
+  }
+  setInterval(() => { if (App.tab === "global") tickSponsors(); }, 250);
+
+  // The background loop.
+  const loopSrc = () => g.bgloop.src || "loops/scc-bg-loop.webm";
+  function renderLoop() {
+    const L = g.bgloop, v = $("#g-loop-video");
+    $("#g-loop-on").checked = L.on;
+    $("#g-loop-preview").classList.toggle("off", !L.on);
+    if (document.activeElement !== $("#g-loop-color")) $("#g-loop-color").value = /^#[0-9a-f]{6}$/i.test(L.color) ? L.color : "#2fa85a";
+    if (document.activeElement !== $("#g-loop-bright")) $("#g-loop-bright").value = L.brightness;
+    if (document.activeElement !== $("#g-loop-speed")) $("#g-loop-speed").value = L.speed;
+    $("#g-loop-bright-v").textContent = Number(L.brightness).toFixed(1);
+    $("#g-loop-speed-v").textContent = Number(L.speed).toFixed(1) + "×";
+    const src = pic(loopSrc());
+    if (v.dataset.src !== src) { v.dataset.src = src; v.src = src; v.play().catch(() => {}); }
+    v.playbackRate = L.speed;
+    v.style.filter = `grayscale(1) brightness(${L.brightness})`;
+    $("#g-loop-tint").style.background = L.color;
+    $("#g-loop-default").hidden = !g.bgloop.src;
+  }
+  const loopChange = changes => { Object.assign(g.bgloop, changes); change({ bgloop: changes }); renderLoop(); };
+  $("#g-loop-on").addEventListener("change", e => loopChange({ on: e.target.checked }));
+  $("#g-loop-color").addEventListener("input", e => loopChange({ color: e.target.value }));
+  $("#g-loop-bright").addEventListener("input", e => loopChange({ brightness: +e.target.value }));
+  $("#g-loop-speed").addEventListener("input", e => loopChange({ speed: +e.target.value }));
+  $("#g-loop-default").addEventListener("click", () => loopChange({ src: "" }));
+  $("#g-loop-file").addEventListener("click", () => $("#g-loop-input").click());
+  $("#g-loop-input").addEventListener("change", async e => {
+    const f = e.target.files[0]; e.target.value = "";
+    if (!f) return;
+    toast(`Adding ${f.name}…`);
+    g = (await postFile("/api/global/logo?side=bgloop", f)).global; render(true); toast("Background loop saved");
+  });
+
+  // The game's stats (kept after the game).
+  function renderStats(s) {
+    const st = s.data.stats || {}, rows = s.data.tables.Stats || [];
+    const val = k => (rows.find(r => r[0] === k) || [])[1] || "";
+    $("#g-stats").replaceChildren(...(!st.kept ? ["No game stats yet."] :
+      [h("b", {}, st.live ? "Stats live" : "Final stats kept"), ` from ${st.from || "a HUD"} · ${val("Game")}` +
+        (st.live ? "" : ` · ${new Date(st.at * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`)]));
+    $("#g-stats-clear").hidden = !st.kept;
+  }
+  $("#g-stats-clear").addEventListener("click", () => { if (confirm("Forget the last game's stats? The stats graphics go blank until a HUD sends new ones.")) api("/api/stats/clear", {}); });
+
   // The tokens, and the HUDs' data.
   function renderTokens() {
     const rows = (App.state.data.tables.Global || []).slice(1);
@@ -293,6 +410,10 @@ App.on(s => {
     if (force || !document.activeElement || !$("#g-custom").contains(document.activeElement)) renderCustom();
     renderTokens();
     renderFeeds(s);
+    renderBrand();
+    renderSponsors(force);
+    renderLoop();
+    renderStats(s);
   }
 
   // Changes from elsewhere (a HUD's score, another control panel) come in when not being edited here.
@@ -303,7 +424,7 @@ App.on(s => {
       lastGlobal = sig;
       if (!Object.keys(queued).length) g = JSON.parse(JSON.stringify(s.global));
       if (App.tab === "global") render();
-    } else if (App.tab === "global") renderFeeds(s);
+    } else if (App.tab === "global") { renderFeeds(s); renderStats(s); }
   });
   pages.global = { shown() { if (App.state) { g = JSON.parse(JSON.stringify(App.state.global)); render(true); } } };
 })();
