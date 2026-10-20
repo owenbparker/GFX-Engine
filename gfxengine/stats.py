@@ -106,14 +106,18 @@ def _gold(g):
 def _values(game, p):
     """A player's numbers by name: the three every game has, and the game's own."""
     v = dict(zip(BASE.get(game, ("kills", "deaths", "assists")), p["stats"]), **(p.get("values") or {}))
+    if game == "lol" and "values" not in p:   # (kept by the version before: its CS was the "extra")
+        v.update(cs=_int(p.get("extra")), dmg=None)
     k, d, a = p["stats"]
     v.update(kda=f"{k}/{d}/{a}", kd=_kd(k, d))
     return v
 
 
 def _show(key, v):
-    if v is None:
-        return "–"     # (not reported: damage during the game)
+    if v is None or (key == "dmg" and v == ""):
+        return "–"     # (not reported: damage during the game, or stats kept from an older version)
+    if not isinstance(v, int):
+        return str(v)
     return _gold(v) if key == "gold" else f"{v:,}" if key == "dmg" else str(v)
 
 

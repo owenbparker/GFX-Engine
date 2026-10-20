@@ -213,6 +213,12 @@ class StatsTests(unittest.TestCase):
         t = dict(stats.rows(stats.read("lol", lf), True)[1:])
         self.assertEqual((t["Stat 1 title"], t["Row 4 title"], t["Left player 1 stat 1"], t["Left player 1 stat 3"],
                           t["MVP row 4"], t["Left kills"], t["Right kills"]), ("K/D/A", "GOLD", "3/1/7", "–", "9.8K", "3", "1"))
+        # (stats kept by the version before: no "values")
+        old = stats.read("lol", lf)
+        for side in ("left", "right"):
+            for p in old[side]["players"]:
+                p.pop("values")
+        self.assertEqual(dict(stats.rows(old, False)[1:])["MVP row 3"], "–")
         lf["P1 DMG"] = "23456"
         self.assertEqual(dict(stats.rows(stats.read("lol", lf), False)[1:])["MVP row 3"], "23,456")
 

@@ -33,7 +33,7 @@ from .live import Live
 from .log import log, since
 from .media import Jobs, ffmpeg_path, stinger_cut
 from .project import Workspace, blank_comp, blank_layer, new_id
-from .stats import GAMES, Stats
+from .stats import GAMES, Stats, rows as stats_rows
 from .teams import Teams, player_named, roster_rows
 from . import schedule, tournament
 from .updater import Updater, clean_up_old_update
@@ -151,9 +151,15 @@ class Engine:
         g = self.global_config()
         snap["tables"]["Global"] = globalcfg.rows(g)
         snap["tables"]["Sponsors"] = globalcfg.sponsor_rows(g)
-        snap["tables"]["Stats"] = self.stats.rows(
-            {side: g[side]["name"] for side in ("left", "right")}, g["player_stats"],
-            lambda side, name: player_named(self.teams.find(g[side]["name"], g[side]["game"]), name))
+        try:
+            snap["tables"]["Stats"] = self.stats.rows(
+                {side: g[side]["name"] for side in ("left", "right")}, g["player_stats"],
+                lambda side, name: player_named(self.teams.find(g[side]["name"], g[side]["game"]), name))
+        except Exception as e:   # (the game's stats can't take the whole engine down)
+            if not getattr(self, "_stats_failed", False):
+                log(f"Couldn't read the game's stats: {e!r}")
+            self._stats_failed = True
+            snap["tables"]["Stats"] = stats_rows(None, False)
         snap["tables"]["Tournament"] = tournament.rows(g["tournament"], self.teams.find)
         snap["tables"]["Teams"] = self.teams.rows()
         snap["tables"]["Schedule"] = schedule.rows(g["schedule"], self.teams.find)
