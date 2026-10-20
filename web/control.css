@@ -467,3 +467,5 @@ table.sheet td.c:hover { background: #1d3b5e; }
 .t-acts button { padding: 2px 6px; }
 @media (max-width: 1200px) { .t-sect { grid-template-columns: 1fr; } }
 .sponsor .white { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); margin-top: 3px; }
+.caster-field .swatch { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--text); font-size: 12px; white-space: nowrap; }
+.caster-field .swatch input { width: 36px; height: 28px; padding: 2px; margin: 0; }

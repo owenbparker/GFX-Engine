@@ -41,7 +41,26 @@ DEFAULT = {
     "roster": "left",    # whose players the player graphics show
     # who the Player stats page shows: the top player ("auto") or one picked ("left 3")
     "player_stats": "auto",
+    # The caster lower third: how many boxes, the box's colour (primary) and
+    # the text and shadow's (secondary).
+    "caster": {"count": 1, "primary": "#c2bdff", "secondary": "#001a1a"},
 }
+# The caster box in the design (x, y, w, h), and where the boxes go: their
+# bottom edge, the gap between them, and how big they are for 1-4 boxes.
+CASTER_BOX = (619, 451, 683, 178)
+CASTER_BOTTOM, CASTER_GAP = 975, 40
+CASTER_SCALE = {1: 1, 2: 1, 3: 0.85, 4: 0.63}
+
+
+def caster_moves(count):
+    """Each caster box's "dx dy scale" from the design's place: side by side,
+    centred, along the bottom of the screen."""
+    x, y, w, h = CASTER_BOX
+    sc = CASTER_SCALE[count]
+    total = count * w * sc + (count - 1) * CASTER_GAP
+    left = (1920 - total) / 2
+    dy = CASTER_BOTTOM - h * sc - y
+    return [f"{round(left + i * (w * sc + CASTER_GAP) - x)} {round(dy)} {sc}" for i in range(count)]
 CLOCK_LABELS = {"time": "LOCAL TIME", "soon": "STARTING SOON", "brb": "BE RIGHT BACK"}
 TICKER_GAP = "  |  "
 TEAM_KEYS = ("name", "short", "logo", "color", "score", "game")
@@ -91,6 +110,15 @@ def clean(g):
     out["roster"] = "right" if g.get("roster") == "right" else "left"
     pick = str(g.get("player_stats") or "")
     out["player_stats"] = pick if re.match(r"^(left|right) ([1-9]|10)$", pick) else "auto"
+    caster = dict(DEFAULT["caster"], **(g.get("caster") or {}))
+    try:
+        count = int(caster.get("count") or 1)
+    except (TypeError, ValueError):
+        count = 1
+    colour = lambda v, d: v if isinstance(v, str) and re.match(r"^#[0-9a-fA-F]{6}$", v) else d
+    out["caster"] = {"count": count if count in CASTER_SCALE else 1,
+                     "primary": colour(caster.get("primary"), DEFAULT["caster"]["primary"]),
+                     "secondary": colour(caster.get("secondary"), DEFAULT["caster"]["secondary"])}
     clock = dict(DEFAULT["clock"], **(g.get("clock") or {}))
     until = str(clock.get("until") or "").strip()
     out["clock"] = {"mode": clock.get("mode") if clock.get("mode") in CLOCK_LABELS else "time",
@@ -143,6 +171,11 @@ def rows(g):
             ["Ticker", TICKER_GAP.join(g["ticker"]) + (TICKER_GAP if g["ticker"] else "")],
             ["Clock mode", g["clock"]["mode"]], ["Clock until", g["clock"]["until"]], ["Clock zone", g["clock"]["zone"]],
             ["Clock label", CLOCK_LABELS[g["clock"]["mode"]]]]
+    c = g["caster"]
+    moves = caster_moves(c["count"])
+    out += [["Caster boxes", str(c["count"])], ["Caster primary", c["primary"]], ["Caster secondary", c["secondary"]]]
+    for i in range(4):
+        out += [[f"Caster {i + 1} shown", "1" if i < c["count"] else ""], [f"Caster {i + 1} move", moves[i] if i < c["count"] else ""]]
     out += [[k, v] for k, v in g["custom"]]
     return out
 

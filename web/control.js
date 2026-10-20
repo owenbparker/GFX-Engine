@@ -310,8 +310,9 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const clock = comp.layers.some(l => /\{\{\s*clock\s*\}\}/i.test(l.text || ""));
     const roster = comp.layers.some(l => /\{\{\s*Roster!/i.test((l.text || "") + (l.src || "")));
     const mvp = comp.layers.some(l => /\{\{\s*Stats!MVP/i.test((l.text || "") + (l.src || "")));
-    const extras = () => [roster ? rosterField(s) : null, mvp ? mvpField(s) : null, clock ? clockField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
-    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, clock, roster, mvp,
+    const caster = comp.layers.some(l => /Global!Caster/i.test(l.move || ""));
+    const extras = () => [caster ? casterField(s) : null, roster ? rosterField(s) : null, mvp ? mvpField(s) : null, clock ? clockField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
+    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, clock, roster, mvp, caster,
       Object.keys(s.data.feeds || {}), (s.data.tables.Global || []).map(r => r[0])]);
     if (!force && box.dataset.sig === sig) {
       markSize(box, s);
@@ -331,7 +332,7 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     }
     box.dataset.sig = sig;
     if (!fields.length) {
-      box.replaceChildren(...(bracket || sched || clock || roster || mvp ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
+      box.replaceChildren(...(bracket || sched || clock || roster || mvp || caster ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
       return;
     }
     box.replaceChildren(...fields.map(l => {
@@ -403,6 +404,23 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     markSize(el, s);
     return el;
   }
+  // The caster lower third: how many boxes, and its two colours (Global's, so
+  // they change on air too).
+  function casterField(s) {
+    const set = change => api("/api/global", { global: { caster: change } });
+    const el = h("div", { class: "field caster-field" },
+      h("label", {}, "Caster boxes", h("span", { class: "kind" }, "global")),
+      h("div", { class: "row-gap" },
+        h("select", { "data-k": "caster-count", onchange: e => set({ count: +e.target.value }) },
+          ...[1, 2, 3, 4].map(n => h("option", { value: n }, n === 1 ? "1 box" : `${n} boxes`))),
+        h("label", { class: "swatch" }, "Primary colour",
+          h("input", { type: "color", "data-k": "caster-primary", title: "The box", onchange: e => set({ primary: e.target.value }) })),
+        h("label", { class: "swatch" }, "Secondary colour",
+          h("input", { type: "color", "data-k": "caster-secondary", title: "The text, the box's edge and its shadow", onchange: e => set({ secondary: e.target.value }) }))),
+      h("div", { class: "resolved" }, "Primary is the box; secondary is the text, the box's edge and its shadow. Each box's name and handle are below."));
+    markSize(el, s);
+    return el;
+  }
   // The Player stats page: the top player in the game (most of stat 1), or one picked.
   function mvpField(s) {
     const el = h("div", { class: "field mvp-field" },
@@ -436,6 +454,11 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
       el.querySelector("[data-k=roster-note]").textContent = rows.Team
         ? `${rows.Players} player${rows.Players === "1" ? "" : "s"} on ${rows.Team}'s roster in the Teams tab.`
         : "That team isn't in the Teams tab, so the names come from the game's stats.";
+    }
+    const cs = s.global.caster || { count: 1, primary: "#c2bdff", secondary: "#001a1a" };
+    for (const [k, v] of [["caster-count", String(cs.count)], ["caster-primary", cs.primary], ["caster-secondary", cs.secondary]]) {
+      const inp = el.querySelector(`[data-k=${k}]`);
+      if (inp && document.activeElement !== inp) inp.value = v;
     }
     const mv = el.querySelector("[data-k=mvp]");
     if (mv) {

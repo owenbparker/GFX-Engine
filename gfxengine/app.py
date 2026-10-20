@@ -202,7 +202,7 @@ class Engine:
         old = self.global_config()
         g = json.loads(json.dumps(old))
         for k, v in (changes or {}).items():
-            if k in ("left", "right", "bgloop") and isinstance(v, dict):
+            if k in ("left", "right", "bgloop", "caster") and isinstance(v, dict):
                 g[k].update(v)
             else:
                 g[k] = v

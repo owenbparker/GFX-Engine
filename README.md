@@ -115,6 +115,11 @@ loop**, which every SCC graphic uses, so changing them here changes them all:
   brackets). Turn it off, pick its colour, brightness and speed, or drop in
   another video.
 
+The **caster lower third** shows 1 to 4 caster boxes side by side along the
+bottom (picked in its Control fields, with each caster's name and handle),
+in a primary colour (the box) and a secondary colour (the text, the box's
+edge and its shadow), also set there.
+
 The **ticker** has the lines every ticker scrolls (`{{Global!Ticker}}`), kept
 apart by a yellow bar (a scrolling text layer's Divider colour in Composer).
 
@@ -181,12 +186,21 @@ stats and player graphics use it. The last game's stats are kept after it
 ends (and over a restart) until the next game starts or you press **Clear
 stats** in Global.
 
+Each game has its own columns on **Team stats** and rows on **Player stats**:
+League of Legends shows K/D/A, CS and DMG (and GOLD on Player stats), VALORANT
+kills, deaths and assists, Rocket League goals, saves and score. The big
+numbers at the top of Team stats are each team's kills (goals in Rocket
+League): `{{Stats!Left kills}}`. League's damage only comes once the game is
+over, from the League client's end-of-game stats on the HUD's PC (Riot's live
+game API doesn't report it); until then DMG shows a dash. Gold is the HUD's
+estimate during the game and exact after it.
+
 The **Player stats** page shows one player from the game: the one with the
 most of the first stat (kills, goals) unless another is picked in its
 Control fields (every player in the game is listed). Their name, flag and
 headshot come from their team's roster in the Teams tab, matched by in-game
 ID: `{{Stats!MVP name}}`, `{{Stats!MVP flag}}`, `{{Stats!MVP headshot}}`,
-`{{Stats!MVP stat 1}}`, `{{Stats!MVP K/D}}`...
+`{{Stats!MVP row 1}}` (and `{{Stats!Row 1 title}}`)...
 
 ## Outputs and the network
 

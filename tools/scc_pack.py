@@ -131,6 +131,41 @@ def players(pg, n):
             "show": f"{{{{Roster!Player {i} headshot}}}}"})
 
 
+def casters(comps):
+    """The caster lower third: 1 to 4 boxes (Global's "Caster boxes"), side by
+    side along the bottom, each with its caster's name and handle, in Global's
+    primary (box) and secondary (text, edge and shadow) colours."""
+    c = comps.get("Caster lower third")
+    if not c or any(l.get("move") for l in c["layers"]):
+        return
+    x, y = 619, 451     # (the design's box: globalcfg.CASTER_BOX)
+    names = {"Layer 1": ("Box", "primary"), "Layer 2": ("Box edge", "secondary"), "Layer 3": ("Box shadow", "secondary")}
+    group = []
+    for l in c["layers"]:
+        if l["type"] == "image" and l["name"] in names:
+            l["name"], tone = names[l["name"]]
+            l["recolor"] = f"{{{{Global!Caster {tone}}}}}"
+        elif l["type"] == "text":
+            big = l["size"] > 40
+            l.update(name="Caster" if big else "Caster handle", field="Caster" if big else "Caster handle",
+                     text="CASTER NAME" if big else "@HANDLE", color="{{Global!Caster secondary}}")
+        group.append(l)
+    # (Control lists fields top layer first: Caster 1, its handle, then Caster 2...)
+    group.sort(key=lambda l: {"Caster": 4, "Caster handle": 3}.get(l["name"], 0))
+    layers = []
+    for i in range(4, 0, -1):
+        for l in group:
+            n = json.loads(json.dumps(l))
+            if i > 1:
+                n["id"] = new_id("l")
+            n["name"] = l["name"].replace("Caster", f"Caster {i}").replace("Box", f"Box {i}")
+            if n.get("field"):
+                n["field"] = n["name"]
+            n.update(origin=[x, y], move=f"{{{{Global!Caster {i} move}}}}", show=f"{{{{Global!Caster {i} shown}}}}")
+            layers.append(n)
+    c["layers"] = layers
+
+
 def schedule(comps):
     """The Schedule: its three match cards from the Upcoming Schedule (shown as
     many as it's set to), and the teams' logos in front of their names."""
@@ -253,8 +288,12 @@ def link(data, starter=STARTER):
     if "Team stats" in comps:
         text("Team stats", "SsssssssssG", "{{Global!Left name}}")
         text("Team stats", "XssssssssX", "{{Global!Right name}}")
-        text("Team stats", "0", "{{Global!Left score}}", 0)
-        text("Team stats", "0", "{{Global!Right score}}", 1)
+        # (each team's kills in the game: goals in Rocket League)
+        text("Team stats", "0", "{{Stats!Left kills}}", 0)
+        text("Team stats", "0", "{{Stats!Right kills}}", 1)
+        for nth in (0, 1):   # (two digits, not spaced out like the design's one)
+            if _text(comps["Team stats"], "0", nth):
+                _text(comps["Team stats"], "0", nth)["tracking"] = 0
         text("Team stats", "NACE VARSITY", "{{Global!Event}}")
         text("Team stats", "OVERWATCH | PLAYOFFS", "{{Global!Game title}}")
         ts = comps["Team stats"]
@@ -271,6 +310,8 @@ def link(data, starter=STARTER):
             for n, row in enumerate(_rows(cells, None), 1):
                 for i, l in enumerate(row, 1):
                     l["text"] = f"{{{{Stats!{side} player {n} stat {i}}}}}"
+                    if i == 1 and l["w"] < 120:   # (room for League's K/D/A: 12/3/15)
+                        l.update(x=round(l["x"] + l["w"] / 2 - 60), w=120)
     if "Schedule" in comps:
         text("Schedule", "0", "{{Global!Left score}}", 0)
         text("Schedule", "0", "{{Global!Right score}}", 1)
@@ -294,12 +335,13 @@ def link(data, starter=STARTER):
                          fit="contain", position="bottom" if head else "left")
         text("Player stats", "TEAM NAME", "{{Stats!MVP team}}")
         text("Player stats", "GAME", "{{Global!Game title}}")
-        for label, value, (lt, vt) in (("RATING (2.0)", "2.0", ("{{Stats!Stat 1 title}}", "{{Stats!MVP stat 1}}")),
-                                       ("ADR", "85", ("{{Stats!Stat 2 title}}", "{{Stats!MVP stat 2}}")),
-                                       ("K/D", "1.25", ("K/D", "{{Stats!MVP K/D}}")),
-                                       ("MULTIKILL (%)", "20", ("{{Stats!Stat 3 title}}", "{{Stats!MVP stat 3}}"))):
-            text("Player stats", label, lt)
-            text("Player stats", value, vt)
+        # Its four rows: the game's own (League: K/D/A, CS, DMG, GOLD).
+        for i, (label, value) in enumerate((("RATING (2.0)", "2.0"), ("ADR", "85"), ("K/D", "1.25"), ("MULTIKILL (%)", "20")), 1):
+            text("Player stats", label, f"{{{{Stats!Row {i} title}}}}")
+            text("Player stats", value, f"{{{{Stats!MVP row {i}}}}}")
+            v = _text(ps, value)
+            if v:   # (room for 12/3/15)
+                v.update(x=v["x"] + v["w"] - 320, w=320, align="right")
     for n in range(1, 6):
         if f"Player graphic ({n})" in comps:
             players(comps[f"Player graphic ({n})"], n)
@@ -343,6 +385,7 @@ def link(data, starter=STARTER):
                 l.update(divider=DIVIDER, dividerWidth=5)
 
     schedule(comps)
+    casters(comps)
     data["global"].setdefault("schedule", json.loads(json.dumps(SCHEDULE)))
     tournament(comps)
 

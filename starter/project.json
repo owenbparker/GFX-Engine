@@ -2328,8 +2328,8 @@
    "layer": 0,
    "layers": [
     {
-     "id": "l3ce2a22d",
-     "name": "Layer 3",
+     "id": "lb50f045a",
+     "name": "Box 4 shadow",
      "type": "image",
      "x": 817,
      "y": 483,
@@ -2354,11 +2354,18 @@
      },
      "src": "assets/Caster lower third/Layer 3.png",
      "fit": "fill",
-     "loop": true
+     "loop": true,
+     "recolor": "{{Global!Caster secondary}}",
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 4 move}}",
+     "show": "{{Global!Caster 4 shown}}"
     },
     {
-     "id": "l41aaf172",
-     "name": "Layer 2",
+     "id": "ld7cc9306",
+     "name": "Box 4 edge",
      "type": "image",
      "x": 619,
      "y": 451,
@@ -2383,11 +2390,18 @@
      },
      "src": "assets/Caster lower third/Layer 2.png",
      "fit": "fill",
-     "loop": true
+     "loop": true,
+     "recolor": "{{Global!Caster secondary}}",
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 4 move}}",
+     "show": "{{Global!Caster 4 shown}}"
     },
     {
-     "id": "l2446f251",
-     "name": "Layer 1",
+     "id": "l469eb8bb",
+     "name": "Box 4",
      "type": "image",
      "x": 642,
      "y": 451,
@@ -2412,51 +2426,18 @@
      },
      "src": "assets/Caster lower third/Layer 1.png",
      "fit": "fill",
-     "loop": true
+     "loop": true,
+     "recolor": "{{Global!Caster primary}}",
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 4 move}}",
+     "show": "{{Global!Caster 4 shown}}"
     },
     {
-     "id": "l3203108c",
-     "name": "casterrrrrrrrrr",
-     "type": "text",
-     "x": 662,
-     "y": 481,
-     "w": 834,
-     "h": 98,
-     "opacity": 1.0,
-     "rotation": 0,
-     "visible": true,
-     "blend": "normal",
-     "field": "casterrrrrrrrrr",
-     "anim": {
-      "in": {
-       "type": "slide-up",
-       "dur": 450,
-       "delay": 174
-      },
-      "out": {
-       "type": "fade",
-       "dur": 250,
-       "delay": 0
-      }
-     },
-     "text": "casterrrrrrrrrr",
-     "font": "VTFRedzone-Classic",
-     "size": 70.0,
-     "color": "#001a1a",
-     "align": "left",
-     "valign": "top",
-     "tracking": 50.0,
-     "caps": true,
-     "lineHeight": 1.2,
-     "fit": "shrink",
-     "weight": 400,
-     "italic": false,
-     "scroll": 0,
-     "baseline": 60.2
-    },
-    {
-     "id": "l170a43d4",
-     "name": "@tywitterrrrrrrrrrrrrrrrrrrrrrrrrr",
+     "id": "l0b1cbc57",
+     "name": "Caster 4 handle",
      "type": "text",
      "x": 682,
      "y": 553,
@@ -2466,7 +2447,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "@tywitterrrrrrrrrrrrrrrrrrrrrrrrrr",
+     "field": "Caster 4 handle",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -2479,10 +2460,10 @@
        "delay": 0
       }
      },
-     "text": "@tywitterrrrrrrrrrrrrrrrrrrrrrrrrr",
+     "text": "@HANDLE",
      "font": "VTFRedzone-Classic",
      "size": 28.0,
-     "color": "#001a1a",
+     "color": "{{Global!Caster secondary}}",
      "align": "left",
      "valign": "top",
      "tracking": 50.0,
@@ -2492,7 +2473,659 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 24.1
+     "baseline": 24.1,
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 4 move}}",
+     "show": "{{Global!Caster 4 shown}}"
+    },
+    {
+     "id": "l73689c8f",
+     "name": "Caster 4",
+     "type": "text",
+     "x": 662,
+     "y": 481,
+     "w": 834,
+     "h": 98,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "Caster 4",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 174
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "CASTER NAME",
+     "font": "VTFRedzone-Classic",
+     "size": 70.0,
+     "color": "{{Global!Caster secondary}}",
+     "align": "left",
+     "valign": "top",
+     "tracking": 50.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "shrink",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 60.2,
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 4 move}}",
+     "show": "{{Global!Caster 4 shown}}"
+    },
+    {
+     "id": "l3ba1b415",
+     "name": "Box 3 shadow",
+     "type": "image",
+     "x": 817,
+     "y": 483,
+     "w": 485,
+     "h": 146,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "wipe-right",
+       "dur": 450,
+       "delay": 48
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Caster lower third/Layer 3.png",
+     "fit": "fill",
+     "loop": true,
+     "recolor": "{{Global!Caster secondary}}",
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 3 move}}",
+     "show": "{{Global!Caster 3 shown}}"
+    },
+    {
+     "id": "lde640939",
+     "name": "Box 3 edge",
+     "type": "image",
+     "x": 619,
+     "y": 451,
+     "w": 26,
+     "h": 166,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "scale",
+       "dur": 450,
+       "delay": 80
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Caster lower third/Layer 2.png",
+     "fit": "fill",
+     "loop": true,
+     "recolor": "{{Global!Caster secondary}}",
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 3 move}}",
+     "show": "{{Global!Caster 3 shown}}"
+    },
+    {
+     "id": "lc50fb291",
+     "name": "Box 3",
+     "type": "image",
+     "x": 642,
+     "y": 451,
+     "w": 644,
+     "h": 166,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "wipe-right",
+       "dur": 450,
+       "delay": 12
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Caster lower third/Layer 1.png",
+     "fit": "fill",
+     "loop": true,
+     "recolor": "{{Global!Caster primary}}",
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 3 move}}",
+     "show": "{{Global!Caster 3 shown}}"
+    },
+    {
+     "id": "l7ede063d",
+     "name": "Caster 3 handle",
+     "type": "text",
+     "x": 682,
+     "y": 553,
+     "w": 739,
+     "h": 39,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "Caster 3 handle",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "@HANDLE",
+     "font": "VTFRedzone-Classic",
+     "size": 28.0,
+     "color": "{{Global!Caster secondary}}",
+     "align": "left",
+     "valign": "top",
+     "tracking": 50.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "shrink",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 24.1,
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 3 move}}",
+     "show": "{{Global!Caster 3 shown}}"
+    },
+    {
+     "id": "lea427c96",
+     "name": "Caster 3",
+     "type": "text",
+     "x": 662,
+     "y": 481,
+     "w": 834,
+     "h": 98,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "Caster 3",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 174
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "CASTER NAME",
+     "font": "VTFRedzone-Classic",
+     "size": 70.0,
+     "color": "{{Global!Caster secondary}}",
+     "align": "left",
+     "valign": "top",
+     "tracking": 50.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "shrink",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 60.2,
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 3 move}}",
+     "show": "{{Global!Caster 3 shown}}"
+    },
+    {
+     "id": "ld00530a4",
+     "name": "Box 2 shadow",
+     "type": "image",
+     "x": 817,
+     "y": 483,
+     "w": 485,
+     "h": 146,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "wipe-right",
+       "dur": 450,
+       "delay": 48
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Caster lower third/Layer 3.png",
+     "fit": "fill",
+     "loop": true,
+     "recolor": "{{Global!Caster secondary}}",
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 2 move}}",
+     "show": "{{Global!Caster 2 shown}}"
+    },
+    {
+     "id": "l275bd11c",
+     "name": "Box 2 edge",
+     "type": "image",
+     "x": 619,
+     "y": 451,
+     "w": 26,
+     "h": 166,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "scale",
+       "dur": 450,
+       "delay": 80
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Caster lower third/Layer 2.png",
+     "fit": "fill",
+     "loop": true,
+     "recolor": "{{Global!Caster secondary}}",
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 2 move}}",
+     "show": "{{Global!Caster 2 shown}}"
+    },
+    {
+     "id": "l2070a3cb",
+     "name": "Box 2",
+     "type": "image",
+     "x": 642,
+     "y": 451,
+     "w": 644,
+     "h": 166,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "wipe-right",
+       "dur": 450,
+       "delay": 12
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Caster lower third/Layer 1.png",
+     "fit": "fill",
+     "loop": true,
+     "recolor": "{{Global!Caster primary}}",
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 2 move}}",
+     "show": "{{Global!Caster 2 shown}}"
+    },
+    {
+     "id": "l91974294",
+     "name": "Caster 2 handle",
+     "type": "text",
+     "x": 682,
+     "y": 553,
+     "w": 739,
+     "h": 39,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "Caster 2 handle",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "@HANDLE",
+     "font": "VTFRedzone-Classic",
+     "size": 28.0,
+     "color": "{{Global!Caster secondary}}",
+     "align": "left",
+     "valign": "top",
+     "tracking": 50.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "shrink",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 24.1,
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 2 move}}",
+     "show": "{{Global!Caster 2 shown}}"
+    },
+    {
+     "id": "l45f5cc87",
+     "name": "Caster 2",
+     "type": "text",
+     "x": 662,
+     "y": 481,
+     "w": 834,
+     "h": 98,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "Caster 2",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 174
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "CASTER NAME",
+     "font": "VTFRedzone-Classic",
+     "size": 70.0,
+     "color": "{{Global!Caster secondary}}",
+     "align": "left",
+     "valign": "top",
+     "tracking": 50.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "shrink",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 60.2,
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 2 move}}",
+     "show": "{{Global!Caster 2 shown}}"
+    },
+    {
+     "id": "l3ce2a22d",
+     "name": "Box 1 shadow",
+     "type": "image",
+     "x": 817,
+     "y": 483,
+     "w": 485,
+     "h": 146,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "wipe-right",
+       "dur": 450,
+       "delay": 48
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Caster lower third/Layer 3.png",
+     "fit": "fill",
+     "loop": true,
+     "recolor": "{{Global!Caster secondary}}",
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 1 move}}",
+     "show": "{{Global!Caster 1 shown}}"
+    },
+    {
+     "id": "l41aaf172",
+     "name": "Box 1 edge",
+     "type": "image",
+     "x": 619,
+     "y": 451,
+     "w": 26,
+     "h": 166,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "scale",
+       "dur": 450,
+       "delay": 80
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Caster lower third/Layer 2.png",
+     "fit": "fill",
+     "loop": true,
+     "recolor": "{{Global!Caster secondary}}",
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 1 move}}",
+     "show": "{{Global!Caster 1 shown}}"
+    },
+    {
+     "id": "l2446f251",
+     "name": "Box 1",
+     "type": "image",
+     "x": 642,
+     "y": 451,
+     "w": 644,
+     "h": 166,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "wipe-right",
+       "dur": 450,
+       "delay": 12
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Caster lower third/Layer 1.png",
+     "fit": "fill",
+     "loop": true,
+     "recolor": "{{Global!Caster primary}}",
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 1 move}}",
+     "show": "{{Global!Caster 1 shown}}"
+    },
+    {
+     "id": "l170a43d4",
+     "name": "Caster 1 handle",
+     "type": "text",
+     "x": 682,
+     "y": 553,
+     "w": 739,
+     "h": 39,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "Caster 1 handle",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "@HANDLE",
+     "font": "VTFRedzone-Classic",
+     "size": 28.0,
+     "color": "{{Global!Caster secondary}}",
+     "align": "left",
+     "valign": "top",
+     "tracking": 50.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "shrink",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 24.1,
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 1 move}}",
+     "show": "{{Global!Caster 1 shown}}"
+    },
+    {
+     "id": "l3203108c",
+     "name": "Caster 1",
+     "type": "text",
+     "x": 662,
+     "y": 481,
+     "w": 834,
+     "h": 98,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "Caster 1",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 174
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "CASTER NAME",
+     "font": "VTFRedzone-Classic",
+     "size": 70.0,
+     "color": "{{Global!Caster secondary}}",
+     "align": "left",
+     "valign": "top",
+     "tracking": 50.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "shrink",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 60.2,
+     "origin": [
+      619,
+      451
+     ],
+     "move": "{{Global!Caster 1 move}}",
+     "show": "{{Global!Caster 1 shown}}"
     }
    ],
    "width": 1920,
@@ -3180,9 +3813,9 @@
      "id": "l799e9913",
      "name": "000",
      "type": "text",
-     "x": 1454,
+     "x": 1438,
      "y": 903,
-     "w": 88,
+     "w": 120,
      "h": 43,
      "opacity": 1.0,
      "rotation": 0,
@@ -3340,9 +3973,9 @@
      "id": "l308916b2",
      "name": "000",
      "type": "text",
-     "x": 1454,
+     "x": 1438,
      "y": 817,
-     "w": 88,
+     "w": 120,
      "h": 43,
      "opacity": 1.0,
      "rotation": 0,
@@ -3500,9 +4133,9 @@
      "id": "lcb79bd99",
      "name": "000",
      "type": "text",
-     "x": 1454,
+     "x": 1438,
      "y": 732,
-     "w": 88,
+     "w": 120,
      "h": 43,
      "opacity": 1.0,
      "rotation": 0,
@@ -3660,9 +4293,9 @@
      "id": "la04cd797",
      "name": "000",
      "type": "text",
-     "x": 1454,
+     "x": 1438,
      "y": 648,
-     "w": 88,
+     "w": 120,
      "h": 43,
      "opacity": 1.0,
      "rotation": 0,
@@ -3820,9 +4453,9 @@
      "id": "l640096d6",
      "name": "000",
      "type": "text",
-     "x": 1454,
+     "x": 1438,
      "y": 562,
-     "w": 88,
+     "w": 120,
      "h": 43,
      "opacity": 1.0,
      "rotation": 0,
@@ -3980,9 +4613,9 @@
      "id": "l665f1c65",
      "name": "000",
      "type": "text",
-     "x": 554,
+     "x": 538,
      "y": 903,
-     "w": 88,
+     "w": 120,
      "h": 43,
      "opacity": 1.0,
      "rotation": 0,
@@ -4140,9 +4773,9 @@
      "id": "l73ba3d77",
      "name": "000",
      "type": "text",
-     "x": 554,
+     "x": 538,
      "y": 817,
-     "w": 88,
+     "w": 120,
      "h": 43,
      "opacity": 1.0,
      "rotation": 0,
@@ -4300,9 +4933,9 @@
      "id": "l3f19d5d8",
      "name": "000",
      "type": "text",
-     "x": 554,
+     "x": 538,
      "y": 732,
-     "w": 88,
+     "w": 120,
      "h": 43,
      "opacity": 1.0,
      "rotation": 0,
@@ -4460,9 +5093,9 @@
      "id": "laf952c34",
      "name": "000",
      "type": "text",
-     "x": 554,
+     "x": 538,
      "y": 648,
-     "w": 88,
+     "w": 120,
      "h": 43,
      "opacity": 1.0,
      "rotation": 0,
@@ -4620,9 +5253,9 @@
      "id": "la30fff40",
      "name": "000",
      "type": "text",
-     "x": 554,
+     "x": 538,
      "y": 562,
-     "w": 88,
+     "w": 120,
      "h": 43,
      "opacity": 1.0,
      "rotation": 0,
@@ -5041,13 +5674,13 @@
        "delay": 0
       }
      },
-     "text": "{{Global!Left score}}",
+     "text": "{{Stats!Left kills}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 86,
      "color": "#ffffff",
      "align": "center",
      "valign": "top",
-     "tracking": 200.0,
+     "tracking": 0,
      "caps": true,
      "lineHeight": 1.2,
      "fit": "shrink",
@@ -5161,13 +5794,13 @@
        "delay": 0
       }
      },
-     "text": "{{Global!Right score}}",
+     "text": "{{Stats!Right kills}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 86,
      "color": "#ffffff",
      "align": "center",
      "valign": "top",
-     "tracking": 200.0,
+     "tracking": 0,
      "caps": true,
      "lineHeight": 1.2,
      "fit": "shrink",
@@ -8525,9 +9158,9 @@
      "id": "l9a589442",
      "name": "20",
      "type": "text",
-     "x": 1422,
+     "x": 1269,
      "y": 772,
-     "w": 167,
+     "w": 320,
      "h": 114,
      "opacity": 1.0,
      "rotation": 0,
@@ -8546,7 +9179,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!MVP stat 3}}",
+     "text": "{{Stats!MVP row 4}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 81.46,
      "color": "#ffffff",
@@ -8586,7 +9219,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Stat 3 title}}",
+     "text": "{{Stats!Row 4 title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 40.0,
      "color": "#ffffff",
@@ -8605,9 +9238,9 @@
      "id": "l3b4f6bc0",
      "name": "1.25",
      "type": "text",
-     "x": 1354,
+     "x": 1269,
      "y": 625,
-     "w": 235,
+     "w": 320,
      "h": 114,
      "opacity": 1.0,
      "rotation": 0,
@@ -8626,7 +9259,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!MVP K/D}}",
+     "text": "{{Stats!MVP row 3}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 81.46,
      "color": "#ffffff",
@@ -8666,7 +9299,7 @@
        "delay": 0
       }
      },
-     "text": "K/D",
+     "text": "{{Stats!Row 3 title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 40.0,
      "color": "#ffffff",
@@ -8685,9 +9318,9 @@
      "id": "ld7ecd968",
      "name": "85",
      "type": "text",
-     "x": 1422,
+     "x": 1269,
      "y": 480,
-     "w": 167,
+     "w": 320,
      "h": 114,
      "opacity": 1.0,
      "rotation": 0,
@@ -8706,7 +9339,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!MVP stat 2}}",
+     "text": "{{Stats!MVP row 2}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 81.46,
      "color": "#ffffff",
@@ -8746,7 +9379,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Stat 2 title}}",
+     "text": "{{Stats!Row 2 title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 40.0,
      "color": "#ffffff",
@@ -8765,9 +9398,9 @@
      "id": "l83453f71",
      "name": "2.0",
      "type": "text",
-     "x": 1402,
+     "x": 1273,
      "y": 328,
-     "w": 191,
+     "w": 320,
      "h": 114,
      "opacity": 1.0,
      "rotation": 0,
@@ -8786,7 +9419,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!MVP stat 1}}",
+     "text": "{{Stats!MVP row 1}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 81.46,
      "color": "#ffffff",
@@ -8826,7 +9459,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Stat 1 title}}",
+     "text": "{{Stats!Row 1 title}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 40.0,
      "color": "#ffffff",
@@ -18466,14 +19099,16 @@
   "Caster lower third": [
    "2320941025e868b7",
    "ae6aa86ce5f7ec9b",
-   "c03c7b06b7743f97"
+   "c03c7b06b7743f97",
+   "52c8a246a9e89aff"
   ],
   "Team stats": [
    "f5206d0a5a78daf3",
    "d01a05d0e6cb4e2d",
    "850828a972a6c7eb",
    "d7266d2c9d25a42e",
-   "ff552eb95deae327"
+   "ff552eb95deae327",
+   "97ba20a68c5f5dfa"
   ],
   "Title screen": [
    "a617db4af2bfcbff",
@@ -18528,7 +19163,8 @@
    "a0685547a7772d37",
    "29bddf33609addf2",
    "d5dce73c6f590dc8",
-   "89212692f9971a8b"
+   "89212692f9971a8b",
+   "c980b36b8965cbfb"
   ],
   "Group bracket": [
    "277e2bab153a8817",

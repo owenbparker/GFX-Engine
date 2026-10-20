@@ -214,6 +214,14 @@
     if (t === "image" && value.startsWith("{{Sponsors all}}")) return sponsorStrip(layer, value.split("|").slice(1));
     if (t === "video" && layer.tint) return tintedVideo(layer, value, opts);
     if (t === "bracket") return bracketBox(layer);
+    if (t === "image" && layer.recolor && value) {
+      // A one-colour shape in another colour (from Global): the picture as a mask.
+      const m = el("div", "gfx-media gfx-recolor");
+      const src = `url("${url(encodeURI(value))}")`, size = { fill: "100% 100%", cover: "cover" }[layer.fit] || "contain";
+      Object.assign(m.style, { webkitMaskImage: src, maskImage: src, webkitMaskSize: size, maskSize: size,
+        webkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", webkitMaskPosition: "center", maskPosition: "center" });
+      return m;
+    }
     if (t === "image") {
       if (!value) return el("div");
       const img = el("img", "gfx-media", { objectFit: fitOf(layer.fit), objectPosition: POSITIONS[layer.position] || "" });
@@ -477,7 +485,24 @@
   // the Schedule's matches beyond how many it shows, say.
   const showing = layer => { const v = GFX.resolve(layer.show).trim(); return !!v && v !== "0" && v.toLowerCase() !== "false"; };
   function reshow() {
-    document.querySelectorAll(".gfx-L").forEach(L => { if (L._layer && L._layer.show) L.style.display = showing(L._layer) ? "" : "none"; });
+    document.querySelectorAll(".gfx-L").forEach(L => {
+      if (L._layer && L._layer.show) L.style.display = showing(L._layer) ? "" : "none";
+      if (L._layer) restyle(L);
+    });
+  }
+  // What a layer's look takes from the data as it changes: its colour
+  // ({{Global!Caster primary}}) and where it's moved to ("dx dy scale", around
+  // layer.origin on the canvas: the caster boxes, spaced out by how many there are).
+  function restyle(L) {
+    const layer = L._layer;
+    if (layer.move) {
+      const [dx, dy, sc] = GFX.resolve(layer.move).trim().split(/\s+/).map(Number);
+      const o = layer.origin || [layer.x, layer.y];
+      L.style.transformOrigin = `${o[0] - layer.x}px ${o[1] - layer.y}px`;
+      L.style.transform = `translate(${dx || 0}px, ${dy || 0}px) scale(${sc || 1})` + (layer.rotation ? ` rotate(${layer.rotation}deg)` : "");
+    }
+    if (layer.recolor) { const m = L.querySelector(".gfx-recolor"); if (m) m.style.background = GFX.resolve(layer.recolor) || "#ffffff"; }
+    if (layer.type === "text" && hasTokens(layer.color)) { const b = L.querySelector(".gfx-text"); if (b) b.style.color = GFX.resolve(layer.color); }
   }
 
   // Text from a Photoshop file sits on its baseline where Photoshop put it,
@@ -546,6 +571,7 @@
     outer._extra = extraOf(layer);
     outer._layer = layer;
     outer._sig = JSON.stringify(layer);
+    if (layer.move || layer.recolor || hasTokens(layer.color)) restyle(outer);
     return outer;
   }
 

@@ -208,6 +208,13 @@ class StatsTests(unittest.TestCase):
         self.assertEqual((rl["Status"], rl["Stat 1 title"], rl["Left player 1 stat 1"]), ("FINAL", "GOALS", "2"))
         self.assertIsNone(stats.read("valorant", {"SCORE LEFT": 3}))      # no players: no game going
         self.assertIsNone(stats.read("cod", f))
+        # League: K/D/A, CS, DMG (damage once the game is over), GOLD; each team's kills.
+        lf = {"P1 NAME": "A", "P1 KDA": "3/1/7", "P1 CS": "210", "P1 GOLD RAW": "9800", "P6 NAME": "B", "P6 KDA": "1/3/0"}
+        t = dict(stats.rows(stats.read("lol", lf), True)[1:])
+        self.assertEqual((t["Stat 1 title"], t["Row 4 title"], t["Left player 1 stat 1"], t["Left player 1 stat 3"],
+                          t["MVP row 4"], t["Left kills"], t["Right kills"]), ("K/D/A", "GOLD", "3/1/7", "–", "9.8K", "3", "1"))
+        lf["P1 DMG"] = "23456"
+        self.assertEqual(dict(stats.rows(stats.read("lol", lf), False)[1:])["MVP row 3"], "23,456")
 
     def test_player_stats_pick_and_roster(self):
         from gfxengine import stats
