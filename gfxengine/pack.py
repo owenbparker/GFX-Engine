@@ -80,6 +80,9 @@ def upgrade(ws, starter):
         if "ticker" not in g and pg.get("ticker"):
             g["ticker"] = list(pg["ticker"])
             changed_global = True
+        if "schedule" not in g and pg.get("schedule"):
+            g["schedule"] = copy.deepcopy(pg["schedule"])
+            changed_global = True
         if changed_global:
             ws.data["global"] = g
         if done or changed_global:

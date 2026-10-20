@@ -410,3 +410,14 @@ table.sheet td.c:hover { background: #1d3b5e; }
 .rd-group { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 10px 4px 4px; }
 .rd-group:first-child { padding-top: 2px; }
 #add-special { width: 40px; padding: 3px 2px; }
+
+/* UPCOMING SCHEDULE */
+#page-schedule { overflow-y: auto; }
+.schedule-page { padding: 0 16px 16px; }
+.s-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 10px; }
+.s-card .panel-head { display: flex; align-items: center; gap: 8px; }
+.s-card.off { opacity: .55; }
+.s-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+.s-grid label { display: flex; flex-direction: column; gap: 3px; }
+.s-grid label:first-child { grid-column: 1 / -1; }
+#page-schedule .page-head select { width: auto; }

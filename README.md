@@ -110,7 +110,8 @@ loop**, which every SCC graphic uses, so changing them here changes them all:
   brackets). Turn it off, pick its colour, brightness and speed, or drop in
   another video.
 
-The **ticker** has the lines every ticker scrolls (`{{Global!Ticker}}`).
+The **ticker** has the lines every ticker scrolls (`{{Global!Ticker}}`), kept
+apart by a yellow bar (a scrolling text layer's Divider colour in Composer).
 
 The **Teams** tab has the team list (shared by every workspace, kept in
 `library/teams.csv`): each team's name, short name, logo and colour. Pick a
@@ -126,6 +127,15 @@ matches, winners', elimination and decider). Enter the teams and the scores,
 and the winners go through by themselves; the final four shows the
 knockout's last two rounds. In graphics: `{{Tournament!Top R1 M1 team 1}}`,
 `{{Tournament!Top champion}}`, `{{Tournament!Group A 1st}}`...
+
+The **Upcoming Schedule** tab has the matches the Schedule graphic lists:
+each one's tournament, game, match type, teams, date and time. The graphic
+shows the first 1, 2 or 3 of them (chosen in that tab, or in the Schedule's
+Control fields). In graphics: `{{Schedule!Match 1 tournament}}`,
+`{{Schedule!Match 1 game}}`, `{{Schedule!Match 1 teams}}`,
+`{{Schedule!Match 1 when}}`; a layer whose Show is `{{Schedule!Match 2 show}}`
+is only on screen while the second match is. The Schedule's score bar shows
+each team's logo in front of its name.
 
 The SCC graphics in a workspace are brought up to date when the engine has
 newer versions of them, unless you've changed them in Composer.

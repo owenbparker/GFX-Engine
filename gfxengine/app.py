@@ -35,7 +35,7 @@ from .media import Jobs, ffmpeg_path, stinger_cut
 from .project import Workspace, blank_comp, blank_layer, new_id
 from .stats import Stats
 from .teams import Teams
-from . import tournament
+from . import schedule, tournament
 from .updater import Updater, clean_up_old_update
 from .workspaces import Workspaces
 
@@ -154,6 +154,7 @@ class Engine:
         snap["tables"]["Stats"] = self.stats.rows({side: g[side]["name"] for side in ("left", "right")})
         snap["tables"]["Tournament"] = tournament.rows(g["tournament"], self.teams.find)
         snap["tables"]["Teams"] = self.teams.rows()
+        snap["tables"]["Schedule"] = schedule.rows(g["schedule"], self.teams.find)
         for name, feed in self.feeds.items():
             snap["tables"][name] = feed["rows"]
         snap["rev"] = f"{snap['rev']}.{self.ws.rev}.{self.feeds_rev}.{int(self.stats.live())}.{self.teams.rev}"

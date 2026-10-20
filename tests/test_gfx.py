@@ -294,6 +294,24 @@ class PackTests(unittest.TestCase):
         self.assertTrue(any(l["type"] == "bracket" for l in comps["Top 8 bracket"]["layers"]))
         self.assertTrue(any("{{Tournament!Group A 1st}}" == l.get("text") for l in comps["Group bracket"]["layers"]))
         self.assertTrue(data["global"]["ticker"])
+        sch = comps["Schedule"]["layers"]
+        self.assertEqual(len([l for l in sch if l.get("show") == "{{Schedule!Match 3 show}}"]), 6)
+        self.assertTrue(any(l.get("src") == "{{Global!Left logo}}" for l in sch))
+        self.assertTrue(all(l.get("divider") for l in sch if l.get("scroll")))
+        self.assertEqual(len(data["global"]["schedule"]["matches"]), 3)
+
+
+class ScheduleTests(unittest.TestCase):
+    def test_rows(self):
+        from gfxengine import schedule
+        s = {"count": 2, "matches": [{"tournament": "NACE", "game": "ROCKET LEAGUE", "type": "PLAYOFFS", "team1": "A", "team2": "B",
+                                      "date": "2026-11-11", "time": "09:05"}, {"game": "VALORANT", "date": "bad"},
+                                     {"tournament": "Third"}]}
+        r = dict(schedule.rows(s)[1:])
+        self.assertEqual((r["Count"], r["Match 1 game"], r["Match 1 teams"], r["Match 1 when"]), ("2", "ROCKET LEAGUE | PLAYOFFS", "A vs. B", "WED 11/11  |  9:05 AM"))
+        self.assertEqual((r["Match 2 show"], r["Match 2 when"], r["Match 3 show"]), ("1", "", ""))
+        self.assertEqual(schedule.clean({"count": 7})["count"], 3)
+        self.assertEqual(dict(schedule.rows({})[1:])["Match 1 show"], "")
 
 
 class TournamentTests(unittest.TestCase):
@@ -472,6 +490,13 @@ class ServerTests(unittest.TestCase):
             self.assertEqual(len(s2["teams"]), 2)
             post("/api/teams", {"teams": s2["teams"][:1]})
             self.assertEqual([t["name"] for t in json.loads(get("/api/state"))["teams"]], ["Humber Hawks"])
+            # The upcoming schedule.
+            post("/api/global", {"global": {"schedule": {"count": 1, "matches": [
+                {"tournament": "NACE", "game": "VALORANT", "team1": "Humber Hawks", "team2": "SCC", "date": "2026-10-20", "time": "19:30"},
+                {"tournament": "CRL"}]}}})
+            sc = dict(json.loads(get("/api/state"))["data"]["tables"]["Schedule"][1:])
+            self.assertEqual((sc["Count"], sc["Match 1 when"], sc["Match 1 team 1 logo"], sc["Match 1 show"], sc["Match 2 show"]),
+                             ("1", "TUE 10/20  |  7:30 PM", r["logo"], "1", ""))
             # A game HUD's data: its own table, and the series score into Global.
             post("/api/ingest", {"source": "League HUD", "game": "lol", "fields": {"Blue kills": 7, "Game time": "12:34"},
                                  "series": {"left": {"score": 2}, "right": {"score": 1}, "best_of": 5}})

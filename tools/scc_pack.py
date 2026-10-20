@@ -30,6 +30,16 @@ LOOP_BOARDS = ("Schedule", "Team stats", "Player stats", "Group bracket", "Top 8
 KINDS = {"lower third": ("Caster lower third",),
          "overlay": ("Scorebug & footer", "Replay overlay")}
 TICKER = ["WELCOME TO ST. CLAIR SAINTS ESPORTS", "FOLLOW @SCCSAINTS FOR HIGHLIGHTS", "THANKS FOR WATCHING!"]
+# The upcoming matches a new workspace starts with (the design's own).
+SCHEDULE = {"count": 3, "matches": [
+    {"tournament": "NACE VARSITY", "game": "ROCKET LEAGUE", "type": "PLAYOFFS", "team1": "George Mason University",
+     "team2": "St. Clair College", "date": "2026-11-11", "time": "19:30"},
+    {"tournament": "NACE VARSITY", "game": "PREMIER LEAGUE OF LEGENDS", "type": "SEMI-FINALS", "team1": "Maryville University",
+     "team2": "St. Clair College", "date": "2026-11-19", "time": "20:00"},
+    {"tournament": "CANADIAN ESPORTS NATIONALS", "game": "VALORANT", "type": "", "team1": "Université de Montréal",
+     "team2": "St. Clair College", "date": "2026-11-25", "time": "20:30"}]}
+# The ticker's lines are kept apart by a bar in this colour.
+DIVIDER = "#ffc52a"
 BRACKETS = ("Group bracket", "Top 8 bracket", "Final four")
 # The knockout bracket's own drawing replaces the design's 8 slots and lines.
 TOP8_PARTS = ("Position ", "Vector Smart Object", "Line 3", "Rectangle 3", "Rectangle 4")
@@ -74,6 +84,50 @@ def _rows(layers, xs):
     for key in sorted(rows):
         out.append(sorted(rows[key], key=lambda l: l["x"]))
     return out
+
+
+def schedule(comps):
+    """The Schedule: its three match cards from the Upcoming Schedule (shown as
+    many as it's set to), and the teams' logos in front of their names."""
+    sch = comps.get("Schedule")
+    if not sch:
+        return
+    cards = ((195, 328), (328, 438), (438, 560))
+    fields = {"tournament": ("NACE VARSITY", "CANADIAN ESPORTS NATIONALS"),
+              "game": ("ROCKET LEAGUE | PLAYOFFS", "Premier League of Legends | Semi-Finals", "VALORANT"),
+              "teams": ("vs.",), "when": ("|",)}
+    for n, (top, bottom) in enumerate(cards, 1):
+        for l in sch["layers"]:
+            if l["x"] < 1400 or not (top <= l["y"] < bottom) or l["name"] == "SCHEDULE":
+                continue
+            l["show"] = f"{{{{Schedule!Match {n} show}}}}"
+            if l["type"] != "text":
+                continue
+            if l["text"] in fields["game"]:
+                key = "game"
+            elif l["text"] in fields["tournament"]:
+                key = "tournament"
+            elif " vs. " in l["text"]:
+                key = "teams"
+            elif "|" in l["text"]:
+                key = "when"
+            else:
+                continue
+            l["text"] = f"{{{{Schedule!Match {n} {key}}}}}"
+            l["fit"] = "shrink"
+            l["field"] = ""
+    # The teams' logos in the score bar, in front of their short names.
+    left, right = _text(sch, "SG"), _text(sch, "GMU")
+    if left and right and not any(l["name"] == "Left logo" for l in sch["layers"]):
+        left.update(x=422, w=200)
+        right.update(x=930, w=240, align="right")
+        at = sch["layers"].index(left)
+        for name, x, side in (("Left logo", 326, "Left"), ("Right logo", 1192, "Right")):
+            sch["layers"].insert(at, {
+                "id": new_id("l"), "name": name, "type": "image", "x": x, "y": 869, "w": 80, "h": 80,
+                "opacity": 1, "rotation": 0, "visible": True, "blend": "normal", "field": "",
+                "anim": json.loads(json.dumps(left.get("anim") or {})),
+                "src": f"{{{{Global!{side} logo}}}}", "fit": "contain", "loop": True})
 
 
 def link(data, starter=STARTER):
@@ -204,6 +258,13 @@ def link(data, starter=STARTER):
                 l["text"] = "{{Global!Ticker}}"
     data.setdefault("global", {}).setdefault("ticker", list(TICKER))
 
+    for comp in data["compositions"]:
+        for l in comp["layers"]:
+            if l["type"] == "text" and l.get("scroll") and l["text"] == "{{Global!Ticker}}":
+                l.update(divider=DIVIDER, dividerWidth=5)
+
+    schedule(comps)
+    data["global"].setdefault("schedule", json.loads(json.dumps(SCHEDULE)))
     tournament(comps)
 
     # The sponsors a new workspace starts with.

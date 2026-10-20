@@ -7,7 +7,8 @@ It also holds what most graphics share: the tournament's logo, the sponsors
 (shown one after another wherever a graphic has the sponsor spot, each for
 its own number of seconds) and the background loop behind the full-screen
 boards (its video, colour, brightness and speed), the ticker's lines and
-the tournament's brackets (see tournament.py).
+the tournament's brackets (see tournament.py) and the upcoming schedule
+(see schedule.py).
 
 Game HUDs connected to the engine keep the series score up to date, and can
 take the team names, short names and logos from here.
@@ -16,7 +17,7 @@ take the team names, short names and logos from here.
 import copy
 import time
 
-from . import tournament
+from . import schedule, tournament
 
 DEFAULT = {
     "event": "", "stage": "", "best_of": 3, "game": "",   # game: "" = from the score
@@ -31,6 +32,7 @@ DEFAULT = {
     "bgloop": {"on": True, "src": "", "color": "#2fa85a", "brightness": 1.6, "speed": 1},
     "ticker": [],    # its lines, shown one after another
     "tournament": tournament.default(),
+    "schedule": schedule.default(),
 }
 TICKER_GAP = "  |  "
 TEAM_KEYS = ("name", "short", "logo", "color", "score")
@@ -75,6 +77,7 @@ def clean(g):
                      "brightness": _num(loop.get("brightness"), 0, 4, 1.6), "speed": _num(loop.get("speed"), 0.1, 4, 1)}
     out["ticker"] = [str(x).strip()[:300] for x in (g.get("ticker") or []) if str(x).strip()][:40]
     out["tournament"] = tournament.clean(g.get("tournament"))
+    out["schedule"] = schedule.clean(g.get("schedule"))
     return out
 
 

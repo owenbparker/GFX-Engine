@@ -124,7 +124,8 @@
      },
      "src": "assets/Schedule/Rectangle 3 copy 6.png",
      "fit": "fill",
-     "loop": true
+     "loop": true,
+     "show": "{{Schedule!Match 3 show}}"
     },
     {
      "id": "ldf1e164e",
@@ -153,7 +154,8 @@
      },
      "src": "assets/Schedule/Rectangle 3 copy 10.png",
      "fit": "fill",
-     "loop": true
+     "loop": true,
+     "show": "{{Schedule!Match 1 show}}"
     },
     {
      "id": "lc3238b62",
@@ -182,7 +184,8 @@
      },
      "src": "assets/Schedule/Rectangle 3 copy 7.png",
      "fit": "fill",
-     "loop": true
+     "loop": true,
+     "show": "{{Schedule!Match 2 show}}"
     },
     {
      "id": "l9065c143",
@@ -211,7 +214,8 @@
      },
      "src": "assets/Schedule/Rectangle 3 copy 9.png",
      "fit": "fill",
-     "loop": true
+     "loop": true,
+     "show": "{{Schedule!Match 1 show}}"
     },
     {
      "id": "ldc93ef65",
@@ -240,7 +244,8 @@
      },
      "src": "assets/Schedule/Rectangle 3 copy 6-2.png",
      "fit": "fill",
-     "loop": true
+     "loop": true,
+     "show": "{{Schedule!Match 3 show}}"
     },
     {
      "id": "le8dccd79",
@@ -269,7 +274,8 @@
      },
      "src": "assets/Schedule/Rectangle 3 copy 7-2.png",
      "fit": "fill",
-     "loop": true
+     "loop": true,
+     "show": "{{Schedule!Match 2 show}}"
     },
     {
      "id": "la207e326",
@@ -570,7 +576,9 @@
      "fit": "none",
      "weight": 400,
      "italic": false,
-     "scroll": 90
+     "scroll": 90,
+     "divider": "#ffc52a",
+     "dividerWidth": 5
     },
     {
      "id": "l954505e0",
@@ -664,7 +672,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "NACE VARSITY",
+     "field": "",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -677,7 +685,7 @@
        "delay": 0
       }
      },
-     "text": "NACE VARSITY",
+     "text": "{{Schedule!Match 2 tournament}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 21.05,
      "color": "#ffffff",
@@ -690,7 +698,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 18.1
+     "baseline": 18.1,
+     "show": "{{Schedule!Match 2 show}}"
     },
     {
      "id": "l53c286ab",
@@ -704,7 +713,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "MON 11/19 | 8:00 PM",
+     "field": "",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -717,7 +726,7 @@
        "delay": 0
       }
      },
-     "text": "MON 11/19  |  8:00 PM",
+     "text": "{{Schedule!Match 2 when}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 10.94,
      "color": "#ffffff",
@@ -730,7 +739,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 9.4
+     "baseline": 9.4,
+     "show": "{{Schedule!Match 2 show}}"
     },
     {
      "id": "lcd49806b",
@@ -744,7 +754,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "Premier League of Legends | Semi-Finals",
+     "field": "",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -757,7 +767,7 @@
        "delay": 0
       }
      },
-     "text": "Premier League of Legends | Semi-Finals",
+     "text": "{{Schedule!Match 2 game}}",
      "font": "Gotham-Bold",
      "size": 11.79,
      "color": "#ffc52a",
@@ -770,7 +780,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 10.1
+     "baseline": 10.1,
+     "show": "{{Schedule!Match 2 show}}"
     },
     {
      "id": "lf80fb3be",
@@ -784,7 +795,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "Maryville University vs. St. Clair Colle",
+     "field": "",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -797,7 +808,7 @@
        "delay": 0
       }
      },
-     "text": "Maryville University vs. St. Clair College",
+     "text": "{{Schedule!Match 2 teams}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 10.1,
      "color": "#ffffff",
@@ -810,7 +821,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 8.7
+     "baseline": 8.7,
+     "show": "{{Schedule!Match 2 show}}"
     },
     {
      "id": "leddc59b5",
@@ -824,7 +836,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "NACE VARSITY 2",
+     "field": "",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -837,7 +849,7 @@
        "delay": 0
       }
      },
-     "text": "NACE VARSITY",
+     "text": "{{Schedule!Match 1 tournament}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 25.18,
      "color": "#ffffff",
@@ -850,7 +862,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 21.7
+     "baseline": 21.7,
+     "show": "{{Schedule!Match 1 show}}"
     },
     {
      "id": "l4279428f",
@@ -864,7 +877,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "MON 11/11 | 7:30 PM",
+     "field": "",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -877,7 +890,7 @@
        "delay": 0
       }
      },
-     "text": "MON 11/11  |  7:30 PM",
+     "text": "{{Schedule!Match 1 when}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 13.09,
      "color": "#ffffff",
@@ -890,7 +903,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 11.3
+     "baseline": 11.3,
+     "show": "{{Schedule!Match 1 show}}"
     },
     {
      "id": "lc893f5a8",
@@ -904,7 +918,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "ROCKET LEAGUE | PLAYOFFS",
+     "field": "",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -917,7 +931,7 @@
        "delay": 0
       }
      },
-     "text": "ROCKET LEAGUE | PLAYOFFS",
+     "text": "{{Schedule!Match 1 game}}",
      "font": "Gotham-Bold",
      "size": 14.1,
      "color": "#ffc52a",
@@ -930,7 +944,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 12.1
+     "baseline": 12.1,
+     "show": "{{Schedule!Match 1 show}}"
     },
     {
      "id": "l9d663467",
@@ -944,7 +959,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "George Mason University vs. St. Clair Co",
+     "field": "",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -957,7 +972,7 @@
        "delay": 0
       }
      },
-     "text": "George Mason University vs. St. Clair College",
+     "text": "{{Schedule!Match 1 teams}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 12.08,
      "color": "#ffffff",
@@ -970,7 +985,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 10.4
+     "baseline": 10.4,
+     "show": "{{Schedule!Match 1 show}}"
     },
     {
      "id": "l773d0b24",
@@ -984,7 +1000,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "CANADIAN ESPORTS NATIONALS",
+     "field": "",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -997,7 +1013,7 @@
        "delay": 0
       }
      },
-     "text": "CANADIAN ESPORTS NATIONALS",
+     "text": "{{Schedule!Match 3 tournament}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 21.05,
      "color": "#ffffff",
@@ -1010,7 +1026,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 18.1
+     "baseline": 18.1,
+     "show": "{{Schedule!Match 3 show}}"
     },
     {
      "id": "la231a1f8",
@@ -1024,7 +1041,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "MON 11/25 | 8:30 PM copy",
+     "field": "",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -1037,7 +1054,7 @@
        "delay": 0
       }
      },
-     "text": "MON 11/25  |  8:30 PM",
+     "text": "{{Schedule!Match 3 when}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 10.94,
      "color": "#ffffff",
@@ -1050,7 +1067,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 9.4
+     "baseline": 9.4,
+     "show": "{{Schedule!Match 3 show}}"
     },
     {
      "id": "ldf44f50b",
@@ -1064,7 +1082,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "VALORANT",
+     "field": "",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -1077,7 +1095,7 @@
        "delay": 0
       }
      },
-     "text": "VALORANT",
+     "text": "{{Schedule!Match 3 game}}",
      "font": "Gotham-Bold",
      "size": 11.79,
      "color": "#ffc52a",
@@ -1090,7 +1108,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 10.1
+     "baseline": 10.1,
+     "show": "{{Schedule!Match 3 show}}"
     },
     {
      "id": "l9c2a6d16",
@@ -1104,7 +1123,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "Universit\u00e9 de Montr\u00e9al vs. St. Clair Col",
+     "field": "",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -1117,7 +1136,7 @@
        "delay": 0
       }
      },
-     "text": "Universit\u00e9 de Montr\u00e9al vs. St. Clair College",
+     "text": "{{Schedule!Match 3 teams}}",
      "font": "TradeGothic-BoldCondTwenty",
      "size": 10.1,
      "color": "#ffffff",
@@ -1130,13 +1149,14 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 8.7
+     "baseline": 8.7,
+     "show": "{{Schedule!Match 3 show}}"
     },
     {
      "id": "l047bcbff",
      "name": "GMU",
      "type": "text",
-     "x": 1136,
+     "x": 930,
      "y": 870,
      "w": 240,
      "h": 113,
@@ -1161,7 +1181,7 @@
      "font": "TradeGothic-BoldCondTwenty",
      "size": 80.53,
      "color": "#ffffff",
-     "align": "left",
+     "align": "right",
      "valign": "top",
      "tracking": 25.0,
      "caps": true,
@@ -1253,12 +1273,70 @@
      "baseline": 77.4
     },
     {
+     "id": "l322aa4ba",
+     "name": "Right logo",
+     "type": "image",
+     "x": 1192,
+     "y": 869,
+     "w": 80,
+     "h": 80,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 234
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!Right logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "id": "l64a26f8f",
+     "name": "Left logo",
+     "type": "image",
+     "x": 326,
+     "y": 869,
+     "w": 80,
+     "h": 80,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 234
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!Left logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
      "id": "l3c796324",
      "name": "SG",
      "type": "text",
-     "x": 328,
+     "x": 422,
      "y": 870,
-     "w": 172,
+     "w": 200,
      "h": 113,
      "opacity": 1.0,
      "rotation": 0,
@@ -1865,7 +1943,9 @@
      "fit": "none",
      "weight": 400,
      "italic": false,
-     "scroll": 90
+     "scroll": 90,
+     "divider": "#ffc52a",
+     "dividerWidth": 5
     },
     {
      "id": "la24d1b89",
@@ -19247,78 +19327,128 @@
    "WELCOME TO ST. CLAIR SAINTS ESPORTS",
    "FOLLOW @SCCSAINTS FOR HIGHLIGHTS",
    "THANKS FOR WATCHING!"
-  ]
+  ],
+  "schedule": {
+   "count": 3,
+   "matches": [
+    {
+     "tournament": "NACE VARSITY",
+     "game": "ROCKET LEAGUE",
+     "type": "PLAYOFFS",
+     "team1": "George Mason University",
+     "team2": "St. Clair College",
+     "date": "2026-11-11",
+     "time": "19:30"
+    },
+    {
+     "tournament": "NACE VARSITY",
+     "game": "PREMIER LEAGUE OF LEGENDS",
+     "type": "SEMI-FINALS",
+     "team1": "Maryville University",
+     "team2": "St. Clair College",
+     "date": "2026-11-19",
+     "time": "20:00"
+    },
+    {
+     "tournament": "CANADIAN ESPORTS NATIONALS",
+     "game": "VALORANT",
+     "type": "",
+     "team1": "Universit\u00e9 de Montr\u00e9al",
+     "team2": "St. Clair College",
+     "date": "2026-11-25",
+     "time": "20:30"
+    }
+   ]
+  }
  },
  "picture": "cover.png",
  "pack_history": {
   "Schedule": [
    "ed271e0cf8d424b0",
-   "5756b8152c37fddb"
+   "5756b8152c37fddb",
+   "31f085a8cde03ad9"
   ],
   "Scorebug & footer": [
    "04910753a20533bb",
-   "5d5e3ffc983f63bb"
+   "5d5e3ffc983f63bb",
+   "6df51df016a6f176"
   ],
   "Caster lower third": [
    "2320941025e868b7",
-   "ae6aa86ce5f7ec9b"
+   "ae6aa86ce5f7ec9b",
+   "c03c7b06b7743f97"
   ],
   "Team stats": [
    "f5206d0a5a78daf3",
-   "d01a05d0e6cb4e2d"
+   "d01a05d0e6cb4e2d",
+   "850828a972a6c7eb"
   ],
   "Title screen": [
-   "a617db4af2bfcbff"
+   "a617db4af2bfcbff",
+   "faf6bd17365a7fab"
   ],
   "Starting soon": [
-   "f0d27a8e45cadce1"
+   "f0d27a8e45cadce1",
+   "b8cb18e7a67f2e81"
   ],
   "Team graphic": [
    "7c3006ffe1242e71",
-   "aa1dbc39e2840b4d"
+   "aa1dbc39e2840b4d",
+   "54b5f69975019034"
   ],
   "Player graphic (1)": [
    "8c1dee324e6f133d",
-   "2ede72c1889786a4"
+   "2ede72c1889786a4",
+   "1a0c171c72af9e04"
   ],
   "Player graphic (2)": [
    "f57f5269c6bfdb57",
-   "3a1a2bb617fbbb9d"
+   "3a1a2bb617fbbb9d",
+   "f0fe2829bf41c1ed"
   ],
   "Player graphic (3)": [
    "66f9983151e42156",
-   "7c4398f555776ac8"
+   "7c4398f555776ac8",
+   "f0a2b509cadf8e6c"
   ],
   "Player graphic (4)": [
    "539fff97b1538910",
-   "988e54ae4889c68e"
+   "988e54ae4889c68e",
+   "8cb47a567a38599f"
   ],
   "Player graphic (5)": [
    "7f5069cf9c4782d0",
-   "cc5f4d9f02b8c6f8"
+   "cc5f4d9f02b8c6f8",
+   "f3c576ca8cc480e5"
   ],
   "Player stats": [
    "7870e4bac7a22c3d",
-   "a0685547a7772d37"
+   "a0685547a7772d37",
+   "29bddf33609addf2"
   ],
   "Group bracket": [
    "277e2bab153a8817",
-   "024132d6d699dbba"
+   "024132d6d699dbba",
+   "08cc2e830c5f3cce"
   ],
   "Top 8 bracket": [
    "669bd4475847cdfe",
-   "91a9ec25dee8ae2f"
+   "91a9ec25dee8ae2f",
+   "86fd3060872f6794"
   ],
   "Final four": [
    "bf940e4ee1610913",
-   "31ef8363e479ef9c"
+   "31ef8363e479ef9c",
+   "68fe50193779380a"
   ],
   "Replay overlay": [
    "0dedc50699b7a414",
-   "766398ce0d3c28bf"
+   "766398ce0d3c28bf",
+   "dbc84988f70a3292"
   ],
   "Sponsor footer": [
-   "7bf16bdaabfc4d94"
+   "7bf16bdaabfc4d94",
+   "af5245b0ab49159c"
   ]
  }
 }

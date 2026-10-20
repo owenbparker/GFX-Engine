@@ -294,10 +294,12 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     $("#fields-send").classList.toggle("differs", differs);
     $("#fields-send").disabled = !fields.length;
     const bracket = comp.layers.some(l => l.type === "bracket");
-    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket,
+    const sched = comp.layers.some(l => /\{\{\s*Schedule!/i.test(l.show || ""));
+    const extras = () => [bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
+    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched,
       Object.keys(s.data.feeds || {}), (s.data.tables.Global || []).map(r => r[0])]);
     if (!force && box.dataset.sig === sig) {
-      if (bracket) markSize(box, s);
+      markSize(box, s);
       // Same fields: only bring in values changed elsewhere (not the one being typed in).
       for (const l of fields) {
         const input = box.querySelector(`[data-field="${CSS.escape(l.field)}"]`);
@@ -314,7 +316,7 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     }
     box.dataset.sig = sig;
     if (!fields.length) {
-      box.replaceChildren(bracket ? sizeField(s) : h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here."));
+      box.replaceChildren(...(bracket || sched ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
       return;
     }
     box.replaceChildren(...fields.map(l => {
@@ -346,7 +348,7 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
           h("button", { class: "ghost small", title: "Back to the design's own", onclick: () => { input.value = ""; push(comp.id, l.field, null); updateResolved(res, l, ""); } }, "↺")),
         res);
     }));
-    if (bracket) box.prepend(sizeField(s));
+    box.prepend(...extras());
   }
   // A knockout bracket: how many teams (the tournament's, in Global; changes it on air too).
   function sizeField(s) {
@@ -358,7 +360,21 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const el = h("div", { class: "field bracket-size" },
       h("label", {}, "Teams in the bracket", h("span", { class: "kind" }, "tournament")),
       h("select", { "data-k": "size", onchange: e => set(+e.target.value) }, ...[8, 16].map(n => h("option", { value: n }, `${n} teams`))),
-      h("div", { class: "resolved" }, "The teams and scores are in Global > Tournament. This changes the bracket on air too."));
+      h("div", { class: "resolved" }, "The teams and scores are in the Tournament tab. This changes the bracket on air too."));
+    markSize(el, s);
+    return el;
+  }
+  // The Schedule: how many upcoming matches it lists (changes it on air too).
+  function countField(s) {
+    const set = count => {
+      const sc = JSON.parse(JSON.stringify(App.state.global.schedule));
+      sc.count = count;
+      api("/api/global", { global: { schedule: sc } });
+    };
+    const el = h("div", { class: "field bracket-size" },
+      h("label", {}, "Matches shown", h("span", { class: "kind" }, "schedule")),
+      h("select", { "data-k": "count", onchange: e => set(+e.target.value) }, ...[1, 2, 3].map(n => h("option", { value: n }, n === 1 ? "1 match" : `${n} matches`))),
+      h("div", { class: "resolved" }, "The matches are in the Upcoming Schedule tab. This changes the graphic on air too."));
     markSize(el, s);
     return el;
   }
@@ -366,6 +382,8 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const size = ((s.global.tournament || {}).top || {}).size || 8;
     const sel = el.querySelector("[data-k=size]");
     if (sel && document.activeElement !== sel) sel.value = String(size);
+    const cnt = el.querySelector("[data-k=count]");
+    if (cnt && document.activeElement !== cnt) cnt.value = String((s.global.schedule || {}).count || 3);
   }
   function linkOptions(s, type) {
     const out = [h("option", { value: "" }, "⛓")];

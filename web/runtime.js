@@ -64,7 +64,7 @@
 
   // --- data and fields -----------------------------------------------------------
   const ctx = { tables: {} };
-  GFX.setData = function (tables) { ctx.tables = tables || {}; GFX.retext(); tickRotators(); redrawBrackets(); };
+  GFX.setData = function (tables) { ctx.tables = tables || {}; GFX.retext(); tickRotators(); redrawBrackets(); reshow(); };
   // The engine's clock (seconds), so every output changes sponsor at the same moment.
   let clockOffset = 0;
   GFX.setClock = function (engineNow) { if (engineNow) clockOffset = engineNow * 1000 - Date.now(); };
@@ -385,8 +385,7 @@
       // A ticker: the text twice in a row, sliding along forever.
       box.classList.add("gfx-scroll");
       span.textContent = "";
-      const a = el("span", "gfx-tick"); a.textContent = text;
-      const b = el("span", "gfx-tick"); b.textContent = text;
+      const a = tickerRun(layer, text), b = tickerRun(layer, text);
       span.append(a, b);
       requestAnimationFrame(() => {
         const w = a.offsetWidth || 1;
@@ -398,6 +397,26 @@
     }
     span.textContent = text;
     fit(box);
+  }
+
+  // One run of a ticker's text. With a divider, the "|" between its lines is
+  // drawn as a bar in the divider's colour.
+  function tickerRun(layer, text) {
+    const run = el("span", "gfx-tick");
+    if (!layer.divider) { run.textContent = text; return run; }
+    const w = layer.dividerWidth || 6, gap = layer.dividerGap ?? Math.round(layer.size * 1.4);
+    text.split(/\s*\|\s*/).forEach((part, i, all) => {
+      if (part) run.appendChild(document.createTextNode(part));
+      if (i < all.length - 1) run.appendChild(el("i", "gfx-div", { width: w + "px", background: layer.divider, margin: `0 ${gap}px` }));
+    });
+    return run;
+  }
+
+  // A layer shown only while its "show" value has something in it (and isn't 0):
+  // the Schedule's matches beyond how many it shows, say.
+  const showing = layer => { const v = GFX.resolve(layer.show).trim(); return !!v && v !== "0" && v.toLowerCase() !== "false"; };
+  function reshow() {
+    document.querySelectorAll(".gfx-L").forEach(L => { if (L._layer && L._layer.show) L.style.display = showing(L._layer) ? "" : "none"; });
   }
 
   // Text from a Photoshop file sits on its baseline where Photoshop put it,
@@ -453,6 +472,7 @@
       mixBlendMode: layer.blend && layer.blend !== "normal" ? layer.blend : "",
     });
     outer.dataset.id = layer.id;
+    if (layer.show && !opts.showHidden && !showing(layer)) outer.style.display = "none";
     const inner = el("div", "gfx-A");
     inner.appendChild(buildContent(layer, value, opts));
     outer.appendChild(inner);
@@ -757,6 +777,8 @@
     .gfx-t{display:inline-block;max-width:none}
     .gfx-scroll{overflow:hidden}
     .gfx-scroll .gfx-t{display:flex;white-space:pre}
+    .gfx-tick{display:inline-flex;align-items:center}
+    .gfx-div{display:inline-block;height:1.05em;flex:0 0 auto}
     .gfx-tick{padding-right:1.5em}
     .gfx-bl{display:inline-block;width:0;height:0;vertical-align:baseline}
     .gfx-rot{overflow:visible}

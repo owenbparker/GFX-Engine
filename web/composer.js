@@ -512,7 +512,10 @@
           lab("Line height", bind(l, "lineHeight", "number", { step: 0.05, min: 0.5 })),
           lab("Scroll px/s", bind(l, "scroll", "number", { min: 0, step: 10 }))),
         h("div", { class: "row-gap" }, bind(l, "caps", "check", { label: "ALL CAPS" }), bind(l, "italic", "check", { label: "Italic" }),
-          bind(l, "shadow", "check", { label: "Shadow" }))));
+          bind(l, "shadow", "check", { label: "Shadow" })),
+        l.scroll > 0 ? h("div", { class: "grid2" }, bind(l, "divider", "color", { label: "Divider between lines" }),
+          lab("Divider width", bind(l, "dividerWidth", "number", { min: 0, step: 1 }))) : null,
+        l.show ? h("div", { class: "muted small" }, `Shown only while ${l.show} has something in it.`) : null));
     } else if (l.type === "bracket") {
       sections.push(h("div", { class: "sect" }, h("h3", {}, "Bracket"),
         h("p", { class: "muted small" }, "The knockout bracket from Global > Tournament: 8 or 16 teams (Control has the choice), drawn to fit this box."),

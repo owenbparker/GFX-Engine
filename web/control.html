@@ -18,6 +18,7 @@
     <button data-tab="global">Global</button>
     <button data-tab="teams">Teams</button>
     <button data-tab="tournament">Tournament</button>
+    <button data-tab="schedule">Upcoming Schedule</button>
     <button data-tab="assets">Assets</button>
     <button data-tab="data">Data</button>
     <button data-tab="transitions">Transitions</button>
@@ -171,6 +172,20 @@
         <datalist id="team-names"></datalist>
       </div>
     </section>
+</main>
+
+<!-- UPCOMING SCHEDULE: the matches the Schedule graphic lists -->
+<main id="page-schedule" class="page" hidden>
+  <div class="page-head">
+    <h2>Upcoming Schedule</h2>
+    <span class="muted">The Schedule graphic lists these, top to bottom.</span>
+    <div class="spacer"></div>
+    <label class="row-gap muted">Show <select id="s-count"><option value="1">1 match</option><option value="2">2 matches</option><option value="3">3 matches</option></select></label>
+    <button class="small" id="s-add">+ Add match</button>
+  </div>
+  <div class="schedule-page">
+    <div id="s-list" class="s-list"></div>
+  </div>
 </main>
 
 <!-- CONTROL: Preview / Program, the take bar, the rundown and the fields -->
@@ -364,5 +379,6 @@
 <script src="pages.js"></script>
 <script src="home.js"></script>
 <script src="tournament.js"></script>
+<script src="schedule.js"></script>
 </body>
 </html>
