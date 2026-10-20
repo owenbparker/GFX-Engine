@@ -567,6 +567,7 @@
   //
   // opts: {bus: "program" | "preview", comp: one graphic only, monitor: muted,
   //        stingers: play stinger videos (default: yes, except one-graphic outputs)}
+  const KIND_RANK = { board: 0, overlay: 1, "lower third": 2 };
   GFX.Bus = class Bus {
     constructor(stage, opts) {
       this.stage = stage;
@@ -630,10 +631,12 @@
         this.shown.set(id, root);
         this.in(root, mode, t);
       }
-      // Stacking: the graphic's "layer" setting, then its place in the list.
+      // Stacking: the graphic's "layer" setting, then its kind (full-page
+      // boards at the back, overlays over them, lower thirds in front), then
+      // its place in the list.
       want.ids.forEach((id, i) => {
-        const root = this.shown.get(id);
-        if (root) root.style.zIndex = 10 + (want.comps.get(id).layer || 0) * 1000 + i;
+        const root = this.shown.get(id), comp = want.comps.get(id);
+        if (root) root.style.zIndex = 10 + (comp.layer || 0) * 1000 + (KIND_RANK[comp.kind] ?? 1) * 300 + i;
       });
     }
 
