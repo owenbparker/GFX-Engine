@@ -61,8 +61,8 @@ SPONSORS = [("assets/Scorebug _ footer/SPONSOR REPLACE.png", "Subway.png"),
 # Text placed by hand from the PSDs' renders, where the importer's guess was off:
 # (graphic, layer name, nth with that name) -> x, w, size, align, baseline (from the top of the canvas).
 PLACED = {
-    ("Team stats", "SsssssssssG", 0): dict(x=297, w=560, size=80, align="left", base=372),
-    ("Team stats", "XssssssssX", 0): dict(x=1070, w=560, size=80, align="right", base=372),
+    ("Team stats", "SsssssssssG", 0): dict(x=297, w=520, size=80, align="left", base=390),
+    ("Team stats", "XssssssssX", 0): dict(x=1110, w=520, size=80, align="right", base=390),
     ("Team stats", "0", 0): dict(x=837, w=120, size=86, align="center", base=392),
     ("Team stats", "0", 1): dict(x=965, w=120, size=86, align="center", base=392),
     ("Schedule", "0", 0): dict(x=676, w=120, size=90, align="center", base=943),
@@ -199,6 +199,12 @@ def link(data, starter=STARTER):
                 l["placeholder"] = l["src"]
                 l["src"] = links[l["name"]]
                 l["fit"] = "contain"
+
+    # The team logos in Team stats: centred in their boxes, as big as they fit.
+    if "Team stats" in comps:
+        for l in comps["Team stats"]["layers"]:
+            if l["type"] == "image" and l["src"] in ("{{Global!Left logo}}", "{{Global!Right logo}}"):
+                l.update(x=124 if "Left" in l["src"] else 1667, y=304, w=131, h=111)
 
     def text(cname, lname, value, nth=0):
         l = _text(comps[cname], lname, nth)

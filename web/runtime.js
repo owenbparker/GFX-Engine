@@ -201,6 +201,7 @@
       const img = el("img", "gfx-media", { objectFit: fitOf(layer.fit) });
       img.draggable = false;
       img.src = url(encodeURI(value));
+      if (layer.fit !== "fill" && !/\.(gif|svg)(\?|$)/i.test(value)) img.addEventListener("load", () => smooth(img, layer), { once: true });
       return img;
     }
     if (t === "video") {
@@ -376,11 +377,36 @@
       box._raw = value;
       setText(box, opts);
       if (!opts.still && (hasTokens(value))) live.add(box);
+      // Fitted (and put on its baseline) once it's on the page with its real
+      // size, and again whenever it's shown after being hidden.
+      if (sized) sized.observe(box);
       return box;
     }
     return el("div");
   }
   const fitOf = f => ({ fill: "fill", contain: "contain", cover: "cover" }[f] || "contain");
+
+  // A big picture in a small box (a team's logo, say) is scaled down by the
+  // browser in one step, which looks jagged: it's resampled once, smoothly, to
+  // twice the size it's shown at.
+  function smooth(img, layer) {
+    const nw = img.naturalWidth, nh = img.naturalHeight;
+    const k = layer.fit === "cover" ? Math.max(layer.w / nw, layer.h / nh) : Math.min(layer.w / nw, layer.h / nh);
+    if (!nw || !nh || k * 2 >= 0.75 || !window.createImageBitmap) return;
+    const w = Math.max(1, Math.round(nw * k * 2)), h = Math.max(1, Math.round(nh * k * 2));
+    createImageBitmap(img, { resizeWidth: w, resizeHeight: h, resizeQuality: "high" }).then(bmp => {
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      c.getContext("2d").drawImage(bmp, 0, 0);
+      bmp.close && bmp.close();
+      c.toBlob(b => {
+        if (!b) return;
+        const u = URL.createObjectURL(b);
+        img.addEventListener("load", () => URL.revokeObjectURL(u), { once: true });
+        img.src = u;
+      }, "image/png");
+    }).catch(() => {});
+  }
 
   function setText(box, opts) {
     const layer = box._layer;
@@ -464,6 +490,11 @@
     if (k < 1) box.style.fontSize = Math.max(layer.size * 0.25, layer.size * k * 0.99) + "px";
   }
   GFX.refit = () => document.querySelectorAll(".gfx-text").forEach(fit);
+  const sized = window.ResizeObserver ? new ResizeObserver(entries => {
+    for (const e of entries) if (e.contentRect.width && e.target.isConnected) fit(e.target);
+  }) : null;
+  // A font that finishes loading after the text was fitted: fitted again.
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", () => GFX.refit());
   GFX.retext = () => document.querySelectorAll(".gfx-text").forEach(b => { if (hasTokens(b._raw)) setText(b); });
   setInterval(() => { for (const b of live) { if (!b.isConnected) live.delete(b); else if (ticking(b._raw)) setText(b); } }, 1000);
 
