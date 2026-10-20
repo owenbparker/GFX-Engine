@@ -217,7 +217,11 @@ aren't using costs the PC nothing.
 
 Engines announce themselves on the network (UDP 8783) and show up under
 Outputs > Engines on the network; **Scan** also looks for them directly.
-Turn off "Let other PCs use this engine" to keep it to this PC.
+Turn off "Let other PCs use this engine" to keep it to this PC. **Other PCs
+reach it on** picks one network (this PC's address on it: an NDI VLAN, say):
+the engine then listens only there and on this PC, announces itself and scans
+only there, and the Outputs list only that address. If the PC isn't on that
+network, only this PC can use the engine until it is.
 
 ## Bitfocus Companion (Stream Deck)
 

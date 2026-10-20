@@ -365,6 +365,19 @@ addEventListener("drop", e => {
       plain("Port", String(s.app.port)));
     const allow = $("#net-allow");
     allow.checked = s.app.network;
+    // The one network other PCs reach it on (an NDI VLAN, say), or every one.
+    const pick = $("#net-address"), net = s.app.network_address || "";
+    const nets = [...(s.app.all_addresses || [])];
+    if (net && !nets.includes(net)) nets.push(net);
+    const opts = [["", "Every network on this PC"], ...nets.map(a => [a, a + (a === net && !(s.app.all_addresses || []).includes(a) ? " (not connected now)" : "")])];
+    if (pick.dataset.sig !== JSON.stringify(opts)) {
+      pick.dataset.sig = JSON.stringify(opts);
+      pick.replaceChildren(...opts.map(([v, t]) => h("option", { value: v }, t)));
+    }
+    if (document.activeElement !== pick) pick.value = net;
+    $("#net-address-note").textContent = net
+      ? `Only ${net} and this PC: the outputs, control panel and engine finding are on that network alone.`
+      : "Every network this PC is on. Pick one (your NDI VLAN, say) to keep the engine to it.";
     const name = $("#net-name");
     if (document.activeElement !== name) name.value = s.app.name;
     // Export list.
@@ -387,6 +400,7 @@ addEventListener("drop", e => {
   $("#net-scan").addEventListener("click", () => engines(true));
   $("#net-allow").addEventListener("change", e => api("/api/settings", { allow_network: e.target.checked }));
   $("#net-name").addEventListener("change", e => api("/api/settings", { name: e.target.value.trim() }));
+  $("#net-address").addEventListener("change", e => api("/api/settings", { network_address: e.target.value }));
   $("#export-all").addEventListener("click", () => { App.comps().forEach(c => chosen.add(c.id)); render(); });
   $("#export-none").addEventListener("click", () => { chosen.clear(); render(); });
   $("#export-go").addEventListener("click", () => {

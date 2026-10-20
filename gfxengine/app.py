@@ -11,6 +11,7 @@ score) and GET /api/global (the teams' names, short names and logos).
 Bitfocus Companion uses /api/companion (see companion.py).
 """
 
+import ipaddress
 import json
 import mimetypes
 import os
@@ -125,7 +126,8 @@ class Engine:
 
     def _beacon_info(self):
         s = self.settings.get()
-        return {"name": self.name(), "port": s["http_port"], "network": s["allow_network"], "version": self.updater.current}
+        return {"name": self.name(), "port": s["http_port"], "network": s["allow_network"], "version": self.updater.current,
+                "address": s.get("network_address") or ""}
 
     def name(self):
         return self.settings.get().get("name") or socket.gethostname()
@@ -184,7 +186,10 @@ class Engine:
         project = self.ws.get()
         return {
             "app": {"name": self.name(), "version": self.updater.current, "port": s["http_port"],
-                    "network": s["allow_network"], "addresses": discover.own_addresses(),
+                    "network": s["allow_network"],
+                    # (where other PCs reach it: the one network chosen, or every one)
+                    "addresses": [s["network_address"]] if s.get("network_address") else discover.own_addresses(),
+                    "all_addresses": discover.own_addresses(), "network_address": s.get("network_address") or "",
                     "ffmpeg": bool(ffmpeg_path()), "platform": platform.system()},
             "workspace": {"id": self.workspace_id, "name": project.get("name", ""),
                           "picture": bool(project.get("picture"))},
@@ -589,7 +594,7 @@ def make_handler(engine):
                 return self._json({"engines": engine.beacon.engines()})
             if path == "/api/scan":
                 port = engine.settings.get()["http_port"]
-                found = discover.scan(port)
+                found = discover.scan(port, only=engine.settings.get().get("network_address") or "")
                 for e in found:
                     engine.beacon.add(e["ip"], e["port"], e.get("name", e["ip"]), e.get("version", ""))
                 return self._json({"engines": engine.beacon.engines()})
@@ -753,7 +758,11 @@ def make_handler(engine):
                 elif path == "/api/settings":
                     if not local:
                         raise ValueError("Settings can only be changed on the engine's own PC")
+                    if body.get("network_address"):
+                        ipaddress.IPv4Address(str(body["network_address"]))   # (ValueError: not an address)
                     engine.settings.update(body)
+                    if "network_address" in body and engine.server:
+                        engine.server.rebind(engine.settings.get()["network_address"] or "")
                     engine.changed()
                 elif path == "/api/update/check":
                     engine.updater.check()
@@ -774,23 +783,76 @@ def make_handler(engine):
 
 
 class Server:
-    def __init__(self, engine, port):
+    """The web server: on every network card, or on this PC (127.0.0.1) and one
+    network only (settings "network_address"). Other PCs are turned away unless
+    allowed, so allowing them needs no restart; changing the network rebinds."""
+
+    def __init__(self, engine, port, address=""):
+        self.engine = engine
         self.port = port
-        # Always on every network card: other PCs are turned away unless allowed,
-        # so allowing them needs no restart.
-        self.httpd = ThreadingHTTPServer(("0.0.0.0", port), make_handler(engine))
-        self.httpd.daemon_threads = True
-        threading.Thread(target=self.httpd.serve_forever, daemon=True).start()
+        self.lock = threading.Lock()
+        self.httpds = {}      # host -> server
+        self.address = None
+        self._bind(address, first=True)
+
+    def _serve(self, host):
+        httpd = ThreadingHTTPServer((host, self.port), make_handler(self.engine))
+        httpd.daemon_threads = True
+        threading.Thread(target=httpd.serve_forever, daemon=True).start()
+        self.httpds[host] = httpd
+
+    def _close(self):
+        for httpd in self.httpds.values():
+            httpd.shutdown()
+            httpd.server_close()
+        self.httpds = {}
+
+    def _bind(self, address, first=False):
+        with self.lock:
+            self._close()
+            self.address = address
+            if not address:
+                self._serve("0.0.0.0")
+                return
+            self._serve("127.0.0.1")
+            try:
+                self._serve(address)
+                if not first:
+                    log(f"Other PCs now reach this engine on {address} only")
+            except OSError:
+                log(f"This PC isn't on {address} right now: only this PC can use the engine until it is", "warn")
+                threading.Thread(target=self._retry, args=(address,), daemon=True).start()
+
+    def _retry(self, address):
+        """Binds the chosen network once this PC is on it (the cable's back in, the VLAN's up)."""
+        while True:
+            time.sleep(10)
+            with self.lock:
+                if self.address != address or address in self.httpds:
+                    return
+                try:
+                    self._serve(address)
+                    log(f"On {address} now: other PCs can reach this engine there")
+                    return
+                except OSError:
+                    pass
+
+    def rebind(self, address):
+        if address != self.address:
+            # (a moment later: the request that asked for it gets its answer first)
+            threading.Timer(0.3, self._bind, args=(address,)).start()
 
     def stop(self):
-        self.httpd.shutdown()
-        self.httpd.server_close()
+        with self.lock:
+            self.address = None
+            self._close()
 
 
 def start(engine):
     """Starts the web server (raises OSError if the port is taken)."""
-    port = engine.settings.get()["http_port"]
-    engine.server = Server(engine, port)
+    s = engine.settings.get()
+    port = s["http_port"]
+    engine.server = Server(engine, port, s.get("network_address") or "")
     clean_up_old_update()
     engine.updater.check_in_background()
     threading.Thread(target=engine.sources.refresh, daemon=True).start()
