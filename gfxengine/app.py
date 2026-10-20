@@ -157,7 +157,7 @@ class Engine:
         try:
             snap["tables"]["Stats"] = self.stats.rows(
                 {side: g[side]["name"] for side in ("left", "right")}, g["player_stats"],
-                lambda side, name: player_named(self.teams.find(g[side]["name"], g[side]["game"]), name))
+                lambda side, name: player_named(self.teams.find(g[side]["name"], g[side]["game"]), name), g["pictures"])
         except Exception as e:   # (the game's stats can't take the whole engine down)
             if not getattr(self, "_stats_failed", False):
                 log(f"Couldn't read the game's stats: {e!r}")
@@ -214,7 +214,7 @@ class Engine:
         old = self.global_config()
         g = json.loads(json.dumps(old))
         for k, v in (changes or {}).items():
-            if k in ("left", "right", "bgloop", "caster") and isinstance(v, dict):
+            if k in ("left", "right", "bgloop", "caster", "pictures") and isinstance(v, dict):
                 g[k].update(v)
             else:
                 g[k] = v

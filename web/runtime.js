@@ -222,6 +222,11 @@
         webkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", webkitMaskPosition: "center", maskPosition: "center" });
       return m;
     }
+    if (t === "image" && layer.topThird && value) {
+      // Only the top third of the picture (a headshot's face), across the box.
+      return el("div", "gfx-media", { backgroundImage: `url("${url(encodeURI(value))}")`, backgroundSize: "auto 300%",
+        backgroundPosition: "center top", backgroundRepeat: "no-repeat" });
+    }
     if (t === "image") {
       if (!value) return el("div");
       const img = el("img", "gfx-media", { objectFit: fitOf(layer.fit), objectPosition: POSITIONS[layer.position] || "" });

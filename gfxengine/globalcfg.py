@@ -47,6 +47,8 @@ DEFAULT = {
     # The graphics whose own output (/output?comp=id) is switched on: it always
     # shows its graphic, on Program or not (the rest show nothing, to save the PC).
     "outputs_on": [],
+    # What the stats pages show for each team's players: their "headshot" or "champion".
+    "pictures": {"left": "headshot", "right": "headshot"},
 }
 # The caster box in the design (x, y, w, h), and where the boxes go: their
 # bottom edge, the gap between them, and how big they are for 1-4 boxes.
@@ -119,6 +121,8 @@ def clean(g):
     except (TypeError, ValueError):
         count = 1
     colour = lambda v, d: v if isinstance(v, str) and re.match(r"^#[0-9a-fA-F]{6}$", v) else d
+    pics = g.get("pictures") or {}
+    out["pictures"] = {side: "champion" if pics.get(side) == "champion" else "headshot" for side in ("left", "right")}
     out["outputs_on"] = [str(i)[:40] for i in (g.get("outputs_on") or []) if isinstance(i, str)][:200]
     out["caster"] = {"count": count if count in CASTER_SCALE else 1,
                      "primary": colour(caster.get("primary"), DEFAULT["caster"]["primary"]),

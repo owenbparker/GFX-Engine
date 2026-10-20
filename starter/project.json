@@ -3316,6 +3316,616 @@
      "loop": true
     },
     {
+     "id": "lbf57856b",
+     "name": "Player 1 picture - L",
+     "type": "image",
+     "x": 113,
+     "y": 533,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 190
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Left player 1 headshot}}",
+     "show": "{{Stats!Left player 1 headshot}}",
+     "fit": "cover",
+     "loop": true,
+     "topThird": true
+    },
+    {
+     "id": "ld5211895",
+     "name": "Player 1 champion - L",
+     "type": "image",
+     "x": 113,
+     "y": 533,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 190
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Left player 1 champion}}",
+     "show": "{{Stats!Left player 1 champion}}",
+     "fit": "cover",
+     "loop": true
+    },
+    {
+     "id": "l753d2e70",
+     "name": "Player 2 picture - L",
+     "type": "image",
+     "x": 113,
+     "y": 618,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 230
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Left player 2 headshot}}",
+     "show": "{{Stats!Left player 2 headshot}}",
+     "fit": "cover",
+     "loop": true,
+     "topThird": true
+    },
+    {
+     "id": "l07a35411",
+     "name": "Player 2 champion - L",
+     "type": "image",
+     "x": 113,
+     "y": 618,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 230
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Left player 2 champion}}",
+     "show": "{{Stats!Left player 2 champion}}",
+     "fit": "cover",
+     "loop": true
+    },
+    {
+     "id": "l0c36605d",
+     "name": "Player 3 picture - L",
+     "type": "image",
+     "x": 113,
+     "y": 703,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 270
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Left player 3 headshot}}",
+     "show": "{{Stats!Left player 3 headshot}}",
+     "fit": "cover",
+     "loop": true,
+     "topThird": true
+    },
+    {
+     "id": "ldee64c34",
+     "name": "Player 3 champion - L",
+     "type": "image",
+     "x": 113,
+     "y": 703,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 270
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Left player 3 champion}}",
+     "show": "{{Stats!Left player 3 champion}}",
+     "fit": "cover",
+     "loop": true
+    },
+    {
+     "id": "l7aea0bcc",
+     "name": "Player 4 picture - L",
+     "type": "image",
+     "x": 113,
+     "y": 788,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 310
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Left player 4 headshot}}",
+     "show": "{{Stats!Left player 4 headshot}}",
+     "fit": "cover",
+     "loop": true,
+     "topThird": true
+    },
+    {
+     "id": "l3fe63207",
+     "name": "Player 4 champion - L",
+     "type": "image",
+     "x": 113,
+     "y": 788,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 310
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Left player 4 champion}}",
+     "show": "{{Stats!Left player 4 champion}}",
+     "fit": "cover",
+     "loop": true
+    },
+    {
+     "id": "l18ae90cd",
+     "name": "Player 5 picture - L",
+     "type": "image",
+     "x": 113,
+     "y": 873,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Left player 5 headshot}}",
+     "show": "{{Stats!Left player 5 headshot}}",
+     "fit": "cover",
+     "loop": true,
+     "topThird": true
+    },
+    {
+     "id": "l6afb9001",
+     "name": "Player 5 champion - L",
+     "type": "image",
+     "x": 113,
+     "y": 873,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Left player 5 champion}}",
+     "show": "{{Stats!Left player 5 champion}}",
+     "fit": "cover",
+     "loop": true
+    },
+    {
+     "id": "lcbde90cb",
+     "name": "Player 1 picture - R",
+     "type": "image",
+     "x": 1013,
+     "y": 533,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 190
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Right player 1 headshot}}",
+     "show": "{{Stats!Right player 1 headshot}}",
+     "fit": "cover",
+     "loop": true,
+     "topThird": true
+    },
+    {
+     "id": "l8ee54672",
+     "name": "Player 1 champion - R",
+     "type": "image",
+     "x": 1013,
+     "y": 533,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 190
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Right player 1 champion}}",
+     "show": "{{Stats!Right player 1 champion}}",
+     "fit": "cover",
+     "loop": true
+    },
+    {
+     "id": "l9c8942f2",
+     "name": "Player 2 picture - R",
+     "type": "image",
+     "x": 1013,
+     "y": 618,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 230
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Right player 2 headshot}}",
+     "show": "{{Stats!Right player 2 headshot}}",
+     "fit": "cover",
+     "loop": true,
+     "topThird": true
+    },
+    {
+     "id": "l7811e21e",
+     "name": "Player 2 champion - R",
+     "type": "image",
+     "x": 1013,
+     "y": 618,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 230
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Right player 2 champion}}",
+     "show": "{{Stats!Right player 2 champion}}",
+     "fit": "cover",
+     "loop": true
+    },
+    {
+     "id": "l7df1efb0",
+     "name": "Player 3 picture - R",
+     "type": "image",
+     "x": 1013,
+     "y": 703,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 270
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Right player 3 headshot}}",
+     "show": "{{Stats!Right player 3 headshot}}",
+     "fit": "cover",
+     "loop": true,
+     "topThird": true
+    },
+    {
+     "id": "la89ea79e",
+     "name": "Player 3 champion - R",
+     "type": "image",
+     "x": 1013,
+     "y": 703,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 270
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Right player 3 champion}}",
+     "show": "{{Stats!Right player 3 champion}}",
+     "fit": "cover",
+     "loop": true
+    },
+    {
+     "id": "l12cba875",
+     "name": "Player 4 picture - R",
+     "type": "image",
+     "x": 1013,
+     "y": 788,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 310
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Right player 4 headshot}}",
+     "show": "{{Stats!Right player 4 headshot}}",
+     "fit": "cover",
+     "loop": true,
+     "topThird": true
+    },
+    {
+     "id": "lb7683b20",
+     "name": "Player 4 champion - R",
+     "type": "image",
+     "x": 1013,
+     "y": 788,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 310
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Right player 4 champion}}",
+     "show": "{{Stats!Right player 4 champion}}",
+     "fit": "cover",
+     "loop": true
+    },
+    {
+     "id": "l003d97f9",
+     "name": "Player 5 picture - R",
+     "type": "image",
+     "x": 1013,
+     "y": 873,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Right player 5 headshot}}",
+     "show": "{{Stats!Right player 5 headshot}}",
+     "fit": "cover",
+     "loop": true,
+     "topThird": true
+    },
+    {
+     "id": "l0272be48",
+     "name": "Player 5 champion - R",
+     "type": "image",
+     "x": 1013,
+     "y": 873,
+     "w": 144,
+     "h": 85,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!Right player 5 champion}}",
+     "show": "{{Stats!Right player 5 champion}}",
+     "fit": "cover",
+     "loop": true
+    },
+    {
      "id": "lad1b7c44",
      "name": "KILLS",
      "type": "text",
@@ -8892,6 +9502,37 @@
      "placeholder": "assets/Player stats/Player Image.png",
      "show": "{{Stats!MVP headshot shown}}",
      "position": "bottom"
+    },
+    {
+     "id": "l4091681b",
+     "name": "Champion Image",
+     "type": "image",
+     "x": 165,
+     "y": 301,
+     "w": 582,
+     "h": 582,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 140
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Stats!MVP champion}}",
+     "show": "{{Stats!MVP champion}}",
+     "fit": "cover",
+     "position": "top",
+     "loop": true
     },
     {
      "id": "l4df52c6c",
@@ -19109,7 +19750,8 @@
    "850828a972a6c7eb",
    "d7266d2c9d25a42e",
    "ff552eb95deae327",
-   "97ba20a68c5f5dfa"
+   "97ba20a68c5f5dfa",
+   "27ae3a2a6626a278"
   ],
   "Title screen": [
    "a617db4af2bfcbff",
@@ -19165,7 +19807,8 @@
    "29bddf33609addf2",
    "d5dce73c6f590dc8",
    "89212692f9971a8b",
-   "c980b36b8965cbfb"
+   "c980b36b8965cbfb",
+   "cc4c6c21362421cd"
   ],
   "Group bracket": [
    "277e2bab153a8817",

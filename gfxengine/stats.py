@@ -16,6 +16,7 @@ until the next game starts or they're cleared.
 
 import json
 import os
+import re
 import threading
 import time
 
@@ -49,6 +50,7 @@ def _lol(f):
             p = n + i * 5
             k, d, a = (str(f.get(f"P{p} KDA") or "").split("/") + ["", "", ""])[:3]
             players.append({"name": f.get(f"P{p} NAME") or "", "character": f.get(f"P{p} CHAMPION") or "",
+                            "icon": str(f.get(f"P{p} CHAMPION ICON") or ""),
                             "stats": [_int(k), _int(d), _int(a)], "extra": f.get(f"P{p} CS", ""),
                             "values": {"cs": _int(f.get(f"P{p} CS")), "vision": _int(f.get(f"P{p} VISION")),
                                        "gold": _int(f.get(f"P{p} GOLD RAW")),
@@ -132,11 +134,20 @@ def _total(key, players, game):
     return _show(key, sum(int(x.get(key) or 0) for x in vals))
 
 
+# A League champion's square icon (Data Dragon) -> its tall "loading screen" art.
+ICON = re.compile(r"^(https?://[^/]+)/cdn/[^/]+/img/champion/([^/.]+)\.png$")
+
+
+def champion_art(icon):
+    m = ICON.match(icon or "")
+    return f"{m.group(1)}/cdn/img/champion/loading/{m.group(2)}_0.jpg" if m else ""
+
+
 def _title(key):
     return NAMES.get(key, key.upper())
 
 
-def rows(stats, live, names=None, pick="auto", lookup=None):
+def rows(stats, live, names=None, pick="auto", lookup=None, pictures=None):
     """The "Stats" table: label | value.
 
     The Team stats columns are "Stat 1"... 3 and the Player stats rows "Row 1"
@@ -144,8 +155,10 @@ def rows(stats, live, names=None, pick="auto", lookup=None):
     player the Player stats page shows) is the one with the most of the first
     stat (kills, goals), or the one picked ("left 3"). lookup(side, in-game
     name) -> that player in the team's roster (for their name, flag and
-    headshot), or None."""
+    headshot), or None. pictures: {"left": "headshot" or "champion", "right": ...},
+    what the stats pages show for each team's players."""
     names = names or {}
+    pictures = pictures or {}
     out = [["Field", "Value"]]
     if not stats:
         out += [["Status", ""], ["Game", ""]] + [[f"Stat {i} title", t] for i, t in enumerate(("KILLS", "DEATHS", "ASSISTS"), 1)]
@@ -174,6 +187,10 @@ def rows(stats, live, names=None, pick="auto", lookup=None):
             out += [[k, p["name"]], [f"{k} character", p["character"]]]
             out += [[f"{k} stat {i + 1}", _show(c, v.get(c, "")) if p["name"] else ""] for i, c in enumerate(lay["cols"])]
             out.append([f"{k} K/D", v["kd"] if p["name"] else ""])
+            # Their picture: their headshot (from the roster) or their champion, as Control says.
+            champ = pictures.get(side) == "champion"
+            r = (lookup(side, p["name"]) if lookup and p["name"] and not champ else None) or {}
+            out += [[f"{k} headshot", r.get("photo", "")], [f"{k} champion", p.get("icon", "") if champ and p["name"] else ""]]
             # Best: most of stat 1 (kills, goals), then stat 3, then fewest stat 2.
             rank = (p["stats"][0], p["stats"][2], -p["stats"][1])
             if p["name"] and (best is None or rank > best[0]):
@@ -185,13 +202,14 @@ def rows(stats, live, names=None, pick="auto", lookup=None):
         _, side, p = best
         r = (lookup(side, p["name"]) if lookup else None) or {}
         v = _values(game, p)
+        champ = champion_art(p.get("icon", "")) if pictures.get(side) == "champion" else ""
         out += [["MVP", p["name"]], ["MVP team", names.get(side, side.title())], ["MVP character", p["character"]],
                 ["MVP picked", "manual" if picked else "auto"], ["MVP side", side],
                 ["MVP name", r.get("name") or r.get("ign") or p["name"]], ["MVP ID", r.get("ign") or p["name"]],
                 ["MVP country", r.get("country", "")], ["MVP flag", f"flags/{r['country']}.svg" if r.get("country") else ""],
-                ["MVP headshot", r.get("photo", "")],
+                ["MVP headshot", "" if pictures.get(side) == "champion" else r.get("photo", "")], ["MVP champion", champ],
                 # (a player not in the roster: no one else's photo or flag)
-                ["MVP headshot shown", "1" if r.get("photo") else ""], ["MVP flag shown", "1" if r.get("country") else ""]]
+                ["MVP headshot shown", "1" if r.get("photo") and pictures.get(side) != "champion" else ""], ["MVP flag shown", "1" if r.get("country") else ""]]
         out += [[f"MVP stat {i + 1}", _show(c, v.get(c, ""))] for i, c in enumerate(lay["cols"])]
         out += [[f"MVP row {i + 1}", _show(c, v.get(c, ""))] for i, c in enumerate(lay["rows"])]
         out.append(["MVP K/D", v["kd"]])
@@ -247,7 +265,7 @@ class Stats:
     def live(self):
         return time.time() - self.heard < LIVE_FOR
 
-    def rows(self, names=None, pick="auto", lookup=None):
+    def rows(self, names=None, pick="auto", lookup=None, pictures=None):
         with self.lock:
             data = self.data
-        return rows(data, self.live(), names, pick, lookup)
+        return rows(data, self.live(), names, pick, lookup, pictures)

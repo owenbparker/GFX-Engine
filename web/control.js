@@ -311,8 +311,9 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const roster = comp.layers.some(l => /\{\{\s*Roster!/i.test((l.text || "") + (l.src || "")));
     const mvp = comp.layers.some(l => /\{\{\s*Stats!MVP/i.test((l.text || "") + (l.src || "")));
     const caster = comp.layers.some(l => /Global!Caster/i.test(l.move || ""));
-    const extras = () => [caster ? casterField(s) : null, roster ? rosterField(s) : null, mvp ? mvpField(s) : null, clock ? clockField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
-    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, clock, roster, mvp, caster,
+    const pics = comp.layers.some(l => /\{\{\s*Stats!.*(headshot|champion)\}\}/i.test(l.src || ""));
+    const extras = () => [caster ? casterField(s) : null, roster ? rosterField(s) : null, mvp ? mvpField(s) : null, pics ? picturesField(s) : null, clock ? clockField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
+    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, clock, roster, mvp, caster, pics,
       Object.keys(s.data.feeds || {}), (s.data.tables.Global || []).map(r => r[0])]);
     if (!force && box.dataset.sig === sig) {
       markSize(box, s);
@@ -332,7 +333,7 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     }
     box.dataset.sig = sig;
     if (!fields.length) {
-      box.replaceChildren(...(bracket || sched || clock || roster || mvp || caster ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
+      box.replaceChildren(...(bracket || sched || clock || roster || mvp || caster || pics ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
       return;
     }
     box.replaceChildren(...fields.map(l => {
@@ -421,6 +422,20 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     markSize(el, s);
     return el;
   }
+  // The stats pages: each team's players shown with their headshot or their
+  // champion (Global's, so Team stats and Player stats change together, on air too).
+  function picturesField(s) {
+    const set = (side, v) => api("/api/global", { global: { pictures: { [side]: v } } });
+    const pick = side => h("label", { class: "swatch" }, side === "left" ? "Left team" : "Right team",
+      h("select", { "data-k": "pic-" + side, onchange: e => set(side, e.target.value) },
+        h("option", { value: "headshot" }, "Headshots"), h("option", { value: "champion" }, "Champions")));
+    const el = h("div", { class: "field caster-field" },
+      h("label", {}, "Player pictures", h("span", { class: "kind" }, "global")),
+      h("div", { class: "row-gap" }, pick("left"), pick("right")),
+      h("div", { class: "resolved" }, "Headshots come from the Teams tab; champions from the game (League). Team stats and Player stats both follow this."));
+    markSize(el, s);
+    return el;
+  }
   // The Player stats page: the top player in the game (most of stat 1), or one picked.
   function mvpField(s) {
     const el = h("div", { class: "field mvp-field" },
@@ -459,6 +474,10 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     for (const [k, v] of [["caster-count", String(cs.count)], ["caster-primary", cs.primary], ["caster-secondary", cs.secondary]]) {
       const inp = el.querySelector(`[data-k=${k}]`);
       if (inp && document.activeElement !== inp) inp.value = v;
+    }
+    for (const side of ["left", "right"]) {
+      const sel = el.querySelector(`[data-k=pic-${side}]`);
+      if (sel && document.activeElement !== sel) sel.value = ((s.global.pictures || {})[side]) || "headshot";
     }
     const mv = el.querySelector("[data-k=mvp]");
     if (mv) {

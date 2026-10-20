@@ -203,6 +203,14 @@ headshot come from their team's roster in the Teams tab, matched by in-game
 ID: `{{Stats!MVP name}}`, `{{Stats!MVP flag}}`, `{{Stats!MVP headshot}}`,
 `{{Stats!MVP row 1}}` (and `{{Stats!Row 1 title}}`)...
 
+Team stats (a picture left of each player) and Player stats show each
+team's players as their **headshots** (from the Teams tab) or the
+**champions** they're playing (League), picked per team in either page's
+Control fields ("Player pictures": Left team, Right team). On Team stats a
+headshot shows only its top third (the face); Player stats shows the
+champion's full splash art. `{{Stats!Left player 1 headshot}}`,
+`{{Stats!Left player 1 champion}}`, `{{Stats!MVP champion}}`.
+
 ## Outputs and the network
 
     http://<this PC>:8782/output                Program (with transitions and stingers)

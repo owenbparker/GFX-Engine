@@ -166,6 +166,35 @@ def casters(comps):
     c["layers"] = layers
 
 
+def pictures(comps):
+    """Each player's picture on the stats pages, as Control picks for each team:
+    their headshot (Team stats: its top third, the face) or their champion."""
+    ts = comps.get("Team stats")
+    if ts and not any(l["name"].startswith("Player 1 picture") for l in ts["layers"]):
+        at = next(i for i, l in enumerate(ts["layers"]) if l["type"] == "text")
+        new = []
+        for side, x in (("Left", 113), ("Right", 1013)):
+            for n in range(1, 6):
+                y = 533 + 85 * (n - 1)   # (the design's rows)
+                for kind in ("headshot", "champion"):
+                    src = f"{{{{Stats!{side} player {n} {kind}}}}}"
+                    new.append({"id": new_id("l"), "name": f"Player {n} {'picture' if kind == 'headshot' else 'champion'} - {side[0]}",
+                                "type": "image", "x": x, "y": y, "w": 144, "h": 85, "opacity": 1, "rotation": 0, "visible": True,
+                                "blend": "normal", "field": "", "anim": {"in": {"type": "fade", "dur": 400, "delay": 150 + 40 * n},
+                                                                          "out": {"type": "fade", "dur": 250, "delay": 0}},
+                                "src": src, "show": src, "fit": "cover", "loop": True, **({"topThird": True} if kind == "headshot" else {})})
+        ts["layers"][at:at] = new
+    ps = comps.get("Player stats")
+    if ps and not any(l["name"] == "Champion Image" for l in ps["layers"]):
+        photo = next((l for l in ps["layers"] if l["name"] == "Player Image"), None)
+        if photo:
+            ps["layers"].insert(ps["layers"].index(photo) + 1, {
+                "id": new_id("l"), "name": "Champion Image", "type": "image", "x": 165, "y": 301, "w": 582, "h": 582,
+                "opacity": 1, "rotation": 0, "visible": True, "blend": "normal", "field": "",
+                "anim": json.loads(json.dumps(photo.get("anim") or {})), "src": "{{Stats!MVP champion}}",
+                "show": "{{Stats!MVP champion}}", "fit": "cover", "position": "top", "loop": True})
+
+
 def schedule(comps):
     """The Schedule: its three match cards from the Upcoming Schedule (shown as
     many as it's set to), and the teams' logos in front of their names."""
@@ -393,6 +422,7 @@ def link(data, starter=STARTER):
 
     schedule(comps)
     casters(comps)
+    pictures(comps)
     data["global"].setdefault("schedule", json.loads(json.dumps(SCHEDULE)))
     tournament(comps)
 

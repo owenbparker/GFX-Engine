@@ -241,6 +241,20 @@ class StatsTests(unittest.TestCase):
         self.assertEqual(gone["MVP"], "Sammy")                        # (picked one not in the game: the top one)
         self.assertEqual(dict(stats.rows(None, False)[1:])["MVP headshot shown"], "1")
 
+    def test_champion_or_headshot(self):
+        from gfxengine import stats
+        from gfxengine.teams import player_named
+        team = {"players": [{"name": "Owen Parker", "ign": "Owen", "country": "ca", "photo": "library/teams/players/o.png"}]}
+        icon = "https://ddragon.leagueoflegends.com/cdn/15.20.1/img/champion/Ahri.png"
+        f = {"P1 NAME": "Owen", "P1 KDA": "5/1/2", "P1 CHAMPION ICON": icon, "P6 NAME": "Zed", "P6 KDA": "1/5/0"}
+        look = lambda side, name: player_named(team, name) if side == "left" else None
+        heads = dict(stats.rows(stats.read("lol", f), True, {}, "auto", look, {"left": "headshot"})[1:])
+        self.assertEqual((heads["Left player 1 headshot"], heads["Left player 1 champion"], heads["MVP headshot shown"]),
+                         ("library/teams/players/o.png", "", "1"))
+        champs = dict(stats.rows(stats.read("lol", f), True, {}, "auto", look, {"left": "champion"})[1:])
+        self.assertEqual((champs["Left player 1 headshot"], champs["Left player 1 champion"], champs["MVP headshot"]), ("", icon, ""))
+        self.assertEqual(champs["MVP champion"], "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Ahri_0.jpg")
+
     def test_kept_after_the_game(self):
         from gfxengine.stats import Stats
         tmp = tempfile.mkdtemp()
