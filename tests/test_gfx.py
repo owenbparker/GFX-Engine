@@ -227,7 +227,7 @@ class StatsTests(unittest.TestCase):
         from gfxengine.teams import player_named
         team = {"players": [{"name": "Owen Parker", "ign": "Owen", "country": "ca", "photo": "library/teams/players/o.png"},
                             {"name": "Sam Lee", "ign": "Sammy", "country": "", "photo": ""}]}
-        f = {"LEFT P1 NAME": "SCC Owen", "LEFT P1 K": "12", "LEFT P2 NAME": "Sammy", "LEFT P2 K": "20",
+        f = {"LEFT P1 NAME": "owen#NA1", "LEFT P1 K": "12", "LEFT P2 NAME": "Sammy", "LEFT P2 K": "20",
              "RIGHT P1 NAME": "Zed", "RIGHT P1 K": "15"}
         look = lambda side, name: player_named(team, name) if side == "left" else None
         auto = dict(stats.rows(stats.read("valorant", f), True, {}, "auto", look)[1:])
@@ -237,6 +237,8 @@ class StatsTests(unittest.TestCase):
                          ("Owen Parker", "flags/ca.svg", "library/teams/players/o.png", "12"))
         other = dict(stats.rows(stats.read("valorant", f), True, {}, "right 1", look)[1:])
         self.assertEqual((other["MVP name"], other["MVP flag shown"]), ("Zed", ""))
+        self.assertEqual((mine["Left player 1"], mine["Left player 1 ID"], mine["Left player 2"]), ("Owen Parker", "owen#NA1", "Sam Lee"))
+        self.assertIsNone(player_named(team, "Sam Lee"))              # (only the in-game ID links a player)
         gone = dict(stats.rows(stats.read("valorant", f), True, {}, "right 4", look)[1:])
         self.assertEqual(gone["MVP"], "Sammy")                        # (picked one not in the game: the top one)
         self.assertEqual(dict(stats.rows(None, False)[1:])["MVP headshot shown"], "1")
@@ -271,6 +273,22 @@ class StatsTests(unittest.TestCase):
             self.assertEqual(dict(Stats(tmp).rows()[1:])["Status"], "")
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+
+class RosterLinkTests(unittest.TestCase):
+    def test_save_ign_to_player(self):
+        from gfxengine.teams import Teams
+        d = tempfile.mkdtemp()
+        try:
+            t = Teams(d)
+            t.save([{"name": "Saints", "game": "League of Legends", "players": [
+                {"name": "Topablo", "ign": "Old"}, {"name": "Matty", "ign": "Pablo"}]}])
+            team = t.link("saints", "League of Legends", 0, "Pablo")
+            self.assertEqual([p["ign"] for p in team["players"]], ["Pablo", ""])   # (one player per in-game ID)
+            with self.assertRaises(ValueError):
+                t.link("Saints", "", 5, "x")
+        finally:
+            shutil.rmtree(d)
 
 
 class UpdaterTests(unittest.TestCase):

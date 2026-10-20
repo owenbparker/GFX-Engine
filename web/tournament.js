@@ -104,7 +104,7 @@
       h("td", { class: "t-num" }, String(i + 1)),
       h("td", {}, dropZone("t-head", p.photo, "+", f => uploadHeadshot(t, p, f))),
       h("td", {}, h("input", { value: p.name, placeholder: "Player name", oninput: e => { p.name = e.target.value; teamChanged(); } })),
-      h("td", {}, h("input", { value: p.ign, placeholder: "In-game ID", oninput: e => { p.ign = e.target.value; teamChanged(); } })),
+      h("td", {}, h("input", { value: p.ign, placeholder: "Name in the game", oninput: e => { p.ign = e.target.value; teamChanged(); } })),
       h("td", {}, countrySelect(p)),
       h("td", { class: "t-acts" },
         h("button", { class: "ghost small", title: "Move up", disabled: i === 0, onclick: () => move(-1) }, "↑"),
@@ -147,7 +147,7 @@
           t.logo ? h("button", { class: "ghost small", onclick: () => { t.logo = ""; teamChanged(); renderTeamEditor(); } }, "Remove logo") : null)),
       h("section", { class: "t-sect" },
         h("div", { class: "t-sect-head row-gap" }, h("div", {}, h("h4", {}, "Team members"),
-          h("p", { class: "muted small" }, "The player graphics show these, in this order: the headshot, the flag and the name (or the in-game ID).")),
+          h("p", { class: "muted small" }, "In-game ID is the player's name in the game, exactly (a game HUD's \"Save IGN to player\" fills it in): it's how the game's stats find them. Player name is only how graphics show them (blank: the in-game ID). The player graphics show these in this order.")),
           h("div", { class: "spacer" }),
           h("button", { class: "small", onclick: () => { t.players.push({ name: "", ign: "", country: "", photo: "" }); teamChanged(); renderTeamEditor();
             const rows = box.querySelectorAll(".t-roster tbody tr"); rows[rows.length - 1].querySelector("input").focus(); } }, "+ Add player")),

@@ -184,13 +184,14 @@ def rows(stats, live, names=None, pick="auto", lookup=None, pictures=None):
         for n, p in enumerate(players, 1):
             k = f"{S} player {n}"
             v = _values(game, p)
-            out += [[k, p["name"]], [f"{k} character", p["character"]]]
+            # (linked to the roster by in-game ID: shown by their Player name)
+            r = (lookup(side, p["name"]) if lookup and p["name"] else None) or {}
+            out += [[k, r.get("name") or p["name"]], [f"{k} ID", p["name"]], [f"{k} character", p["character"]]]
             out += [[f"{k} stat {i + 1}", _show(c, v.get(c, "")) if p["name"] else ""] for i, c in enumerate(lay["cols"])]
             out.append([f"{k} K/D", v["kd"] if p["name"] else ""])
             # Their picture: their headshot (from the roster) or their champion, as Control says.
             champ = pictures.get(side) == "champion"
-            r = (lookup(side, p["name"]) if lookup and p["name"] and not champ else None) or {}
-            out += [[f"{k} headshot", r.get("photo", "")], [f"{k} champion", p.get("icon", "") if champ and p["name"] else ""]]
+            out += [[f"{k} headshot", "" if champ else r.get("photo", "")], [f"{k} champion", p.get("icon", "") if champ and p["name"] else ""]]
             # Best: most of stat 1 (kills, goals), then stat 3, then fewest stat 2.
             rank = (p["stats"][0], p["stats"][2], -p["stats"][1])
             if p["name"] and (best is None or rank > best[0]):

@@ -128,7 +128,12 @@ apart by a yellow bar (a scrolling text layer's Divider colour in Composer).
 The **Teams** tab has the team list (shared by every workspace, kept in
 `library/teams.csv`): each team's name, short name, game, logo and colour,
 and its roster: each player's headshot, name, in-game ID and country (its
-flag comes with the engine). The game is picked from the games the engine
+flag comes with the engine). The **In-game ID** is the player's name in the
+game, exactly (a "#tag" and capitals aside): it's the only thing that links
+the game's stats to the player. Their **Player name** is just how graphics
+show them (Team stats, Player stats, player graphics). A game HUD can fill
+in the in-game IDs: League HUD's Players & Teams > Players has **Save IGN to
+player** next to each player in the game, with "linked" or "unlinked". The game is picked from the games the engine
 has a HUD for (League of Legends, VALORANT, Rocket League, Call of Duty). One
 school can have a team in several games; the list filters by game. Pick a team to edit it, drop its logo or a
 player's headshot on it, or make it the left or right team. Import or export

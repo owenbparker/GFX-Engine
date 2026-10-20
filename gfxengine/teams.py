@@ -246,6 +246,21 @@ class Teams:
             hit = next((t for t in named if g and t["game"].lower() == g), None) or (named[0] if named else None)
             return json.loads(json.dumps(hit)) if hit else None
 
+    def link(self, name, game, index, ign):
+        """Saves an in-game ID to a team's player (the index in its roster); no
+        other player in the team keeps it. Returns the team."""
+        k = (str(name or "").strip().lower(), str(game or "").strip().lower())
+        teams = self.list()
+        team = next((t for t in teams if key(t) == k), None) or next((t for t in teams if key(t)[0] == k[0]), None)
+        if not team or not 0 <= index < len(team["players"]):
+            raise ValueError("That player isn't in the team's roster in GFX Engine")
+        for i, p in enumerate(team["players"]):
+            if i != index and ign_key(p["ign"]) == ign_key(ign):
+                p["ign"] = ""
+        team["players"][index]["ign"] = str(ign or "").strip()[:60]
+        self.save(teams)
+        return self.find(team["name"], team["game"])
+
     def games(self):
         return sorted({t["game"] for t in self.list() if t["game"]}, key=str.lower)
 
@@ -255,19 +270,18 @@ class Teams:
                                                 for t in self.list()]
 
 
+def ign_key(v):
+    """An in-game ID as it's matched: any Riot tag ("Name#NA1") and case aside."""
+    return str(v or "").split("#")[0].strip().lower()
+
+
 def player_named(team, name):
-    """The player in a team's roster a game calls name (their in-game ID or
-    name, or one in it: "SCC Owen" is Owen), or None."""
-    n = str(name or "").strip().lower()
-    players = (team or {}).get("players") or []
+    """The player in a team's roster whose In-game ID is the name the game
+    reports, or None. (Their Player name is only how graphics show them.)"""
+    n = ign_key(name)
     if not n:
         return None
-    for p in players:
-        if n in (p["ign"].lower(), p["name"].lower()):
-            return p
-    words = set(re.split(r"[\s#|._-]+", n))
-    return next((p for p in players if p["ign"] and (p["ign"].lower() in words or
-                                                    (len(p["ign"]) >= 4 and p["ign"].lower() in n))), None)
+    return next((p for p in (team or {}).get("players") or [] if ign_key(p["ign"]) == n), None)
 
 
 def roster_rows(team, side, stats_names=None, slots=5):

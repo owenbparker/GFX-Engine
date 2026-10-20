@@ -35,8 +35,8 @@ from .live import Live
 from .log import log, since
 from .media import Jobs, ffmpeg_path, stinger_cut
 from .project import Workspace, blank_comp, blank_layer, new_id
-from .stats import GAMES, Stats, rows as stats_rows
-from .teams import Teams, player_named, roster_rows
+from .stats import GAMES, Stats, read as read_stats, rows as stats_rows
+from .teams import Teams, ign_key, player_named, roster_rows
 from . import schedule, tournament
 from .updater import Updater, clean_up_old_update
 from .workspaces import Workspaces
@@ -259,6 +259,37 @@ class Engine:
         self.assets_rev += 1
         self.changed()
         return n
+
+    def roster_links(self, game=None, fields=None):
+        """For a HUD's "Save IGN to player": each side's team (from Global), its
+        roster, and the game's players, each with the roster player it's linked
+        to by in-game ID (or None). The players are the HUD's own fields when it
+        sends them, else the last stats the engine got."""
+        g = self.global_config()
+        st = read_stats(game, fields) if fields else self.stats.data
+        out = {}
+        for side in ("left", "right"):
+            team = self.teams.find(g[side]["name"], g[side]["game"])
+            members = (team or {}).get("players") or []
+            keys = [ign_key(m["ign"]) for m in members]
+            players = []
+            for p in ((st or {}).get(side) or {}).get("players") or []:
+                if p["name"]:
+                    k = ign_key(p["name"])
+                    players.append({"ign": p["name"], "linked": keys.index(k) if k in keys else None})
+            out[side] = {"team": (team or {}).get("name") or g[side]["name"], "found": bool(team),
+                         "members": [{"index": i, "name": m["name"], "ign": m["ign"]} for i, m in enumerate(members)],
+                         "players": players}
+        return {"sides": out}
+
+    def link_player(self, side, index, ign):
+        """Saves a game's in-game name to a roster player of a side's team."""
+        g = self.global_config()
+        if side not in ("left", "right"):
+            raise ValueError("Unknown side")
+        team = self.teams.link(g[side]["name"], g[side]["game"], int(index), ign)
+        self.changed()
+        return team
 
     def save_team_photo(self, name, filename, blob):
         photo = self.teams.save_photo(name, filename, blob)
@@ -603,6 +634,8 @@ def make_handler(engine):
             if path.startswith("/api/workspace-picture/"):
                 full = engine.workspaces.picture(unquote(path.rsplit("/", 1)[1]))
                 return self._file(full) if full else self._json({"error": "not found"}, 404)
+            if path == "/api/roster/links":
+                return self._json(engine.roster_links())
             if path == "/api/global":
                 # For game HUDs ("Use Global Information"): logos as addresses on this engine.
                 g = engine.global_config()
@@ -717,6 +750,11 @@ def make_handler(engine):
                     result = {"global": engine.set_global(body.get("global") or {})}
                 elif path == "/api/teams":
                     result = {"teams": engine.save_teams(body.get("teams") or [])}
+                elif path == "/api/roster/links":
+                    result = engine.roster_links(body.get("game"), body.get("fields"))
+                elif path == "/api/roster/link":
+                    engine.link_player(body.get("side"), body.get("player", -1), body.get("ign", ""))
+                    result = engine.roster_links(body.get("game"), body.get("fields"))
                 elif path == "/api/stats/clear":
                     engine.clear_stats()
                 elif path == "/api/ingest":
