@@ -8,6 +8,7 @@ the web server for the control panel and the outputs.
 
 Game HUDs connect to it: they POST /api/ingest (their stats and the series
 score) and GET /api/global (the teams' names, short names and logos).
+Bitfocus Companion uses /api/companion (see companion.py).
 """
 
 import json
@@ -25,7 +26,7 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
-from . import discover, export, globalcfg, pack
+from . import companion, discover, export, globalcfg, pack
 from .assets import Assets
 from .config import WEB_DIR, Settings, safe_join
 from .data import Sources
@@ -578,6 +579,8 @@ def make_handler(engine):
                 return self._json(engine.state())
             if path == "/api/stream":
                 return self._stream()
+            if path == "/api/companion":
+                return self._json(companion.state(engine))
             if path == "/api/assets":
                 return self._json({"assets": engine.assets.list(), "rev": engine.assets_rev})
             if path == "/api/log":
@@ -715,6 +718,8 @@ def make_handler(engine):
                     engine.ingest(body, self.client_address[0])
                     result = {"ok": True, "global": engine.global_config()}
                 # --- on air ---
+                elif path == "/api/companion":
+                    result = companion.act(engine, body)
                 elif path == "/api/cue":
                     live.cue(body["id"], bool(body.get("on", True)))
                 elif path == "/api/values":

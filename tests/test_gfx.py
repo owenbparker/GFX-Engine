@@ -494,6 +494,27 @@ class ServerTests(unittest.TestCase):
             live = json.loads(get("/api/state"))["live"]
             self.assertIn(cid, live["program"]["on"])
             self.assertEqual(live["program"]["values"][cid]["Name"], "Owen")
+            # Bitfocus Companion: Preview, Program, Take and the quick functions.
+            comp_state = json.loads(get("/api/companion"))
+            mine = next(g for g in comp_state["graphics"] if g["id"] == cid)
+            self.assertEqual((mine["name"], mine["program"]), ("Test", True))
+            r = post("/api/companion", {"action": "program", "id": "test", "mode": "toggle"})   # (by name)
+            self.assertFalse(next(g for g in r["graphics"] if g["id"] == cid)["program"])
+            r = post("/api/companion", {"action": "preview", "id": cid, "mode": "on"})
+            self.assertEqual((r["variables"]["preview"], r["states"]["preview_any"]), ("Test", True))
+            r = post("/api/companion", {"action": "take", "transition": "cut"})
+            self.assertIn("Test", r["variables"]["program"])
+            for quick in ("score_left_up", "score_left_up", "score_right_up", "score_left_down", "clock_brb", "caster_3"):
+                r = post("/api/companion", {"action": "run", "id": quick})
+            self.assertEqual((r["variables"]["left_score"], r["variables"]["right_score"]), ("1", "1"))
+            self.assertTrue(r["states"]["clock_brb"] and r["states"]["caster_3"])
+            r = post("/api/companion", {"action": "clear", "bus": "both"})
+            self.assertFalse(r["states"]["program_any"] or r["states"]["preview_any"])
+            post("/api/companion", {"action": "run", "id": "score_reset"})
+            with self.assertRaises(urllib.error.HTTPError):
+                post("/api/companion", {"action": "preview", "id": "no such graphic"})
+            post("/api/cue", {"id": cid})
+            post("/api/take", {"transition": "cut"})
             # Files: a picture, and a CSV (which becomes a data source).
             buf = io.BytesIO()
             Image.new("RGB", (40, 20), "red").save(buf, "PNG")

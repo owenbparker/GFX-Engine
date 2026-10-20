@@ -348,6 +348,11 @@ addEventListener("drop", e => {
         host === "localhost" ? null : urlRow("Control panel", base(host) + "/control"))),
       h("div", { class: "folder-title" }, "One graphic each (shows when it's on Program)"),
       ...s.project.compositions.map(c => urlRow(c.name, base(hosts[hosts.length - 1]) + "/output?comp=" + c.id)));
+    const plain = (label, text) => h("div", { class: "url-row" }, h("span", { class: "lbl" }, label), h("code", {}, text),
+      h("button", { class: "small", onclick: () => copy(text, label) }, "Copy"));
+    $("#companion-info").replaceChildren(
+      ...hosts.map(host => plain(host === "localhost" ? "On this PC" : "From another PC", host === "localhost" ? "127.0.0.1" : host)),
+      plain("Port", String(s.app.port)));
     const allow = $("#net-allow");
     allow.checked = s.app.network;
     const name = $("#net-name");

@@ -213,6 +213,19 @@ Engines announce themselves on the network (UDP 8783) and show up under
 Outputs > Engines on the network; **Scan** also looks for them directly.
 Turn off "Let other PCs use this engine" to keep it to this PC.
 
+## Bitfocus Companion (Stream Deck)
+
+Each release has `SCC-GFX-Companion-module.tgz`, a module for Bitfocus
+Companion (import it on Companion's **Modules** page). Add an **SCC GFX
+Engine** connection with this PC's address and port 8782 (Outputs shows them;
+from another PC the engine needs "Let other PCs use this engine" on). Its
+presets have a Preview and a Program button for every graphic in the open
+workspace (green on Preview, red on air), Take (with each transition), Clear,
+Update Program, and quick functions: the score, the clock mode, the
+background loop, whose players the player graphics show and the caster
+boxes. The module is in `companion-module/`; the engine side is
+`gfxengine/companion.py` (`GET` / `POST /api/companion`).
+
 ## HTML export
 
 Outputs > Export HTML makes a `.zip` of plain web files with the graphics,
