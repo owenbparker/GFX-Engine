@@ -33,7 +33,7 @@ from .live import Live
 from .log import log, since
 from .media import Jobs, ffmpeg_path, stinger_cut
 from .project import Workspace, blank_comp, blank_layer, new_id
-from .stats import Stats
+from .stats import GAMES, Stats
 from .teams import Teams, roster_rows
 from . import schedule, tournament
 from .updater import Updater, clean_up_old_update
@@ -183,6 +183,7 @@ class Engine:
             "project": project, "live": self.live.get(), "data": self.data_snapshot(),
             "global": globalcfg.clean(project.get("global")),
             "teams": self.teams.list(),
+            "games": list(GAMES.values()),   # (the games there are HUDs for)
             "fonts": self.assets.fonts(), "jobs": self.jobs.list(), "update": self.updater.info(),
         }
 

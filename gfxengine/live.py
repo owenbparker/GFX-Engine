@@ -48,6 +48,10 @@ class Live:
                     self.state[bus].update(saved.get(bus) or {})
             except (OSError, ValueError):
                 pass
+        # (graphics that are gone since, off the buses)
+        ids = self._ids()
+        for bus in BUSES:
+            self.state[bus]["on"] = [c for c in self.state[bus]["on"] if c in ids]
 
     def get(self):
         with self.lock:

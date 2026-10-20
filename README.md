@@ -105,7 +105,12 @@ loop**, which every SCC graphic uses, so changing them here changes them all:
   same time; the list shows which one is on air and how long it has left, and
   a sponsor layer can show that as a bar too (Composer: "Show a bar with the
   time it has left"). In Composer, a picture layer's source can be
-  `{{Sponsors}}`.
+  `{{Sponsors}}` (the one on air) or `{{Sponsors all}}` (every sponsor in a
+  row, as on the bottom bar of Team stats, Player stats and the Replay
+  overlay). In that row, logos are shown white unless the sponsor's
+  "White in footer rows" box is unticked (the SCC Alumni crest stays in
+  colour). The SCC pack comes with Alienware, SCC Alumni, Tim Hortons, SRC,
+  Subway, Intel, Prefire and Pulsar.
 - The background loop plays behind the full-screen boards (schedule, stats,
   brackets). Turn it off, pick its colour, brightness and speed, or drop in
   another video.
@@ -116,8 +121,9 @@ apart by a yellow bar (a scrolling text layer's Divider colour in Composer).
 The **Teams** tab has the team list (shared by every workspace, kept in
 `library/teams.csv`): each team's name, short name, game, logo and colour,
 and its roster: each player's headshot, name, in-game ID and country (its
-flag comes with the engine). One school can have a team in several games;
-the list filters by game. Pick a team to edit it, drop its logo or a
+flag comes with the engine). The game is picked from the games the engine
+has a HUD for (League of Legends, VALORANT, Rocket League, Call of Duty). One
+school can have a team in several games; the list filters by game. Pick a team to edit it, drop its logo or a
 player's headshot on it, or make it the left or right team. Import or export
 it as a CSV (Name, Short name, Logo, Colour, Game, Player 1, Player 1 ID,
 Player 1 country, Player 1 headshot, Player 2...). In Global, each side can
@@ -205,5 +211,8 @@ as a browser source, or use it as a CasparCG / SPX template:
 
 The graphics live in `workspace/` next to the app (`project.json` and
 `assets/`); a new install starts with the SCC example graphics from
-`starter/` (rebuilt with `tools/make_starter.py`). Every push to `main`
+`starter/` (rebuilt with `tools/make_starter.py`). The Title screen,
+Starting soon, Team graphic and Sponsor footer were taken out of the pack:
+a workspace drops them on its next open, unless they were edited there.
+Every push to `main`
 builds the Windows app and publishes a release.

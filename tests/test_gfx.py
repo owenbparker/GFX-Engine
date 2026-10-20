@@ -294,12 +294,48 @@ class PackTests(unittest.TestCase):
         self.assertTrue(any(l["type"] == "bracket" for l in comps["Top 8 bracket"]["layers"]))
         self.assertTrue(any("{{Tournament!Group A 1st}}" == l.get("text") for l in comps["Group bracket"]["layers"]))
         self.assertTrue(data["global"]["ticker"])
+        self.assertFalse({"Title screen", "Starting soon", "Team graphic", "Sponsor footer"} & set(comps))
+        self.assertEqual(len(data["global"]["sponsors"]), 8)
+        self.assertTrue(any(l.get("src") == "{{Sponsors all}}" for l in comps["Team stats"]["layers"]))
         sch = comps["Schedule"]["layers"]
         self.assertEqual(len([l for l in sch if l.get("show") == "{{Schedule!Match 3 show}}"]), 6)
         self.assertTrue(any(l.get("src") == "{{Global!Left logo}}" for l in sch))
         self.assertTrue(all(l.get("divider") for l in sch if l.get("scroll")))
         self.assertEqual(len(data["global"]["schedule"]["matches"]), 3)
         self.assertEqual([l["text"] for l in sch if l["name"].startswith("Clock")], ["{{clock}}", "{{Global!Clock label}}"])
+
+
+class PackUpgradeTests(unittest.TestCase):
+    def test_removed_graphics_and_new_sponsors(self):
+        from gfxengine import pack
+        tmp = tempfile.mkdtemp()
+        try:
+            old = dict(blank_comp("Title screen"), id="c1")
+            edited = dict(blank_comp("Starting soon"), id="c2", width=1280)
+            kept = dict(blank_comp("Schedule"), id="c3")
+            starter = os.path.join(tmp, "starter")
+            os.makedirs(os.path.join(starter, "assets", "sponsors"))
+            with open(os.path.join(starter, "assets", "sponsors", "Intel logo.png"), "wb") as f:
+                f.write(b"png")
+            with open(os.path.join(starter, "project.json"), "w") as f:
+                json.dump({"compositions": [kept], "pack_removed": ["Title screen", "Starting soon"],
+                           "pack_history": {"Title screen": [pack.signature(old)], "Starting soon": [pack.signature(blank_comp("Starting soon"))]},
+                           "global": {"sponsor_set": 2, "sponsors": [{"logo": "assets/sponsors/Intel logo.png", "secs": 10}]}}, f)
+            ws = Workspace(os.path.join(tmp, "ws"), starter="")
+            ws.data["compositions"] = [old, edited, kept]
+            ws.data["global"] = {"sponsors": [{"logo": "assets/sponsors/Subway.png", "secs": 10}]}
+            pack.upgrade(ws, starter)
+            # The untouched graphic goes, the edited one stays; the old sponsors are replaced.
+            self.assertEqual([c["name"] for c in ws.data["compositions"]], ["Starting soon", "Schedule"])
+            self.assertEqual([sp["logo"] for sp in ws.data["global"]["sponsors"]], ["assets/sponsors/Intel logo.png"])
+            self.assertTrue(os.path.isfile(os.path.join(tmp, "ws", "assets", "sponsors", "Intel logo.png")))
+            # Sponsors someone chose themselves stay.
+            ws.data["global"]["sponsors"] = [{"logo": "assets/sponsors/Mine.png", "secs": 5}]
+            pack.upgrade(ws, starter)
+            self.assertEqual(ws.data["global"]["sponsors"][0]["logo"], "assets/sponsors/Mine.png")
+            ws.close()
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
 
 class ScheduleTests(unittest.TestCase):

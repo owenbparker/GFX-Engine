@@ -16,6 +16,7 @@ import hashlib
 import json
 import os
 import shutil
+import time
 
 from . import export
 from .log import log
@@ -68,6 +69,12 @@ def upgrade(ws, starter):
             copy_files(fresh, starter, ws)
             comps[i] = fresh
             done.append(comp["name"])
+        # Graphics taken out of the pack: the untouched copies go.
+        removed = set(project.get("pack_removed") or [])
+        keep = [c for c in comps if not (c.get("name") in removed and signature(c) in history.get(c["name"], []))]
+        if len(keep) != len(comps):
+            done += [c["name"] for c in comps if c not in keep]
+            comps[:] = keep
         # What the graphics now share, for a workspace that never set it.
         g = ws.data.get("global") or {}
         pg = project.get("global") or {}
@@ -76,6 +83,14 @@ def upgrade(ws, starter):
             for sp in pg["sponsors"]:
                 copy_files({"src": sp["logo"]}, starter, ws)
             g["sponsors"] = copy.deepcopy(pg["sponsors"])
+            changed_global = True
+        # A newer set of sponsors, for a workspace that still has the pack's old one.
+        old_set = {"assets/sponsors/Subway.png", "assets/sponsors/NAC Esports.png"}
+        if pg.get("sponsor_set", 1) > 1 and g.get("sponsors") and all(sp.get("logo") in old_set for sp in g["sponsors"]):
+            for sp in pg["sponsors"]:
+                copy_files({"src": sp["logo"]}, starter, ws)
+            g["sponsors"] = copy.deepcopy(pg["sponsors"])
+            g["sponsor_epoch"] = round(time.time(), 3)
             changed_global = True
         if "ticker" not in g and pg.get("ticker"):
             g["ticker"] = list(pg["ticker"])
@@ -88,5 +103,5 @@ def upgrade(ws, starter):
         if done or changed_global:
             ws.changed()
     if done:
-        log(f"Brought {len(done)} SCC graphic(s) up to date")
+        log(f"Brought {len(done)} SCC graphic(s) up to date (or took out the ones the pack no longer has)")
     return done

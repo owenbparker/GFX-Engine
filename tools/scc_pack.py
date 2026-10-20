@@ -20,6 +20,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
+from gfxengine import export  # noqa: E402
 from gfxengine.pack import signature  # noqa: E402
 from gfxengine.project import new_id  # noqa: E402
 
@@ -55,9 +56,18 @@ PICTURES = {
           "Tournament Logo Replace Me": "{{Global!Tournament logo}}", "Replace with Logo": "{{Global!Tournament logo}}",
           "Replace Me With Tourney": "{{Global!Tournament logo}}", "TOURNAMENT LOGO, REPLACE ME": "{{Global!Tournament logo}}"},
 }
-# The sponsors a new workspace starts with: the pictures in the sponsor spots.
-SPONSORS = [("assets/Scorebug _ footer/SPONSOR REPLACE.png", "Subway.png"),
-            ("assets/Schedule/REPLACE WITH SPONSORS.png", "NAC Esports.png")]
+# The sponsors a new workspace starts with (in starter/assets/sponsors/), and
+# which set they are: a workspace still on an older set gets this one.
+SPONSORS = ["Alienware logo.png", "SCC Alumni logo.png", "Tim Hortons logo.png", "SRC logo.png", "Subway logo.png",
+            "Intel logo.png", "Prefire logo.png", "Pulsar logo.png"]
+SPONSOR_SET = 2
+# (a crest that's a filled circle: in its colours in the rows, not a white disc)
+IN_COLOUR = ("SCC Alumni logo.png",)
+# Graphics taken out of the pack (a workspace's untouched copies go too).
+REMOVED = ("Title screen", "Starting soon", "Team graphic", "Sponsor footer")
+# The design's row of sponsor logos at the foot of a graphic: one "every
+# sponsor" layer takes its place.
+STRIP_PARTS = ("Vector Smart Object", "Alienware-Logo-700x394")
 # Text placed by hand from the PSDs' renders, where the importer's guess was off:
 # (graphic, layer name, nth with that name) -> x, w, size, align, baseline (from the top of the canvas).
 PLACED = {
@@ -322,15 +332,49 @@ def link(data, starter=STARTER):
 
     # The sponsors a new workspace starts with.
     g = data.setdefault("global", {})
-    if not g.get("sponsors"):
-        g["sponsors"] = []
-        for src, name in SPONSORS:
-            dest = os.path.join(starter, "assets", "sponsors", name)
-            if os.path.isfile(os.path.join(starter, src)):
-                os.makedirs(os.path.dirname(dest), exist_ok=True)
-                shutil.copy(os.path.join(starter, src), dest)
-                g["sponsors"].append({"logo": f"assets/sponsors/{name}", "secs": 10})
+    if g.get("sponsor_set", 1) < SPONSOR_SET:
+        g["sponsors"] = [{"logo": f"assets/sponsors/{name}", "secs": 10, "white": name not in IN_COLOUR} for name in SPONSORS
+                         if os.path.isfile(os.path.join(starter, "assets", "sponsors", name))]
+        g["sponsor_set"] = SPONSOR_SET
+
+    # The rows of sponsor logos: every sponsor from Global.
+    for comp in data["compositions"]:
+        strip(comp)
+
+    # Graphics no longer in the pack, and the files only they used.
+    gone = [c for c in data["compositions"] if c["name"] in REMOVED]
+    if gone:
+        data["compositions"] = [c for c in data["compositions"] if c["name"] not in REMOVED]
+        data["pack_removed"] = sorted(set(data.get("pack_removed") or []) | {c["name"] for c in gone})
+        used = set()
+        export._walk_assets(data, used)
+        for comp in gone:
+            mine = set()
+            export._walk_assets(comp, mine)
+            for rel in mine - used:
+                path = os.path.join(starter, rel)
+                if os.path.isfile(path):
+                    os.remove(path)
+            for rel in {os.path.dirname(r) for r in mine}:
+                folder = os.path.join(starter, rel)
+                if os.path.isdir(folder) and not os.listdir(folder):
+                    os.rmdir(folder)
     return data
+
+
+def strip(comp):
+    parts = [l for l in comp["layers"] if l["type"] == "image" and l["y"] >= 980 and l["name"] in STRIP_PARTS]
+    if len(parts) < 3:
+        return
+    top = min(l["y"] for l in parts)
+    bottom = max(l["y"] + l["h"] for l in parts)
+    at = comp["layers"].index(parts[0])
+    comp["layers"] = [l for l in comp["layers"] if l not in parts]
+    comp["layers"].insert(at, {
+        "id": new_id("l"), "name": "Sponsors", "type": "image", "x": 360, "y": top + 4, "w": 1200, "h": bottom - top - 8,
+        "opacity": 1, "rotation": 0, "visible": True, "blend": "normal", "field": "",
+        "anim": json.loads(json.dumps(parts[0].get("anim") or {})),
+        "src": "{{Sponsors all}}", "fit": "contain", "loop": True, "mono": True})
 
 
 def _label(like, **kw):

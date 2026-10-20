@@ -75,7 +75,8 @@ def clean(g):
     out["custom"] = [[str(r[0])[:80], str(r[1])[:500]] for r in (g.get("custom") or [])
                      if isinstance(r, (list, tuple)) and len(r) >= 2 and str(r[0]).strip()]
     out["tournament_logo"] = str(g.get("tournament_logo") or "")[:300]
-    out["sponsors"] = [{"logo": str(sp.get("logo"))[:300], "secs": _num(sp.get("secs"), 1, 600, 10)}
+    # (white: drawn all white in the rows of sponsor logos, like the design's)
+    out["sponsors"] = [{"logo": str(sp.get("logo"))[:300], "secs": _num(sp.get("secs"), 1, 600, 10), "white": sp.get("white", True) is not False}
                        for sp in (g.get("sponsors") or []) if isinstance(sp, dict) and sp.get("logo")][:40]
     out["sponsor_epoch"] = _num(g.get("sponsor_epoch"), 0, 1e11, 0)
     loop = dict(DEFAULT["bgloop"], **(g.get("bgloop") or {}))
@@ -143,6 +144,7 @@ def rows(g):
 
 
 def sponsor_rows(g):
-    """The "Sponsors" table the sponsor spots rotate through: logo | seconds | from (s)."""
+    """The "Sponsors" table the sponsor spots rotate through: logo | seconds | from (s) | white in rows."""
     g = clean(g)
-    return [["Logo", "Seconds", "Epoch"]] + [[s["logo"], str(s["secs"]), str(g["sponsor_epoch"])] for s in g["sponsors"]]
+    return [["Logo", "Seconds", "Epoch", "White"]] + [[s["logo"], str(s["secs"]), str(g["sponsor_epoch"]), "1" if s["white"] else ""]
+                                                      for s in g["sponsors"]]

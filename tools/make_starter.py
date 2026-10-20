@@ -23,14 +23,12 @@ from gfxengine.psdimport import import_psd  # noqa: E402
 import scc_pack  # noqa: E402  (tools/)
 
 SCREENS = "24-11 SCS_Stream Overlay Graphics/SCREENS/"
+# (Title screen, Starting soon, Team graphic and Sponsor footer were taken out of the pack.)
 GRAPHICS = [
     ("ScheduleGraphic_Screen.psd", "Schedule"),
     ("LowerThirds-FOOTER.psd", "Scorebug & footer"),
     ("LOWER 3RD SGS.psd", "Caster lower third"),
     ("TEAM STAT PAGE.psd", "Team stats"),
-    (SCREENS + "1-Title Graphic/TitleGraphic_Screen.psd", "Title screen"),
-    (SCREENS + "3-Starting Soon_Intermission Screen/StartingSoonScreen.psd", "Starting soon"),
-    ("Team Graphic.psd", "Team graphic"),
     ("1 Player Graphic.psd", "Player graphic (1)"),
     ("2 Player Graphic.psd", "Player graphic (2)"),
     ("3 Player Graphic.psd", "Player graphic (3)"),
@@ -41,7 +39,6 @@ GRAPHICS = [
     ("TOP 8.psd", "Top 8 bracket"),
     ("FINAL FOUR.psd", "Final four"),
     (SCREENS + "10-Replay Overlay/REPLAY-Overlay.psd", "Replay overlay"),
-    ("SponsorLogos_Footer.psd", "Sponsor footer"),
 ]
 # The teams, series and event every graphic can use ({{Global!Left name}}...).
 GLOBAL = {"event": "NACE VARSITY", "stage": "PLAYOFFS", "best_of": 3, "game": "",

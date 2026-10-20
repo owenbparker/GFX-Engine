@@ -124,6 +124,8 @@
     // (a picture or colour can come from the data too: {{Global!Left logo}})
     const own = v != null ? String(v) : (layer.type === "rect" ? layer.fill : layer.src) || "";
     if (SPONSORS.test(own)) return "{{Sponsors}}";
+    // (every sponsor in a row: the list is part of the value, so a new list redraws it)
+    if (STRIP.test(own)) return "{{Sponsors all}}" + GFX.sponsors().map(x => "|" + (x.white ? "w:" : "c:") + x.logo).join("");
     const out = hasTokens(own) ? GFX.resolve(own).trim() : own;
     // A picture linked to Global with nothing there yet shows the design's own.
     return !out && layer.placeholder ? layer.placeholder : out;
@@ -132,9 +134,10 @@
   // --- the sponsors: one after another, each for its own seconds ---------------
   // A picture layer whose file is {{Sponsors}} shows Global's sponsors in turn.
   const SPONSORS = /^\s*\{\{\s*sponsors\s*\}\}\s*$/i;
+  const STRIP = /^\s*\{\{\s*sponsors all\s*\}\}\s*$/i;
   GFX.sponsors = function () {
     return (ctx.tables.Sponsors || []).slice(1).filter(r => r[0])
-      .map(r => ({ logo: r[0], secs: Math.max(1, +r[1] || 10), epoch: +r[2] || 0 }));
+      .map(r => ({ logo: r[0], secs: Math.max(1, +r[1] || 10), epoch: +r[2] || 0, white: r[3] == null || r[3] === "1" }));
   };
   // {index, left (s), secs, list} of the sponsor on now.
   GFX.sponsorNow = function (list) {
@@ -149,6 +152,20 @@
     return { index: list.length - 1, left: 0, secs: list[list.length - 1].secs, list };
   };
   const rotators = new Set();
+  // A picture layer whose file is {{Sponsors all}}: every sponsor side by side,
+  // centred, as tall as the box; each white like the design's unless the sponsor
+  // is set to keep its colours (or the layer's "mono" is off).
+  function sponsorStrip(layer, logos) {
+    const box = el("div", "gfx-media gfx-strip", { gap: Math.round(layer.h * 0.7) + "px" });
+    for (const item of logos) {
+      const white = item.startsWith("w:") && layer.mono !== false, logo = item.slice(2);
+      const img = el("img", "", { height: "100%", maxWidth: Math.round(layer.h * 3.2) + "px", objectFit: "contain",
+        filter: white ? "brightness(0) invert(1)" : "" });
+      img.src = url(encodeURI(logo));
+      box.appendChild(img);
+    }
+    return box;
+  }
   function sponsorBox(layer, opts) {
     const box = el("div", "gfx-media gfx-rot");
     box._layer = layer;
@@ -194,6 +211,7 @@
   function buildContent(layer, value, opts) {
     const t = layer.type;
     if (t === "image" && value === "{{Sponsors}}") return sponsorBox(layer, opts);
+    if (t === "image" && value.startsWith("{{Sponsors all}}")) return sponsorStrip(layer, value.split("|").slice(1));
     if (t === "video" && layer.tint) return tintedVideo(layer, value, opts);
     if (t === "bracket") return bracketBox(layer);
     if (t === "image") {
@@ -826,6 +844,8 @@
     .gfx-scroll{overflow:hidden}
     .gfx-scroll .gfx-t{display:flex;white-space:pre}
     .gfx-tick{display:inline-flex;align-items:center}
+    .gfx-media.gfx-strip{display:flex;align-items:center;justify-content:center}
+    .gfx-strip img{min-width:0;flex:0 1 auto}
     .gfx-icon{display:inline-block;height:.72em;width:auto;margin-right:.32em;vertical-align:baseline;border-radius:.06em}
     .gfx-div{display:inline-block;height:1.05em;flex:0 0 auto}
     .gfx-tick{padding-right:1.5em}

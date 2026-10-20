@@ -59,15 +59,22 @@
     teamChanged();
     renderTeamEditor();
   }
+  // The games there are HUDs for, then any other a team has (from a CSV, say).
+  const allGames = () => [...new Set([...(App.state.games || []), ...teams.map(t => t.game).filter(Boolean)])];
+  function gameSelect(t) {
+    const sel = h("select", { "data-k": "game", onchange: e => { t.game = e.target.value; teamChanged(); renderTeamEditor(); } },
+      h("option", { value: "" }, "Pick the game…"), ...allGames().map(g => h("option", { value: g }, g)));
+    sel.value = t.game || "";
+    return sel;
+  }
   function renderGames() {
-    const games = [...new Set(teams.map(t => t.game).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+    const games = allGames();
     const sig = JSON.stringify(games);
     if (gameFilter.dataset.sig !== sig) {
       gameFilter.dataset.sig = sig;
       const was = gameFilter.value;
       gameFilter.replaceChildren(h("option", { value: "" }, "All games"), ...games.map(g => h("option", { value: g }, g)));
       gameFilter.value = games.includes(was) ? was : "";
-      $("#team-games").replaceChildren(...games.map(g => h("option", { value: g })));
     }
   }
   function renderTeamList() {
@@ -131,8 +138,7 @@
             oninput: e => { t.name = e.target.value; head.querySelector("b").textContent = t.name || "New team"; teamChanged(); } })),
           h("label", {}, "Short name", h("input", { value: t.short, maxlength: 12, placeholder: "e.g. SCC",
             oninput: e => { t.short = e.target.value; teamChanged(); } })),
-          h("label", {}, "Game", h("input", { value: t.game || "", list: "team-games", placeholder: "e.g. Rocket League",
-            onchange: e => { t.game = e.target.value.trim(); teamChanged(); renderTeamEditor(); } })),
+          h("label", {}, "Game", gameSelect(t)),
           h("label", {}, "Colour", h("input", { type: "color", value: /^#[0-9a-f]{6}$/i.test(t.color) ? t.color : "#333333",
             oninput: e => { t.color = e.target.value; teamChanged(); } })))),
       h("section", { class: "t-sect" },

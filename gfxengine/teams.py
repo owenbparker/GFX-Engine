@@ -80,6 +80,19 @@ def _player(p):
             "country": country_code(p.get("country")), "photo": _picture(p.get("photo"))}
 
 
+def game_name(g):
+    """A game as the HUDs name it ("valorant", "LoL", "rl"... -> VALORANT, League of
+    Legends, Rocket League); another game is kept as it's written."""
+    from .stats import GAMES
+    g = str(g or "").strip()[:60]
+    low = g.lower()
+    for code, name in GAMES.items():
+        if low in (code, name.lower()):
+            return name
+    return {"league": GAMES["lol"], "cod": GAMES["cod"], "callofduty": GAMES["cod"], "rocketleague": GAMES["rl"],
+            "val": GAMES["valorant"]}.get(low.replace(" ", ""), g)
+
+
 def _clean(t):
     color = str(t.get("color") or "").strip()
     if color and not re.match(r"^#[0-9a-fA-F]{6}$", color):
@@ -87,7 +100,7 @@ def _clean(t):
     players = [_player(p) for p in (t.get("players") or [])][:MAX_PLAYERS]
     return {"name": str(t.get("name") or "").strip()[:120], "short": str(t.get("short") or "").strip()[:12],
             "logo": str(t.get("logo") or "").strip()[:300], "color": color,
-            "game": str(t.get("game") or "").strip()[:60],
+            "game": game_name(t.get("game")),
             "players": [p for p in players if any(p.values())]}
 
 

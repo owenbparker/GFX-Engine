@@ -325,6 +325,8 @@ App.on(s => {
         h("div", {},
           h("div", { class: "secs" }, "On for", h("input", { type: "number", min: 1, max: 600, value: sp.secs,
             onchange: e => { sp.secs = Math.max(1, +e.target.value || 10); saveSponsors(); } }), "seconds"),
+          h("label", { class: "white", title: "In the rows of sponsor logos at the foot of a graphic: all white like the design's, or in its own colours" },
+            h("input", { type: "checkbox", checked: sp.white !== false, onchange: e => { sp.white = e.target.checked; saveSponsors(); } }), "White in footer rows"),
           h("div", { class: "now" })),
         h("div", { class: "acts" },
           h("button", { class: "ghost small", title: "Earlier", onclick: () => moveSponsor(i, -1) }, "↑"),
