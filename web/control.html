@@ -16,6 +16,8 @@
     <button data-tab="control">Control</button>
     <button data-tab="composer">Composer</button>
     <button data-tab="global">Global</button>
+    <button data-tab="teams">Teams</button>
+    <button data-tab="tournament">Tournament</button>
     <button data-tab="assets">Assets</button>
     <button data-tab="data">Data</button>
     <button data-tab="transitions">Transitions</button>
@@ -106,38 +108,6 @@
         <p class="muted small">Every ticker in the graphics scrolls these ({{Global!Ticker}}).</p>
       </div>
     </section>
-    <section class="panel g-teams">
-      <div class="panel-head"><h3>Team list</h3>
-        <div class="row-gap">
-          <button class="small" id="t-add">+ Add</button>
-          <button class="small" id="t-import" title="Name, Short name, Logo, Colour columns">Import CSV…</button>
-          <a class="btn small ghost" id="t-export" href="/library/teams.csv" download="teams.csv">Export CSV</a>
-          <input type="file" id="t-import-file" accept=".csv,text/csv" hidden>
-        </div></div>
-      <div class="pad">
-        <input id="t-find" class="search" placeholder="Find a team…">
-        <div id="t-list" class="team-list"></div>
-        <p class="muted small">Every workspace shares this list. Pick from it in each team above and in the tournament. Click a logo to change it.</p>
-      </div>
-    </section>
-    <section class="panel g-tournament">
-      <div class="panel-head"><h3>Tournament</h3><span class="muted small">The bracket graphics show these. Enter the scores and the winners go through.</span></div>
-      <div class="pad tourney">
-        <div class="tn-part">
-          <div class="tn-head"><h4>Knockout bracket</h4>
-            <div class="seg" id="tn-size"><button data-size="8">8 teams</button><button data-size="16">16 teams</button></div>
-            <div class="spacer"></div>
-            <button class="small ghost" id="tn-top-scores" title="Keep the teams, clear every score">Clear scores</button></div>
-          <div id="tn-top" class="tn-rounds"></div>
-        </div>
-        <div class="tn-part">
-          <div class="tn-head"><h4>Groups</h4><div class="spacer"></div>
-            <button class="small ghost" id="tn-group-scores" title="Keep the teams, clear every score">Clear scores</button></div>
-          <div id="tn-groups" class="tn-groups"></div>
-        </div>
-        <datalist id="team-names"></datalist>
-      </div>
-    </section>
     <section class="panel g-custom">
       <div class="panel-head"><h3>More fields</h3><button class="small" id="g-custom-add">+ Add</button></div>
       <div id="g-custom" class="pad"></div>
@@ -156,6 +126,51 @@
       <div id="g-feeds" class="pad"></div>
     </section>
   </div>
+</main>
+
+<!-- TEAMS: the team list every workspace shares -->
+<main id="page-teams" class="page" hidden>
+  <div class="page-head">
+    <h2>Teams</h2>
+    <span class="muted">Every workspace shares this list. Global's team dropdowns and the tournament pick from it.</span>
+    <div class="spacer"></div>
+    <button class="small" id="t-add">+ Add team</button>
+    <button class="small" id="t-import" title="Name, Short name, Logo, Colour columns">Import CSV…</button>
+    <a class="btn small" id="t-export" href="/library/teams.csv" download="teams.csv">Export CSV</a>
+    <input type="file" id="t-import-file" accept=".csv,text/csv" hidden>
+  </div>
+  <div class="teams-page">
+    <section class="panel teams-list">
+      <div class="panel-head"><input id="t-find" class="search" placeholder="Find a team…"><span class="muted small" id="t-count"></span></div>
+      <div id="t-list" class="team-list"></div>
+    </section>
+    <section class="panel team-edit" id="t-edit"></section>
+  </div>
+</main>
+
+<!-- TOURNAMENT: the brackets the bracket graphics show -->
+<main id="page-tournament" class="page" hidden>
+  <div class="page-head">
+    <h2>Tournament</h2>
+    <span class="muted">The bracket graphics show these. Enter the scores and the winners go through.</span>
+  </div>
+    <section class="g-tournament">
+      <div class="tourney">
+        <div class="tn-part panel pad">
+          <div class="tn-head"><h4>Knockout bracket</h4>
+            <div class="seg" id="tn-size"><button data-size="8">8 teams</button><button data-size="16">16 teams</button></div>
+            <div class="spacer"></div>
+            <button class="small ghost" id="tn-top-scores" title="Keep the teams, clear every score">Clear scores</button></div>
+          <div id="tn-top" class="tn-rounds"></div>
+        </div>
+        <div class="tn-part panel pad">
+          <div class="tn-head"><h4>Groups</h4><div class="spacer"></div>
+            <button class="small ghost" id="tn-group-scores" title="Keep the teams, clear every score">Clear scores</button></div>
+          <div id="tn-groups" class="tn-groups"></div>
+        </div>
+        <datalist id="team-names"></datalist>
+      </div>
+    </section>
 </main>
 
 <!-- CONTROL: Preview / Program, the take bar, the rundown and the fields -->

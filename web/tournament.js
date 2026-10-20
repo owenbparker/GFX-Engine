@@ -1,12 +1,11 @@
-// The Global page's ticker, team list (every workspace shares it) and
-// tournament (the brackets the bracket graphics show).
+// The Global page's ticker, the Teams page (the team list every workspace
+// shares) and the Tournament page (the brackets the bracket graphics show).
 "use strict";
 
 (function globalExtras() {
   const pic = p => !p ? "" : /^https?:/.test(p) ? p : "/" + encodeURI(p);
   const table = () => (App.state && App.state.data.tables.Tournament) || [];
   const val = k => GFX.lookup(table(), k);
-  const onGlobal = () => App.tab === "global";
 
   // --- the ticker -----------------------------------------------------------------
   const ticker = $("#g-ticker");
@@ -17,54 +16,84 @@
     if (document.activeElement !== ticker && ticker.value.split("\n").map(s => s.trim()).filter(Boolean).join("\n") !== lines) ticker.value = lines;
   }
 
-  // --- the team list ----------------------------------------------------------------
+  // --- the team list (its own tab): the list, and the picked team to edit -------------
   let teams = null;          // as edited here
-  const saveTeams = debounce(() => api("/api/teams", { teams }), 400);
+  let sel = 0;               // the team being edited
+  let teamsPending = false;
+  const saveTeams = debounce(() => { teamsPending = false; api("/api/teams", { teams }); }, 400);
+  const teamChanged = () => { teamsPending = true; saveTeams(); renderTeamList(); };
   const find = $("#t-find");
-  find.addEventListener("input", () => renderTeams(true));
-  function teamLogo(t, i) {
-    const input = h("input", { type: "file", accept: "image/*", hidden: true,
-      onchange: e => { const f = e.target.files[0]; e.target.value = ""; if (f) uploadTeamLogo(t, f); } });
-    const box = h("div", { class: "t-logo" + (t.logo ? " has" : ""), title: "Click or drop the logo",
-      style: { backgroundImage: t.logo ? `url("${pic(t.logo)}")` : "" },
-      onclick: () => input.click(),
-      ondragover: e => { e.preventDefault(); e.stopPropagation(); box.classList.add("over"); },
-      ondragleave: () => box.classList.remove("over"),
-      ondrop: e => { e.preventDefault(); e.stopPropagation(); box.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) uploadTeamLogo(t, f); } },
-      t.logo ? "" : "+");
-    return [box, input];
-  }
+  find.addEventListener("input", () => renderTeamList());
   async function uploadTeamLogo(t, file) {
     if (!t.name.trim()) return toast("Name the team first", true);
-    await new Promise(r => setTimeout(r, 450));       // (a name being typed is saved first)
+    if (teamsPending) await new Promise(r => setTimeout(r, 450));    // (a name being typed is saved first)
     const r = await postFile(`/api/teams/logo?team=${encodeURIComponent(t.name.trim())}`, file);
     teams = r.teams;
-    renderTeams(true);
+    sel = Math.max(0, teams.findIndex(x => x.name === t.name.trim()));
+    renderTeams();
     toast("Logo saved");
   }
-  function renderTeams(force) {
+  function renderTeamList() {
     const list = $("#t-list");
-    if (!teams || force === "reload") teams = JSON.parse(JSON.stringify(App.state.teams || []));
-    const sig = JSON.stringify([teams, find.value]);
-    if (!force && (list.dataset.sig === sig || list.contains(document.activeElement))) return;
-    list.dataset.sig = sig;
     const q = find.value.trim().toLowerCase();
     const shown = teams.map((t, i) => [t, i]).filter(([t]) => !q || t.name.toLowerCase().includes(q) || t.short.toLowerCase().includes(q));
-    list.replaceChildren(...(shown.length ? shown.map(([t, i]) => h("div", { class: "t-row" },
-      ...teamLogo(t, i),
-      h("input", { value: t.name, placeholder: "Name", oninput: e => { t.name = e.target.value; saveTeams(); } }),
-      h("input", { value: t.short, placeholder: "Short", maxlength: 12, class: "t-short", oninput: e => { t.short = e.target.value; saveTeams(); } }),
-      h("input", { type: "color", value: /^#[0-9a-f]{6}$/i.test(t.color) ? t.color : "#333333", title: "Colour",
-        oninput: e => { t.color = e.target.value; saveTeams(); } }),
-      h("button", { class: "ghost small", title: "Remove", onclick: () => { teams.splice(i, 1); saveTeams(); renderTeams(true); } }, "✕")))
-      : [h("div", { class: "muted small" }, q ? "No team matches." : "No teams yet. Add them here, import a CSV, or use “Save to the team list” on a team above.")]));
+    $("#t-count").textContent = `${teams.length} team${teams.length === 1 ? "" : "s"}`;
+    list.replaceChildren(...(shown.length ? shown.map(([t, i]) => h("div", { class: "t-row" + (i === sel ? " sel" : ""), onclick: () => { sel = i; renderTeams(); } },
+      h("div", { class: "t-logo" + (t.logo ? " has" : ""), style: { backgroundImage: t.logo ? `url("${pic(t.logo)}")` : "" } }),
+      h("div", { class: "t-name" }, t.name || h("span", { class: "muted" }, "(no name)")),
+      h("span", { class: "t-short" }, t.short),
+      h("span", { class: "t-swatch", style: { background: t.color || "transparent" } })))
+      : [h("div", { class: "empty" }, q ? "No team matches." : "No teams yet: + Add team, Import CSV, or “Save to the team list” on a team in Global.")]));
+  }
+  function renderTeamEditor() {
+    const box = $("#t-edit");
+    const t = teams[sel];
+    if (!t) { box.replaceChildren(h("div", { class: "empty" }, "Pick a team on the left, or add one.")); return; }
+    const fileIn = h("input", { type: "file", accept: "image/*", hidden: true,
+      onchange: e => { const f = e.target.files[0]; e.target.value = ""; if (f) uploadTeamLogo(t, f); } });
+    const drop = h("div", { class: "logo-drop big" + (t.logo ? " has" : ""), title: "Click or drop the logo",
+      style: { backgroundImage: t.logo ? `url("${pic(t.logo)}")` : "" },
+      onclick: () => fileIn.click(),
+      ondragover: e => { e.preventDefault(); e.stopPropagation(); drop.classList.add("over"); },
+      ondragleave: () => drop.classList.remove("over"),
+      ondrop: e => { e.preventDefault(); e.stopPropagation(); drop.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) uploadTeamLogo(t, f); } },
+      t.logo ? "" : "Click or drop the logo");
+    const useAs = side => api("/api/global", { global: { [side]: Object.assign({ name: t.name, short: t.short, logo: t.logo }, t.color ? { color: t.color } : {}) } })
+      .then(() => toast(`${t.name} is the ${side} team`));
+    box.replaceChildren(
+      h("div", { class: "panel-head" }, h("h3", {}, t.name || "New team"),
+        h("button", { class: "small danger", onclick: () => {
+          if (t.name && !confirm(`Remove ${t.name} from the team list?`)) return;
+          teams.splice(sel, 1); sel = Math.max(0, sel - 1); teamChanged(); renderTeamEditor();
+        } }, "Remove")),
+      h("div", { class: "pad" },
+        drop, fileIn,
+        h("div", { class: "row-gap", style: { justifyContent: "center" } },
+          t.logo ? h("button", { class: "ghost small", onclick: () => { t.logo = ""; teamChanged(); renderTeamEditor(); } }, "Remove logo") : null),
+        h("label", {}, "Name", h("input", { value: t.name, placeholder: "e.g. St. Clair Saints", "data-k": "name",
+          oninput: e => { t.name = e.target.value; box.querySelector("h3").textContent = t.name || "New team"; teamChanged(); } })),
+        h("div", { class: "colour-row" },
+          h("label", { style: { flex: 1 } }, "Short name", h("input", { value: t.short, maxlength: 12, placeholder: "e.g. SCC",
+            oninput: e => { t.short = e.target.value; teamChanged(); } })),
+          h("label", {}, "Colour", h("input", { type: "color", value: /^#[0-9a-f]{6}$/i.test(t.color) ? t.color : "#333333",
+            oninput: e => { t.color = e.target.value; teamChanged(); } }))),
+        h("div", { class: "row-gap use-as" },
+          h("button", { class: "small", onclick: () => useAs("left") }, "Use as the left team"),
+          h("button", { class: "small", onclick: () => useAs("right") }, "Use as the right team"))));
+  }
+  function renderTeams(reload) {
+    if (!teams || reload) teams = JSON.parse(JSON.stringify(App.state.teams || []));
+    sel = Math.min(sel, Math.max(0, teams.length - 1));
+    renderTeamList();
+    renderTeamEditor();
     renderNames();
   }
   $("#t-add").addEventListener("click", () => {
     find.value = "";
     teams.unshift({ name: "", short: "", logo: "", color: "" });
-    renderTeams(true);
-    $("#t-list input").focus();
+    sel = 0;
+    renderTeams();
+    $("#t-edit input[data-k=name]").focus();
   });
   $("#t-import").addEventListener("click", () => $("#t-import-file").click());
   $("#t-import-file").addEventListener("change", async e => {
@@ -73,7 +102,7 @@
     const r = await fetch("/api/teams/import", { method: "POST", body: f }).then(r => r.json());
     if (r.error) return toast(r.error, true);
     teams = r.teams;
-    renderTeams(true);
+    renderTeams();
     toast(`${r.added} team${r.added === 1 ? "" : "s"} imported`);
   });
   // The names to pick from.
@@ -176,18 +205,17 @@
   // --- in step with the engine ----------------------------------------------------------
   let lastTeams = "";
   App.on(s => {
-    if (!onGlobal()) return;
-    renderTicker();
+    renderNames();
+    if (App.tab === "global") renderTicker();
+    if (App.tab === "tournament") renderTournament(false);
     const sig = JSON.stringify(s.teams);
-    if (sig !== lastTeams) { lastTeams = sig; if (!$("#t-list").contains(document.activeElement)) renderTeams("reload"); renderNames(); }
-    renderTournament(false);
+    if (App.tab === "teams" && sig !== lastTeams) {
+      lastTeams = sig;
+      if (!teamsPending && !$("#t-edit").contains(document.activeElement)) renderTeams(true);
+    }
   });
   const shown = pages.global.shown;
-  pages.global.shown = () => {
-    shown();
-    if (!App.state) return;
-    renderTicker();
-    renderTeams("reload");
-    renderTournament(true);
-  };
+  pages.global.shown = () => { shown(); if (App.state) renderTicker(); };
+  pages.teams = { shown() { if (App.state) { lastTeams = JSON.stringify(App.state.teams); renderTeams(true); } } };
+  pages.tournament = { shown() { if (App.state) renderTournament(true); } };
 })();

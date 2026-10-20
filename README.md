@@ -112,13 +112,14 @@ loop**, which every SCC graphic uses, so changing them here changes them all:
 
 The **ticker** has the lines every ticker scrolls (`{{Global!Ticker}}`).
 
-The **team list** (shared by every workspace, kept in `library/teams.csv`)
-has each team's name, short name, logo and colour. Import or export it as a
-CSV (Name, Short name, Logo, Colour), pick a team for each side from it, or
-save a side's team to it. The tournament's team boxes suggest names from it,
+The **Teams** tab has the team list (shared by every workspace, kept in
+`library/teams.csv`): each team's name, short name, logo and colour. Pick a
+team to edit it, drop its logo on it, or make it the left or right team.
+Import or export it as a CSV (Name, Short name, Logo, Colour). In Global,
+each side can pick its team from the list, or save its team to it. The tournament's team boxes suggest names from it,
 and the brackets show each team's logo.
 
-The **tournament** fills in the bracket graphics: the knockout bracket (8 or
+The **Tournament** tab fills in the bracket graphics: the knockout bracket (8 or
 16 teams: the Top 8 bracket graphic redraws itself for 16, and its Control
 fields have the choice) and four groups played GSL style (two opening
 matches, winners', elimination and decider). Enter the teams and the scores,
