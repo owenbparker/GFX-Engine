@@ -192,7 +192,10 @@ def pictures(comps):
                 "id": new_id("l"), "name": "Champion Image", "type": "image", "x": 165, "y": 301, "w": 582, "h": 582,
                 "opacity": 1, "rotation": 0, "visible": True, "blend": "normal", "field": "",
                 "anim": json.loads(json.dumps(photo.get("anim") or {})), "src": "{{Stats!MVP champion}}",
-                "show": "{{Stats!MVP champion}}", "fit": "cover", "position": "top", "loop": True})
+                "show": "{{Stats!MVP champion}}", "loop": True})
+    for l in (ps or {}).get("layers", []):
+        if l["name"] == "Champion Image":
+            l.update(fit="contain", position="center")   # (the whole picture, inside the box)
 
 
 def schedule(comps):

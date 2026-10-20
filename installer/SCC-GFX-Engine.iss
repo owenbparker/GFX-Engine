@@ -161,7 +161,7 @@ begin
     Result := 'Copying files failed (robocopy ' + IntToStr(Code) + '). Is SCC GFX Engine still open?';
     Exit;
   end;
-  Code := RunHidden('robocopy.exe', '"' + Tmp + '\new" "' + App + '" /XD _internal /R:3 /W:1 /NFL /NDL /NJH /NJS /NP');
+  Code := RunHidden('robocopy.exe', '"' + Tmp + '\new" "' + App + '" /XD _internal workspace workspaces library _update /XF settings.json /R:3 /W:1 /NFL /NDL /NJH /NJS /NP');
   if (Code < 0) or (Code >= 8) then
     Result := 'Copying files failed (robocopy ' + IntToStr(Code) + ').';
 end;

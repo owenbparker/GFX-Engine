@@ -13,6 +13,8 @@ Download **SCC-GFX-Engine-Setup.exe** from the
 (no admin rights needed; it installs to `C:\SCC GFX Engine`). The app updates
 itself: when a new release is out, an **Update** button shows in the top bar.
 The SCC HUD Manager installs and updates it too.
+Updating only replaces the app's own files: your workspaces (graphics, their
+text and the Upcoming Schedule), the team library and settings stay as they are.
 
 The first time it starts, Windows may ask whether to let it on the network:
 allow it on private networks so other PCs can use the outputs.
@@ -207,8 +209,9 @@ Team stats (a picture left of each player) and Player stats show each
 team's players as their **headshots** (from the Teams tab) or the
 **champions** they're playing (League), picked per team in either page's
 Control fields ("Player pictures": Left team, Right team). On Team stats a
-headshot shows only its top third (the face); Player stats shows the
-champion's full splash art. `{{Stats!Left player 1 headshot}}`,
+headshot shows only its top third (the face); on Player stats the headshot
+is full size (it can rise above the top of the box) and the champion's
+square art fills the box, uncropped. `{{Stats!Left player 1 headshot}}`,
 `{{Stats!Left player 1 champion}}`, `{{Stats!MVP champion}}`.
 
 ## Outputs and the network

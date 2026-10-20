@@ -9530,8 +9530,8 @@
      },
      "src": "{{Stats!MVP champion}}",
      "show": "{{Stats!MVP champion}}",
-     "fit": "cover",
-     "position": "top",
+     "fit": "contain",
+     "position": "center",
      "loop": true
     },
     {
@@ -19808,7 +19808,8 @@
    "d5dce73c6f590dc8",
    "89212692f9971a8b",
    "c980b36b8965cbfb",
-   "cc4c6c21362421cd"
+   "cc4c6c21362421cd",
+   "e1903043efeded3a"
   ],
   "Group bracket": [
    "277e2bab153a8817",

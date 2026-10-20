@@ -56,7 +56,9 @@ jobs:
           if ($p.ExitCode -ne 0) { throw "Smoke test failed (exit code $($p.ExitCode))" }
           # Leave no test leftovers in the download.
           Remove-Item "$app\smoke-test.txt", "$app\settings.json" -ErrorAction SilentlyContinue
-          Remove-Item "$app\workspace" -Recurse -ErrorAction SilentlyContinue
+          Remove-Item "$app\workspace", "$app\workspaces", "$app\library" -Recurse -ErrorAction SilentlyContinue
+          # (a workspace in the download would replace the user's graphics, schedule and settings on every update)
+          foreach ($d in "workspace", "workspaces", "library", "settings.json") { if (Test-Path "$app\$d") { throw "$d left in the download" } }
           Remove-Item "$app\_update" -Recurse -ErrorAction SilentlyContinue
 
       - name: Add readme and version.txt

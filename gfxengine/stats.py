@@ -134,13 +134,13 @@ def _total(key, players, game):
     return _show(key, sum(int(x.get(key) or 0) for x in vals))
 
 
-# A League champion's square icon (Data Dragon) -> its tall "loading screen" art.
+# A League champion's small square icon (Data Dragon) -> its big square art (380x380).
 ICON = re.compile(r"^(https?://[^/]+)/cdn/[^/]+/img/champion/([^/.]+)\.png$")
 
 
 def champion_art(icon):
     m = ICON.match(icon or "")
-    return f"{m.group(1)}/cdn/img/champion/loading/{m.group(2)}_0.jpg" if m else ""
+    return f"{m.group(1)}/cdn/img/champion/tiles/{m.group(2)}_0.jpg" if m else ""
 
 
 def _title(key):

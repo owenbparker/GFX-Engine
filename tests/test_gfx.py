@@ -253,7 +253,7 @@ class StatsTests(unittest.TestCase):
                          ("library/teams/players/o.png", "", "1"))
         champs = dict(stats.rows(stats.read("lol", f), True, {}, "auto", look, {"left": "champion"})[1:])
         self.assertEqual((champs["Left player 1 headshot"], champs["Left player 1 champion"], champs["MVP headshot"]), ("", icon, ""))
-        self.assertEqual(champs["MVP champion"], "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Ahri_0.jpg")
+        self.assertEqual(champs["MVP champion"], "https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/Ahri_0.jpg")
 
     def test_kept_after_the_game(self):
         from gfxengine.stats import Stats
@@ -271,6 +271,21 @@ class StatsTests(unittest.TestCase):
             self.assertEqual(dict(Stats(tmp).rows()[1:])["Status"], "")
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+
+class UpdaterTests(unittest.TestCase):
+    def test_update_leaves_the_users_files(self):
+        from gfxengine.updater import Updater
+        u = Updater()
+        u.work_dir = tempfile.mkdtemp()
+        try:
+            with open(u._write_script(os.path.join(u.work_dir, "new")), encoding="utf-8") as f:
+                text = f.read()
+        finally:
+            shutil.rmtree(u.work_dir)
+        copy = [l for l in text.splitlines() if "/XD _internal" in l][0]
+        for kept in ("workspaces", "workspace", "library", "settings.json"):
+            self.assertIn(" " + kept, copy)
 
 
 class GlobalTests(unittest.TestCase):

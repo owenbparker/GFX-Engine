@@ -7,7 +7,16 @@
   let pending = false;
   let last = "";
   const blank = () => ({ tournament: "", game: "", type: "", team1: "", team2: "", date: "", time: "" });
-  const save = debounce(() => { pending = false; api("/api/global", { global: { schedule: sched } }); }, 400);
+  const saved = $("#s-saved");
+  const store = () => {
+    pending = false;
+    saved.textContent = "Saving...";
+    return api("/api/global", { global: { schedule: sched } }).then(
+      () => { saved.textContent = "Saved " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); },
+      e => { saved.textContent = "Not saved"; throw e; });
+  };
+  // (every change is saved as it's typed; Save saves right away)
+  const save = debounce(store, 400);
   const changed = () => { pending = true; save(); };
   const list = $("#s-list");
 
@@ -47,6 +56,7 @@
     const cards = list.querySelectorAll(".s-card");
     cards[cards.length - 1].querySelector("input").focus();
   });
+  $("#s-save").addEventListener("click", () => { if (sched) store().then(() => toast("Schedule saved")); });
   $("#s-count").addEventListener("change", e => { sched.count = +e.target.value; changed(); render(); });
 
   App.on(s => {
