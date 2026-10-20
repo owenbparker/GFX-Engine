@@ -207,8 +207,13 @@ ID: `{{Stats!MVP name}}`, `{{Stats!MVP flag}}`, `{{Stats!MVP headshot}}`,
 
     http://<this PC>:8782/output                Program (with transitions and stingers)
     http://<this PC>:8782/output?bus=preview    Preview
-    http://<this PC>:8782/output?comp=<id>      one graphic, as it is on Program
+    http://<this PC>:8782/output?comp=<id>      one graphic, always (while switched on)
     http://<this PC>:8782/control               the control panel, from any PC
+
+Each graphic's own output is switched on and off in Outputs. On, it always
+shows its graphic, whether it's on Program or not (with its Program values,
+or else its Preview ones); off, it shows nothing, so a browser source you
+aren't using costs the PC nothing.
 
 Engines announce themselves on the network (UDP 8783) and show up under
 Outputs > Engines on the network; **Scan** also looks for them directly.

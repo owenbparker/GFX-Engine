@@ -44,6 +44,9 @@ DEFAULT = {
     # The caster lower third: how many boxes, the box's colour (primary) and
     # the text and shadow's (secondary).
     "caster": {"count": 1, "primary": "#c2bdff", "secondary": "#001a1a"},
+    # The graphics whose own output (/output?comp=id) is switched on: it always
+    # shows its graphic, on Program or not (the rest show nothing, to save the PC).
+    "outputs_on": [],
 }
 # The caster box in the design (x, y, w, h), and where the boxes go: their
 # bottom edge, the gap between them, and how big they are for 1-4 boxes.
@@ -116,6 +119,7 @@ def clean(g):
     except (TypeError, ValueError):
         count = 1
     colour = lambda v, d: v if isinstance(v, str) and re.match(r"^#[0-9a-fA-F]{6}$", v) else d
+    out["outputs_on"] = [str(i)[:40] for i in (g.get("outputs_on") or []) if isinstance(i, str)][:200]
     out["caster"] = {"count": count if count in CASTER_SCALE else 1,
                      "primary": colour(caster.get("primary"), DEFAULT["caster"]["primary"]),
                      "secondary": colour(caster.get("secondary"), DEFAULT["caster"]["secondary"])}

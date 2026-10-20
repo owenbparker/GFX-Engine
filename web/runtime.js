@@ -693,11 +693,21 @@
       this.cleanup = [];
     }
 
+    // A graphic's own output that's switched on (Outputs) always shows it,
+    // with what it shows on Program (or else on Preview); switched off, nothing.
+    always(state) {
+      return !!this.opts.comp && ((state.global || {}).outputs_on || []).includes(this.opts.comp);
+    }
+
     wanted(state) {
       const bus = state.live[this.opts.bus] || { on: [], values: {} };
       let on = bus.on || [];
-      if (this.opts.comp) on = on.filter(id => id === this.opts.comp);
       const comps = new Map(state.project.compositions.map(c => [c.id, c]));
+      if (this.opts.comp) {
+        const id = this.opts.comp, pg = state.live.program || {}, pv = state.live.preview || {};
+        const values = (pg.values || {})[id] || (pv.values || {})[id] || {};
+        return { ids: this.always(state) && comps.has(id) ? [id] : [], comps, values: { [id]: values } };
+      }
       return { ids: on.filter(id => comps.has(id)), comps, values: bus.values || {} };
     }
 
@@ -712,13 +722,8 @@
       const t = (state.live.take || {}).transition || { type: "cut" };
       this.seen = { rev: state.rev, take, seq: bus.seq };
       if (tookNow) {
-        if (this.opts.comp) {
-          // One graphic's own output: only its own coming and going matters.
-          const was = this.shown.has(this.opts.comp), now = want.ids.length > 0;
-          if (was === now) return this.sync(want, "update");
-          if (t.type === "stinger" && !this.opts.stingers) return this.transition(want, { type: "delay", ms: +t.cut || 0 });
-        }
-        return this.transition(want, t);
+        // (one graphic's own output doesn't follow takes: it's on while switched on)
+        if (!this.opts.comp) return this.transition(want, t);
       }
       return this.sync(want, first ? "cut" : this.opts.bus === "preview" ? "cut" : "update");
     }

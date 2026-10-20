@@ -346,8 +346,18 @@ addEventListener("drop", e => {
         urlRow("Program", base(host) + "/output"),
         urlRow("Preview", base(host) + "/output?bus=preview"),
         host === "localhost" ? null : urlRow("Control panel", base(host) + "/control"))),
-      h("div", { class: "folder-title" }, "One graphic each (shows when it's on Program)"),
-      ...s.project.compositions.map(c => urlRow(c.name, base(hosts[hosts.length - 1]) + "/output?comp=" + c.id)));
+      h("div", { class: "folder-title" }, "One graphic each (always shows its graphic while switched on; off, it shows nothing and saves the PC's work)"),
+      ...s.project.compositions.map(c => {
+        const row = urlRow(c.name, base(hosts[hosts.length - 1]) + "/output?comp=" + c.id);
+        const on = (s.global.outputs_on || []).includes(c.id);
+        row.prepend(h("label", { class: "toggle out-on", title: on ? "Showing: switch off to save the PC's work" : "Off: switch on to show this graphic" },
+          h("input", { type: "checkbox", checked: on, onchange: e => {
+            const ids = new Set(App.state.global.outputs_on || []);
+            if (e.target.checked) ids.add(c.id); else ids.delete(c.id);
+            api("/api/global", { global: { outputs_on: [...ids] } });
+          } }), on ? "On" : "Off"));
+        return row;
+      }));
     const plain = (label, text) => h("div", { class: "url-row" }, h("span", { class: "lbl" }, label), h("code", {}, text),
       h("button", { class: "small", onclick: () => copy(text, label) }, "Copy"));
     $("#companion-info").replaceChildren(
@@ -403,7 +413,7 @@ addEventListener("drop", e => {
   setInterval(() => { if (App.tab === "outputs") pollLog(); }, 1500);
   let sig = "";
   App.on(s => {
-    const now = JSON.stringify([s.app, s.project.compositions.map(c => [c.id, c.name])]);
+    const now = JSON.stringify([s.app, s.project.compositions.map(c => [c.id, c.name]), s.global.outputs_on]);
     if (App.tab === "outputs" && now !== sig) { sig = now; render(); }
   });
   pages.outputs = { shown: () => { sig = ""; render(); engines(false); pollLog(); } };
