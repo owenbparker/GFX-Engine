@@ -2189,7 +2189,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "00:03:1411111",
+     "field": "",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -2202,7 +2202,7 @@
        "delay": 0
       }
      },
-     "text": "{{countdown:19:30}}",
+     "text": "{{clock}}",
      "font": "Carbon-Bold",
      "size": 46.34,
      "color": "#ffffff",
@@ -2289,7 +2289,7 @@
      "rotation": 0,
      "visible": true,
      "blend": "normal",
-     "field": "STARTING SOONnnnn",
+     "field": "",
      "anim": {
       "in": {
        "type": "slide-up",
@@ -2302,7 +2302,7 @@
        "delay": 0
       }
      },
-     "text": "STARTING SOON",
+     "text": "{{Global!Clock label}}",
      "font": "Carbon-Bold",
      "size": 19.7,
      "color": "#ffc52a",
@@ -19094,7 +19094,8 @@
    "04910753a20533bb",
    "5d5e3ffc983f63bb",
    "6df51df016a6f176",
-   "6a3ed703a0c05230"
+   "6a3ed703a0c05230",
+   "082e7301cdfcf698"
   ],
   "Caster lower third": [
    "2320941025e868b7",

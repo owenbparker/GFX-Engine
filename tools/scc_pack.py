@@ -259,6 +259,13 @@ def link(data, starter=STARTER):
         name = _text(comps["Player stats"], "PLAYER NAME")
         if l and name and l["w"] < 100:
             l.update(x=name["x"], w=560, align="left", y=name["y"] + round(name["size"] * 1.15), h=42)
+    # The scorebug's clock, like the Schedule's: the time of day, or a countdown
+    # for Starting Soon or Be Right Back (Global's), in the design's place.
+    if "Scorebug & footer" in comps:
+        for lname, value in (("00:03:1411111", "{{clock}}"), ("STARTING SOONnnnn", "{{Global!Clock label}}")):
+            l = _text(comps["Scorebug & footer"], lname)
+            if l:
+                l.update(text=value, field="")
     if "Replay overlay" in comps:
         l = _text(comps["Replay overlay"], "ST. CLAIR SAINTS")
         if l and l["w"] < 100:
