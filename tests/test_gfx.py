@@ -349,13 +349,14 @@ class TournamentTests(unittest.TestCase):
 
 class TeamsTests(unittest.TestCase):
     def test_csv(self):
-        from gfxengine.teams import Teams
+        from gfxengine.teams import Teams, roster_rows
         tmp = tempfile.mkdtemp()
         try:
             teams = Teams(tmp)
             n = teams.import_csv("Team,Abbreviation,Logo,Color\nSt. Clair Saints,SCC,saints.png,0b6b3a\nGeorge Mason,GMU,https://x/gmu.png,#123456\n,,,\n")
             self.assertEqual(n, 2)
-            self.assertEqual(teams.find("scc"), {"name": "St. Clair Saints", "short": "SCC", "logo": "library/teams/saints.png", "color": "#0b6b3a"})
+            self.assertEqual(teams.find("scc"), {"name": "St. Clair Saints", "short": "SCC", "logo": "library/teams/saints.png", "color": "#0b6b3a",
+                                                  "game": "", "players": []})
             self.assertEqual(teams.find("george mason")["logo"], "https://x/gmu.png")
             teams.import_csv("Name,Short name\nSt. Clair Saints,SAINTS\n")      # updates, keeps the rest
             again = Teams(tmp)                                                   # (read back from the CSV)
@@ -367,6 +368,21 @@ class TeamsTests(unittest.TestCase):
             self.assertEqual(again.find("Humber Hawks")["logo"], logo)
             with self.assertRaises(ValueError):
                 again.import_csv("Name,Short name\n")
+            # The same school in two games, with rosters.
+            again.import_csv("Name,Game,Player 1,Player 1 ID,Player 1 country,Player 1 headshot,Player 2 ID,Player 2 country\n"
+                             "St. Clair Saints,Rocket League,Jason,Jazii,Germany,jazii.png,Pzy,at\n"
+                             "St. Clair Saints,Valorant,,Ace,ca,,,\n")
+            rl = again.find("St. Clair Saints", "rocket league")
+            self.assertEqual(rl["players"][0], {"name": "Jason", "ign": "Jazii", "country": "de", "photo": "library/teams/jazii.png"})
+            self.assertEqual(rl["players"][1]["country"], "at")
+            self.assertEqual(again.find("St. Clair Saints", "Valorant")["players"][0]["ign"], "Ace")
+            self.assertEqual(len(again.list()), 5)
+            back = Teams(tmp).find("St. Clair Saints", "Rocket League")
+            self.assertEqual((back["short"], back["players"][1]["ign"]), ("", "Pzy"))
+            self.assertIn("Player 5 headshot", again.csv_text().splitlines()[0])
+            r = dict(roster_rows(rl, "left", ["", "", "Stats3"])[1:])
+            self.assertEqual((r["Player 1"], r["Player 1 flag"], r["Player 2"], r["Player 3"], r["No headshots"]),
+                             ("Jason", "flags/de.svg", "Pzy", "Stats3", ""))
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 

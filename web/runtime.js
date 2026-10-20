@@ -198,7 +198,7 @@
     if (t === "bracket") return bracketBox(layer);
     if (t === "image") {
       if (!value) return el("div");
-      const img = el("img", "gfx-media", { objectFit: fitOf(layer.fit) });
+      const img = el("img", "gfx-media", { objectFit: fitOf(layer.fit), objectPosition: POSITIONS[layer.position] || "" });
       img.draggable = false;
       img.src = url(encodeURI(value));
       if (layer.fit !== "fill" && !/\.(gif|svg)(\?|$)/i.test(value)) img.addEventListener("load", () => smooth(img, layer), { once: true });
@@ -385,6 +385,8 @@
     return el("div");
   }
   const fitOf = f => ({ fill: "fill", contain: "contain", cover: "cover" }[f] || "contain");
+  // Where a picture sits in its box when it doesn't fill it (a headshot stands on the bottom).
+  const POSITIONS = { top: "50% 0%", bottom: "50% 100%", left: "0% 50%", right: "100% 50%" };
 
   // A big picture in a small box (a team's logo, say) is scaled down by the
   // browser in one step, which looks jagged: it's resampled once, smoothly, to
@@ -411,8 +413,10 @@
   function setText(box, opts) {
     const layer = box._layer;
     const text = GFX.resolve(box._raw);
-    if (box._shown === text && !opts) return;
-    box._shown = text;
+    // A picture before the text (a player's flag), sized to the letters.
+    const icon = layer.icon ? GFX.resolve(layer.icon).trim() : "";
+    if (box._shown === text + "\u0000" + icon && !opts) return;
+    box._shown = text + "\u0000" + icon;
     const span = box.firstChild;
     if (layer.scroll > 0) {
       // A ticker: the text twice in a row, sliding along forever.
@@ -429,6 +433,12 @@
       return;
     }
     span.textContent = text;
+    if (icon && text) {
+      const img = el("img", "gfx-icon");
+      img.src = url(encodeURI(icon));
+      img.onload = () => fit(box);
+      span.insertBefore(img, span.firstChild);
+    }
     fit(box);
   }
 
@@ -495,7 +505,7 @@
   }) : null;
   // A font that finishes loading after the text was fitted: fitted again.
   if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", () => GFX.refit());
-  GFX.retext = () => document.querySelectorAll(".gfx-text").forEach(b => { if (hasTokens(b._raw)) setText(b); });
+  GFX.retext = () => document.querySelectorAll(".gfx-text").forEach(b => { if (hasTokens(b._raw) || hasTokens(b._layer && b._layer.icon)) setText(b); });
   setInterval(() => { for (const b of live) { if (!b.isConnected) live.delete(b); else if (ticking(b._raw)) setText(b); } }, 1000);
 
   // What else a layer's look takes from the data (a tinted loop's colour...).
@@ -816,6 +826,7 @@
     .gfx-scroll{overflow:hidden}
     .gfx-scroll .gfx-t{display:flex;white-space:pre}
     .gfx-tick{display:inline-flex;align-items:center}
+    .gfx-icon{display:inline-block;height:.72em;width:auto;margin-right:.32em;vertical-align:baseline;border-radius:.06em}
     .gfx-div{display:inline-block;height:1.05em;flex:0 0 auto}
     .gfx-tick{padding-right:1.5em}
     .gfx-bl{display:inline-block;width:0;height:0;vertical-align:baseline}

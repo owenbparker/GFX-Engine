@@ -93,6 +93,33 @@ CARD_TEXT = {True: {"tournament": (24, 36), "game": (15, 58), "teams": (20, 86),
              False: {"tournament": (20, 30), "game": (13, 49), "teams": (17, 72), "when": (16, 96)}}
 
 
+def players(pg, n):
+    """A player graphic with n players: from the team the player graphics show
+    (the roster in the team list), each one's headshot standing over their
+    name, with their flag before it. While the roster has no headshots the
+    design's own photo shows."""
+    names = sorted([l for l in pg["layers"] if l["type"] == "text" and l["name"] != "GAME NAME"], key=lambda l: l["x"])
+    for i, l in enumerate(names, 1):
+        l["text"] = f"{{{{Roster!Player {i}}}}}"
+        l["icon"] = f"{{{{Roster!Player {i} flag}}}}"
+    photo = max((l for l in pg["layers"] if l["type"] == "image" and l["y"] < 900 and l.get("show") in (None, "{{Roster!No headshots}}")
+                 and not l["src"].startswith("{{") and l["w"] > 1000), key=lambda l: l["w"] * l["h"], default=None)
+    if not photo or any(l["name"].startswith("Headshot") for l in pg["layers"]):
+        return
+    photo["show"] = "{{Roster!No headshots}}"
+    col = 1920 / n
+    w, h = (1100, 840) if n == 1 else (min(col * 1.3, 900), 760 if n < 5 else 700)
+    at = pg["layers"].index(photo) + 1
+    for i in range(n, 0, -1):
+        cx = col * (i - 0.5)
+        pg["layers"].insert(at, {
+            "id": new_id("l"), "name": f"Headshot {i}", "type": "image", "x": round(cx - w / 2), "y": 919 - h, "w": round(w), "h": h,
+            "opacity": 1, "rotation": 0, "visible": True, "blend": "normal", "field": "",
+            "anim": json.loads(json.dumps(photo.get("anim") or {})),
+            "src": f"{{{{Roster!Player {i} headshot}}}}", "fit": "contain", "position": "bottom", "loop": True,
+            "show": f"{{{{Roster!Player {i} headshot}}}}"})
+
+
 def schedule(comps):
     """The Schedule: its three match cards from the Upcoming Schedule (shown as
     many as it's set to), and the teams' logos in front of their names."""
@@ -255,14 +282,9 @@ def link(data, starter=STARTER):
             text("Player stats", label, lt)
             text("Player stats", value, vt)
     for n in range(1, 6):
-        cname = f"Player graphic ({n})"
-        if cname not in comps:
-            continue
-        pg = comps[cname]
-        names = sorted([l for l in pg["layers"] if l["type"] == "text" and l["name"] != "GAME NAME"], key=lambda l: l["x"])
-        for i, l in enumerate(names, 1):
-            l["text"] = f"{{{{Stats!Left player {i}}}}}"
-        text(cname, "GAME NAME", "{{Global!Game title}}")
+        if f"Player graphic ({n})" in comps:
+            players(comps[f"Player graphic ({n})"], n)
+            text(f"Player graphic ({n})", "GAME NAME", "{{Global!Game title}}")
     if "Team graphic" in comps:
         text("Team graphic", "GAME NAME", "{{Global!Game title}}")
 

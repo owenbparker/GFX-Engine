@@ -34,7 +34,7 @@ from .log import log, since
 from .media import Jobs, ffmpeg_path, stinger_cut
 from .project import Workspace, blank_comp, blank_layer, new_id
 from .stats import Stats
-from .teams import Teams
+from .teams import Teams, roster_rows
 from . import schedule, tournament
 from .updater import Updater, clean_up_old_update
 from .workspaces import Workspaces
@@ -155,6 +155,10 @@ class Engine:
         snap["tables"]["Tournament"] = tournament.rows(g["tournament"], self.teams.find)
         snap["tables"]["Teams"] = self.teams.rows()
         snap["tables"]["Schedule"] = schedule.rows(g["schedule"], self.teams.find)
+        side = g["roster"]
+        stats_names = dict(r[:2] for r in snap["tables"]["Stats"][1:] if len(r) >= 2)
+        snap["tables"]["Roster"] = roster_rows(self.teams.find(g[side]["name"], g[side]["game"]), side,
+                                               [stats_names.get(f"{side.title()} player {i}", "") for i in range(1, 6)])
         for name, feed in self.feeds.items():
             snap["tables"][name] = feed["rows"]
         snap["rev"] = f"{snap['rev']}.{self.ws.rev}.{self.feeds_rev}.{int(self.stats.live())}.{self.teams.rev}"
@@ -241,8 +245,13 @@ class Engine:
         self.changed()
         return n
 
-    def save_team_logo(self, name, filename, blob):
-        logo = self.teams.save_logo(name, filename, blob)
+    def save_team_photo(self, name, filename, blob):
+        photo = self.teams.save_photo(name, filename, blob)
+        self.assets_rev += 1
+        return photo
+
+    def save_team_logo(self, name, filename, blob, game=""):
+        logo = self.teams.save_logo(name, filename, blob, game)
         self.assets_rev += 1
         self.changed()
         return logo
@@ -633,7 +642,7 @@ def make_handler(engine):
                     name = unquote(self.headers.get("X-Filename") or (q.get("name") or [""])[0])
                     fps = float((q.get("fps") or ["0"])[0]) or None
                     return self._json(engine.upload(name, self.rfile, length, fps))
-                if path in ("/api/teams/import", "/api/teams/logo"):
+                if path in ("/api/teams/import", "/api/teams/logo", "/api/teams/photo"):
                     if length > 30 << 20:
                         raise ValueError("That file is too big (30 MB at most)")
                     blob = self.rfile.read(length)
@@ -641,7 +650,9 @@ def make_handler(engine):
                         n = engine.import_teams(blob.decode("utf-8-sig", "replace"))
                         return self._json({"added": n, "teams": engine.teams.list()})
                     name = unquote(self.headers.get("X-Filename") or (q.get("name") or [""])[0])
-                    logo = engine.save_team_logo((q.get("team") or [""])[0], name, blob)
+                    if path == "/api/teams/photo":
+                        return self._json({"photo": engine.save_team_photo((q.get("player") or [""])[0], name, blob)})
+                    logo = engine.save_team_logo((q.get("team") or [""])[0], name, blob, (q.get("game") or [""])[0])
                     return self._json({"logo": logo, "teams": engine.teams.list()})
                 if path in ("/api/workspaces/picture", "/api/global/logo"):
                     # (the picture's bytes are the body)

@@ -515,6 +515,7 @@
           bind(l, "shadow", "check", { label: "Shadow" })),
         l.scroll > 0 ? h("div", { class: "grid2" }, bind(l, "divider", "color", { label: "Divider between lines" }),
           lab("Divider width", bind(l, "dividerWidth", "number", { min: 0, step: 1 }))) : null,
+        lab("Picture before the text", bind(l, "icon", "text", { placeholder: "e.g. {{Roster!Player 1 flag}}" })),
         l.show ? h("div", { class: "muted small" }, `Shown only while ${l.show} has something in it.`) : null));
     } else if (l.type === "bracket") {
       sections.push(h("div", { class: "sect" }, h("h3", {}, "Bracket"),
@@ -531,6 +532,7 @@
       sections.push(h("div", { class: "sect" }, h("h3", {}, "Source"),
         lab("File", assetSelect(l.type, l.src, v => { snapshot(); l.src = v; changed({ props: true }); })),
         l.type === "image" && l.src ? h("button", { class: "small", style: { marginTop: "6px" }, onclick: () => naturalSize(l) }, "Actual size") : null,
+        l.type === "image" ? lab("Sits at", bind(l, "position", "select", { options: [["", "Middle"], ["bottom", "Bottom"], ["top", "Top"], ["left", "Left"], ["right", "Right"]] })) : null,
         lab("Fit", bind(l, "fit", "select", { options: [["contain", "Fit inside"], ["cover", "Fill and crop"], ["fill", "Stretch"]] })),
         /\{\{\s*sponsors\s*\}\}/i.test(l.src || "") ? bind(l, "timer", "check", { label: "Show a bar with the time it has left" }) : null,
         l.type === "image" && /\{\{/.test(l.src || "") ? lab("When Global has none", assetSelect("image", l.placeholder || "", v => { snapshot(); l.placeholder = v; changed({ props: true }); })) : null,

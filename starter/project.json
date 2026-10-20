@@ -6583,7 +6583,39 @@
      },
      "src": "assets/Player graphic (1)/Player.png",
      "fit": "fill",
-     "loop": true
+     "loop": true,
+     "show": "{{Roster!No headshots}}"
+    },
+    {
+     "id": "l91275cb4",
+     "name": "Headshot 1",
+     "type": "image",
+     "x": 410,
+     "y": 79,
+     "w": 1100,
+     "h": 840,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 1 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 1 headshot}}"
     },
     {
      "id": "l8ff8c7cf",
@@ -6767,7 +6799,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 1}}",
+     "text": "{{Roster!Player 1}}",
      "font": "VTFRedzone-Classic",
      "size": 86.03,
      "color": "#ffffff",
@@ -6780,7 +6812,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 74.0
+     "baseline": 74.0,
+     "icon": "{{Roster!Player 1 flag}}"
     }
    ],
    "width": 1920,
@@ -6819,7 +6852,70 @@
      },
      "src": "assets/Player graphic (2)/503-5039968_psg-png copy.png",
      "fit": "fill",
-     "loop": true
+     "loop": true,
+     "show": "{{Roster!No headshots}}"
+    },
+    {
+     "id": "l54c7e7b7",
+     "name": "Headshot 1",
+     "type": "image",
+     "x": 30,
+     "y": 159,
+     "w": 900,
+     "h": 760,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 12
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 1 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 1 headshot}}"
+    },
+    {
+     "id": "l9fec5e59",
+     "name": "Headshot 2",
+     "type": "image",
+     "x": 990,
+     "y": 159,
+     "w": 900,
+     "h": 760,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 12
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 2 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 2 headshot}}"
     },
     {
      "id": "l08e5380c",
@@ -7032,7 +7128,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 2}}",
+     "text": "{{Roster!Player 2}}",
      "font": "VTFRedzone-Classic",
      "size": 78.89,
      "color": "#ffffff",
@@ -7045,7 +7141,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 67.8
+     "baseline": 67.8,
+     "icon": "{{Roster!Player 2 flag}}"
     },
     {
      "id": "l3bd59855",
@@ -7072,7 +7169,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 1}}",
+     "text": "{{Roster!Player 1}}",
      "font": "VTFRedzone-Classic",
      "size": 78.89,
      "color": "#ffffff",
@@ -7085,7 +7182,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 67.8
+     "baseline": 67.8,
+     "icon": "{{Roster!Player 1 flag}}"
     }
    ],
    "width": 1920,
@@ -7124,7 +7222,101 @@
      },
      "src": "assets/Player graphic (3)/503-5039968_psg-png copy.png",
      "fit": "fill",
-     "loop": true
+     "loop": true,
+     "show": "{{Roster!No headshots}}"
+    },
+    {
+     "id": "lb267659b",
+     "name": "Headshot 1",
+     "type": "image",
+     "x": -96,
+     "y": 159,
+     "w": 832,
+     "h": 760,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 1 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 1 headshot}}"
+    },
+    {
+     "id": "la908da48",
+     "name": "Headshot 2",
+     "type": "image",
+     "x": 544,
+     "y": 159,
+     "w": 832,
+     "h": 760,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 2 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 2 headshot}}"
+    },
+    {
+     "id": "l50b7d1f6",
+     "name": "Headshot 3",
+     "type": "image",
+     "x": 1184,
+     "y": 159,
+     "w": 832,
+     "h": 760,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 3 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 3 headshot}}"
     },
     {
      "id": "lb787d96d",
@@ -7366,7 +7558,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 1}}",
+     "text": "{{Roster!Player 1}}",
      "font": "VTFRedzone-Classic",
      "size": 63.94,
      "color": "#ffffff",
@@ -7379,7 +7571,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 55.0
+     "baseline": 55.0,
+     "icon": "{{Roster!Player 1 flag}}"
     },
     {
      "id": "l9eade50a",
@@ -7406,7 +7599,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 2}}",
+     "text": "{{Roster!Player 2}}",
      "font": "VTFRedzone-Classic",
      "size": 63.94,
      "color": "#ffffff",
@@ -7419,7 +7612,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 55.0
+     "baseline": 55.0,
+     "icon": "{{Roster!Player 2 flag}}"
     },
     {
      "id": "l48d0576d",
@@ -7446,7 +7640,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 3}}",
+     "text": "{{Roster!Player 3}}",
      "font": "VTFRedzone-Classic",
      "size": 63.94,
      "color": "#ffffff",
@@ -7459,7 +7653,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 55.0
+     "baseline": 55.0,
+     "icon": "{{Roster!Player 3 flag}}"
     }
    ],
    "width": 1920,
@@ -7498,7 +7693,132 @@
      },
      "src": "assets/Player graphic (4)/503-5039968_psg-png copy.png",
      "fit": "fill",
-     "loop": true
+     "loop": true,
+     "show": "{{Roster!No headshots}}"
+    },
+    {
+     "id": "l59c02e90",
+     "name": "Headshot 1",
+     "type": "image",
+     "x": -72,
+     "y": 159,
+     "w": 624,
+     "h": 760,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 1 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 1 headshot}}"
+    },
+    {
+     "id": "l788736b3",
+     "name": "Headshot 2",
+     "type": "image",
+     "x": 408,
+     "y": 159,
+     "w": 624,
+     "h": 760,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 2 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 2 headshot}}"
+    },
+    {
+     "id": "l3fd4b570",
+     "name": "Headshot 3",
+     "type": "image",
+     "x": 888,
+     "y": 159,
+     "w": 624,
+     "h": 760,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 3 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 3 headshot}}"
+    },
+    {
+     "id": "l19f3d05a",
+     "name": "Headshot 4",
+     "type": "image",
+     "x": 1368,
+     "y": 159,
+     "w": 624,
+     "h": 760,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 4 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 4 headshot}}"
     },
     {
      "id": "l05a8447a",
@@ -7769,7 +8089,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 4}}",
+     "text": "{{Roster!Player 4}}",
      "font": "VTFRedzone-Classic",
      "size": 50.79,
      "color": "#ffffff",
@@ -7782,7 +8102,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 43.7
+     "baseline": 43.7,
+     "icon": "{{Roster!Player 4 flag}}"
     },
     {
      "id": "l854d0b32",
@@ -7809,7 +8130,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 3}}",
+     "text": "{{Roster!Player 3}}",
      "font": "VTFRedzone-Classic",
      "size": 50.79,
      "color": "#ffffff",
@@ -7822,7 +8143,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 43.7
+     "baseline": 43.7,
+     "icon": "{{Roster!Player 3 flag}}"
     },
     {
      "id": "l44208897",
@@ -7849,7 +8171,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 2}}",
+     "text": "{{Roster!Player 2}}",
      "font": "VTFRedzone-Classic",
      "size": 50.79,
      "color": "#ffffff",
@@ -7862,7 +8184,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 43.7
+     "baseline": 43.7,
+     "icon": "{{Roster!Player 2 flag}}"
     },
     {
      "id": "la9165908",
@@ -7889,7 +8212,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 1}}",
+     "text": "{{Roster!Player 1}}",
      "font": "VTFRedzone-Classic",
      "size": 50.79,
      "color": "#ffffff",
@@ -7902,7 +8225,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 43.7
+     "baseline": 43.7,
+     "icon": "{{Roster!Player 1 flag}}"
     }
    ],
    "width": 1920,
@@ -7941,7 +8265,163 @@
      },
      "src": "assets/Player graphic (5)/503-5039968_psg-png.png",
      "fit": "fill",
-     "loop": true
+     "loop": true,
+     "show": "{{Roster!No headshots}}"
+    },
+    {
+     "id": "lfc4fe969",
+     "name": "Headshot 1",
+     "type": "image",
+     "x": -58,
+     "y": 219,
+     "w": 499,
+     "h": 700,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 48
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 1 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 1 headshot}}"
+    },
+    {
+     "id": "l3f4ff82b",
+     "name": "Headshot 2",
+     "type": "image",
+     "x": 326,
+     "y": 219,
+     "w": 499,
+     "h": 700,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 48
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 2 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 2 headshot}}"
+    },
+    {
+     "id": "lab1bdabc",
+     "name": "Headshot 3",
+     "type": "image",
+     "x": 710,
+     "y": 219,
+     "w": 499,
+     "h": 700,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 48
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 3 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 3 headshot}}"
+    },
+    {
+     "id": "la90471fc",
+     "name": "Headshot 4",
+     "type": "image",
+     "x": 1094,
+     "y": 219,
+     "w": 499,
+     "h": 700,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 48
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 4 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 4 headshot}}"
+    },
+    {
+     "id": "l60896204",
+     "name": "Headshot 5",
+     "type": "image",
+     "x": 1478,
+     "y": 219,
+     "w": 499,
+     "h": 700,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 48
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Roster!Player 5 headshot}}",
+     "fit": "contain",
+     "position": "bottom",
+     "loop": true,
+     "show": "{{Roster!Player 5 headshot}}"
     },
     {
      "id": "l0a86d738",
@@ -8113,7 +8593,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 5}}",
+     "text": "{{Roster!Player 5}}",
      "font": "VTFRedzone-Classic",
      "size": 45.68,
      "color": "#ffffff",
@@ -8126,7 +8606,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 39.3
+     "baseline": 39.3,
+     "icon": "{{Roster!Player 5 flag}}"
     },
     {
      "id": "l8cc10c87",
@@ -8153,7 +8634,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 4}}",
+     "text": "{{Roster!Player 4}}",
      "font": "VTFRedzone-Classic",
      "size": 45.68,
      "color": "#ffffff",
@@ -8166,7 +8647,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 39.3
+     "baseline": 39.3,
+     "icon": "{{Roster!Player 4 flag}}"
     },
     {
      "id": "l53eb51d0",
@@ -8193,7 +8675,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 3}}",
+     "text": "{{Roster!Player 3}}",
      "font": "VTFRedzone-Classic",
      "size": 45.68,
      "color": "#ffffff",
@@ -8206,7 +8688,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 39.3
+     "baseline": 39.3,
+     "icon": "{{Roster!Player 3 flag}}"
     },
     {
      "id": "laa920d18",
@@ -8233,7 +8716,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 2}}",
+     "text": "{{Roster!Player 2}}",
      "font": "VTFRedzone-Classic",
      "size": 45.68,
      "color": "#ffffff",
@@ -8246,7 +8729,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 39.3
+     "baseline": 39.3,
+     "icon": "{{Roster!Player 2 flag}}"
     },
     {
      "id": "l6204d0b3",
@@ -8273,7 +8757,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!Left player 1}}",
+     "text": "{{Roster!Player 1}}",
      "font": "VTFRedzone-Classic",
      "size": 45.68,
      "color": "#ffffff",
@@ -8286,7 +8770,8 @@
      "weight": 400,
      "italic": false,
      "scroll": 0,
-     "baseline": 39.3
+     "baseline": 39.3,
+     "icon": "{{Roster!Player 1 flag}}"
     },
     {
      "id": "lcca1f0a1",
@@ -19426,7 +19911,8 @@
   "Team stats": [
    "f5206d0a5a78daf3",
    "d01a05d0e6cb4e2d",
-   "850828a972a6c7eb"
+   "850828a972a6c7eb",
+   "d7266d2c9d25a42e"
   ],
   "Title screen": [
    "a617db4af2bfcbff",
@@ -19444,27 +19930,32 @@
   "Player graphic (1)": [
    "8c1dee324e6f133d",
    "2ede72c1889786a4",
-   "1a0c171c72af9e04"
+   "1a0c171c72af9e04",
+   "a140ba0c516a9dc4"
   ],
   "Player graphic (2)": [
    "f57f5269c6bfdb57",
    "3a1a2bb617fbbb9d",
-   "f0fe2829bf41c1ed"
+   "f0fe2829bf41c1ed",
+   "08ba6af9dbcf91b5"
   ],
   "Player graphic (3)": [
    "66f9983151e42156",
    "7c4398f555776ac8",
-   "f0a2b509cadf8e6c"
+   "f0a2b509cadf8e6c",
+   "f0691269846090d7"
   ],
   "Player graphic (4)": [
    "539fff97b1538910",
    "988e54ae4889c68e",
-   "8cb47a567a38599f"
+   "8cb47a567a38599f",
+   "b2dd85c1971346ba"
   ],
   "Player graphic (5)": [
    "7f5069cf9c4782d0",
    "cc5f4d9f02b8c6f8",
-   "f3c576ca8cc480e5"
+   "f3c576ca8cc480e5",
+   "fce1c73696a66073"
   ],
   "Player stats": [
    "7870e4bac7a22c3d",

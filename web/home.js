@@ -178,10 +178,12 @@ App.on(s => {
     return card;
   }
   // A team from the shared list fills this side in.
-  function pickTeam(side, name) {
-    const tm = (App.state.teams || []).find(x => x.name === name);
+  // (a team is its name and its game: one school can have a team in several)
+  const teamKey = t => t.name + "\u0001" + (t.game || "");
+  function pickTeam(side, k) {
+    const tm = (App.state.teams || []).find(x => teamKey(x) === k);
     if (!tm) return;
-    const changes = { name: tm.name, short: tm.short || g[side].short, logo: tm.logo || "" };
+    const changes = { name: tm.name, short: tm.short || g[side].short, logo: tm.logo || "", game: tm.game || "" };
     if (tm.color) changes.color = tm.color;
     Object.assign(g[side], changes);
     change({ [side]: changes });
@@ -191,21 +193,23 @@ App.on(s => {
     const t = g[side];
     if (!t.name.trim()) return toast("Give the team a name first", true);
     const list = (App.state.teams || []).map(x => Object.assign({}, x));
-    const i = list.findIndex(x => x.name.toLowerCase() === t.name.trim().toLowerCase());
-    const entry = { name: t.name.trim(), short: t.short || "", logo: t.logo || "", color: t.color || "" };
+    const i = list.findIndex(x => x.name.toLowerCase() === t.name.trim().toLowerCase() && (x.game || "").toLowerCase() === (t.game || "").toLowerCase());
+    const entry = { name: t.name.trim(), short: t.short || "", logo: t.logo || "", color: t.color || "", game: t.game || "",
+                    players: i >= 0 ? list[i].players || [] : [] };
     if (i >= 0) list[i] = entry; else list.push(entry);
     await api("/api/teams", { teams: list });
     toast(i >= 0 ? `${entry.name} updated in the team list` : `${entry.name} added to the team list`);
   }
   function renderPickers() {
-    const names = (App.state.teams || []).map(x => x.name).filter(Boolean);
+    const list = (App.state.teams || []).filter(x => x.name);
     for (const side of ["left", "right"]) {
       const sel = cards[side].querySelector("[data-k=pick]");
-      const sig = JSON.stringify([names, g[side].name]);
+      const sig = JSON.stringify([list.map(teamKey), g[side].name, g[side].game]);
       if (sel.dataset.sig === sig) continue;
       sel.dataset.sig = sig;
-      sel.replaceChildren(h("option", { value: "" }, names.length ? "Pick a team…" : "(the team list is empty)"),
-        ...names.map(n => h("option", { value: n, selected: n === g[side].name }, n)));
+      const now = teamKey({ name: g[side].name, game: g[side].game });
+      sel.replaceChildren(h("option", { value: "" }, list.length ? "Pick a team…" : "(the team list is empty)"),
+        ...list.map(t => h("option", { value: teamKey(t), selected: teamKey(t) === now }, t.name + (t.game ? ` · ${t.game}` : ""))));
     }
   }
   async function uploadLogo(side, file) {

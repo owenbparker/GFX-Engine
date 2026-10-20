@@ -114,10 +114,21 @@ The **ticker** has the lines every ticker scrolls (`{{Global!Ticker}}`), kept
 apart by a yellow bar (a scrolling text layer's Divider colour in Composer).
 
 The **Teams** tab has the team list (shared by every workspace, kept in
-`library/teams.csv`): each team's name, short name, logo and colour. Pick a
-team to edit it, drop its logo on it, or make it the left or right team.
-Import or export it as a CSV (Name, Short name, Logo, Colour). In Global,
-each side can pick its team from the list, or save its team to it. The tournament's team boxes suggest names from it,
+`library/teams.csv`): each team's name, short name, game, logo and colour,
+and its roster: each player's headshot, name, in-game ID and country (its
+flag comes with the engine). One school can have a team in several games;
+the list filters by game. Pick a team to edit it, drop its logo or a
+player's headshot on it, or make it the left or right team. Import or export
+it as a CSV (Name, Short name, Logo, Colour, Game, Player 1, Player 1 ID,
+Player 1 country, Player 1 headshot, Player 2...). In Global, each side can
+pick its team from the list, or save its team to it.
+
+The **player graphics** (1 to 5 players) show the left or right team's roster
+(chosen in their Control fields): each player's headshot over their name
+(or in-game ID), with their flag before it. While the roster has no
+headshots, the design's own photo shows. In graphics: `{{Roster!Player 1}}`,
+`{{Roster!Player 1 flag}}`, `{{Roster!Player 1 headshot}}`,
+`{{Roster!Player 1 ID}}`, `{{Roster!Team}}`... The tournament's team boxes suggest names from it,
 and the brackets show each team's logo.
 
 The **Tournament** tab fills in the bracket graphics: the knockout bracket (8 or

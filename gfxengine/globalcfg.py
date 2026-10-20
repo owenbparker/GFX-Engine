@@ -22,8 +22,9 @@ from . import schedule, tournament
 
 DEFAULT = {
     "event": "", "stage": "", "best_of": 3, "game": "",   # game: "" = from the score
-    "left": {"name": "", "short": "", "logo": "", "color": "#0b6b3a", "score": 0},
-    "right": {"name": "", "short": "", "logo": "", "color": "#b8191c", "score": 0},
+    # (game: the team's game in the team list, for the one school with several)
+    "left": {"name": "", "short": "", "logo": "", "color": "#0b6b3a", "score": 0, "game": ""},
+    "right": {"name": "", "short": "", "logo": "", "color": "#b8191c", "score": 0, "game": ""},
     "custom": [],    # [[label, value], ...]
     "tournament_logo": "",
     # [{"logo": "assets/sponsors/x.png", "secs": 10}, ...]; the rotation is
@@ -37,10 +38,11 @@ DEFAULT = {
     # The clock graphics show ({{clock}} and {{Global!Clock label}}): the time of
     # day, or a countdown to "until" for Starting Soon or Be Right Back.
     "clock": {"mode": "time", "until": "", "zone": "EST"},
+    "roster": "left",    # whose players the player graphics show
 }
 CLOCK_LABELS = {"time": "LOCAL TIME", "soon": "STARTING SOON", "brb": "BE RIGHT BACK"}
 TICKER_GAP = "  |  "
-TEAM_KEYS = ("name", "short", "logo", "color", "score")
+TEAM_KEYS = ("name", "short", "logo", "color", "score", "game")
 DEFAULT_LOOP = "loops/scc-bg-loop.webm"   # (comes with the engine, in web/)
 
 
@@ -83,6 +85,7 @@ def clean(g):
     out["ticker"] = [str(x).strip()[:300] for x in (g.get("ticker") or []) if str(x).strip()][:40]
     out["tournament"] = tournament.clean(g.get("tournament"))
     out["schedule"] = schedule.clean(g.get("schedule"))
+    out["roster"] = "right" if g.get("roster") == "right" else "left"
     clock = dict(DEFAULT["clock"], **(g.get("clock") or {}))
     until = str(clock.get("until") or "").strip()
     out["clock"] = {"mode": clock.get("mode") if clock.get("mode") in CLOCK_LABELS else "time",
@@ -125,7 +128,7 @@ def rows(g):
         t = g[side]
         S = side.title()
         out += [[f"{S} name", t["name"]], [f"{S} short", t["short"]], [f"{S} logo", t["logo"]],
-                [f"{S} color", t["color"]], [f"{S} score", str(t["score"])]]
+                [f"{S} color", t["color"]], [f"{S} score", str(t["score"])], [f"{S} game", t["game"]]]
     loop = g["bgloop"]
     sp = g["sponsors"]
     out += [["Tournament logo", g["tournament_logo"]],

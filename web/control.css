@@ -424,3 +424,39 @@ table.sheet td.c:hover { background: #1d3b5e; }
 .clock-field .row-gap { display: flex; gap: 6px; }
 .clock-field select { flex: 1; }
 .clock-field input[type=time] { flex: 0 0 130px; width: 130px; }
+
+/* TEAMS: the roster editor */
+.teams-page { grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); }
+.t-filter { padding: 6px 8px 0; }
+.t-filter select { width: 100%; }
+.t-row { grid-template-columns: 40px minmax(0, 1fr) auto; }
+.t-who { min-width: 0; }
+.t-sub { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.t-count { min-width: 24px; text-align: center; font-size: 11px; color: var(--muted); background: var(--panel2); border-radius: 5px; padding: 2px 6px; }
+.team-edit { padding: 16px 20px; }
+.t-top { display: flex; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.t-logo.big { width: 64px; height: 64px; border-radius: 12px; cursor: default; }
+.t-head-title b { font-size: 18px; }
+.t-sect { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.t-sect:last-child { border-bottom: 0; grid-template-columns: 1fr; }
+.t-sect-head h4 { margin: 0 0 4px; font-size: 14px; }
+.t-sect-head p { margin: 0; }
+.t-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+.t-fields label { display: flex; flex-direction: column; gap: 3px; }
+.t-fields input[type=color] { height: 34px; padding: 2px; }
+.t-logo-row { align-items: center; }
+.t-logo-row .logo-drop.big { margin: 0; width: 180px; height: 180px; }
+.t-roster { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.t-roster th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); padding: 8px 10px; background: var(--panel2); }
+.t-roster td { padding: 6px 10px; border-top: 1px solid var(--line); vertical-align: middle; }
+.t-roster td input, .t-roster td select { width: 100%; }
+.t-num { color: var(--muted); width: 18px; }
+.t-head { width: 54px; height: 54px; border-radius: 8px; border: 1px dashed var(--line2); background: #0f1113 center bottom / contain no-repeat;
+  display: flex; align-items: center; justify-content: center; color: var(--muted); cursor: pointer; font-size: 18px; }
+.t-head.has { border-style: solid; }
+.t-head:hover, .t-head.over { border-color: var(--gold); }
+.t-country { display: flex; align-items: center; gap: 8px; }
+.t-flag { width: 26px; height: 19px; border-radius: 3px; object-fit: cover; flex: 0 0 26px; }
+.t-acts { white-space: nowrap; width: 1%; }
+.t-acts button { padding: 2px 6px; }
+@media (max-width: 1200px) { .t-sect { grid-template-columns: 1fr; } }

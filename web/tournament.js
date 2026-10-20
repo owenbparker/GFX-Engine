@@ -17,69 +17,139 @@
   }
 
   // --- the team list (its own tab): the list, and the picked team to edit -------------
+  // Each team: its name, short name, game, colour and logo, and its roster (each
+  // player's headshot, name, in-game ID and country).
   let teams = null;          // as edited here
   let sel = 0;               // the team being edited
   let teamsPending = false;
+  let countries = [];        // [{code, name}] of the flags that come with the engine
+  fetch("/flags/countries.json").then(r => r.json()).then(c => { countries = c; if (App.tab === "teams" && teams) renderTeamEditor(); }).catch(() => {});
+  const flagOf = code => code ? `/flags/${code}.svg` : "";
   const saveTeams = debounce(() => { teamsPending = false; api("/api/teams", { teams }); }, 400);
   const teamChanged = () => { teamsPending = true; saveTeams(); renderTeamList(); };
   const find = $("#t-find");
+  const gameFilter = $("#t-game");
   find.addEventListener("input", () => renderTeamList());
+  gameFilter.addEventListener("change", () => renderTeamList());
+  const label = t => t.name + (t.game ? ` · ${t.game}` : "");
+  function dropZone(cls, src, empty, onfile) {
+    const fileIn = h("input", { type: "file", accept: "image/*", hidden: true,
+      onchange: e => { const f = e.target.files[0]; e.target.value = ""; if (f) onfile(f); } });
+    const drop = h("div", { class: cls + (src ? " has" : ""), title: "Click or drop a picture",
+      style: { backgroundImage: src ? `url("${pic(src)}")` : "" },
+      onclick: () => fileIn.click(),
+      ondragover: e => { e.preventDefault(); e.stopPropagation(); drop.classList.add("over"); },
+      ondragleave: () => drop.classList.remove("over"),
+      ondrop: e => { e.preventDefault(); e.stopPropagation(); drop.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) onfile(f); } },
+      src ? "" : empty, fileIn);
+    return drop;
+  }
   async function uploadTeamLogo(t, file) {
     if (!t.name.trim()) return toast("Name the team first", true);
     if (teamsPending) await new Promise(r => setTimeout(r, 450));    // (a name being typed is saved first)
-    const r = await postFile(`/api/teams/logo?team=${encodeURIComponent(t.name.trim())}`, file);
+    const r = await postFile(`/api/teams/logo?team=${encodeURIComponent(t.name.trim())}&game=${encodeURIComponent(t.game || "")}`, file);
     teams = r.teams;
-    sel = Math.max(0, teams.findIndex(x => x.name === t.name.trim()));
+    sel = Math.max(0, teams.findIndex(x => x.name === t.name.trim() && (x.game || "") === (t.game || "")));
     renderTeams();
     toast("Logo saved");
   }
+  async function uploadHeadshot(t, p, file) {
+    const r = await postFile(`/api/teams/photo?player=${encodeURIComponent(p.ign || p.name || t.name)}`, file);
+    p.photo = r.photo;
+    teamChanged();
+    renderTeamEditor();
+  }
+  function renderGames() {
+    const games = [...new Set(teams.map(t => t.game).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+    const sig = JSON.stringify(games);
+    if (gameFilter.dataset.sig !== sig) {
+      gameFilter.dataset.sig = sig;
+      const was = gameFilter.value;
+      gameFilter.replaceChildren(h("option", { value: "" }, "All games"), ...games.map(g => h("option", { value: g }, g)));
+      gameFilter.value = games.includes(was) ? was : "";
+      $("#team-games").replaceChildren(...games.map(g => h("option", { value: g })));
+    }
+  }
   function renderTeamList() {
+    renderGames();
     const list = $("#t-list");
-    const q = find.value.trim().toLowerCase();
-    const shown = teams.map((t, i) => [t, i]).filter(([t]) => !q || t.name.toLowerCase().includes(q) || t.short.toLowerCase().includes(q));
+    const q = find.value.trim().toLowerCase(), g = gameFilter.value;
+    const shown = teams.map((t, i) => [t, i]).filter(([t]) => (!g || t.game === g) && (!q || t.name.toLowerCase().includes(q) || t.short.toLowerCase().includes(q)));
     $("#t-count").textContent = `${teams.length} team${teams.length === 1 ? "" : "s"}`;
     list.replaceChildren(...(shown.length ? shown.map(([t, i]) => h("div", { class: "t-row" + (i === sel ? " sel" : ""), onclick: () => { sel = i; renderTeams(); } },
       h("div", { class: "t-logo" + (t.logo ? " has" : ""), style: { backgroundImage: t.logo ? `url("${pic(t.logo)}")` : "" } }),
-      h("div", { class: "t-name" }, t.name || h("span", { class: "muted" }, "(no name)")),
-      h("span", { class: "t-short" }, t.short),
-      h("span", { class: "t-swatch", style: { background: t.color || "transparent" } })))
-      : [h("div", { class: "empty" }, q ? "No team matches." : "No teams yet: + Add team, Import CSV, or “Save to the team list” on a team in Global.")]));
+      h("div", { class: "t-who" }, h("div", { class: "t-name" }, t.name || h("span", { class: "muted" }, "(no name)")),
+        h("div", { class: "t-sub" }, [t.short, t.game].filter(Boolean).join(" · "))),
+      h("span", { class: "t-count", title: "Players" }, String((t.players || []).length))))
+      : [h("div", { class: "empty" }, q || g ? "No team matches." : "No teams yet: + Add team, Import CSV, or “Save to the team list” on a team in Global.")]));
+  }
+  function countrySelect(p) {
+    const flag = h("img", { class: "t-flag", src: flagOf(p.country), hidden: !p.country, alt: "" });
+    const sel = h("select", { onchange: e => { p.country = e.target.value; flag.src = flagOf(p.country); flag.hidden = !p.country; teamChanged(); } },
+      h("option", { value: "" }, "—"), ...countries.map(c => h("option", { value: c.code }, c.name)));
+    sel.value = p.country || "";
+    return h("div", { class: "t-country" }, flag, sel);
+  }
+  function playerRow(t, p, i) {
+    const players = t.players;
+    const move = d => { const j = i + d; if (j < 0 || j >= players.length) return; [players[i], players[j]] = [players[j], players[i]]; teamChanged(); renderTeamEditor(); };
+    return h("tr", {},
+      h("td", { class: "t-num" }, String(i + 1)),
+      h("td", {}, dropZone("t-head", p.photo, "+", f => uploadHeadshot(t, p, f))),
+      h("td", {}, h("input", { value: p.name, placeholder: "Player name", oninput: e => { p.name = e.target.value; teamChanged(); } })),
+      h("td", {}, h("input", { value: p.ign, placeholder: "In-game ID", oninput: e => { p.ign = e.target.value; teamChanged(); } })),
+      h("td", {}, countrySelect(p)),
+      h("td", { class: "t-acts" },
+        h("button", { class: "ghost small", title: "Move up", disabled: i === 0, onclick: () => move(-1) }, "↑"),
+        h("button", { class: "ghost small", title: "Move down", disabled: i === players.length - 1, onclick: () => move(1) }, "↓"),
+        p.photo ? h("button", { class: "ghost small", title: "Remove the headshot", onclick: () => { p.photo = ""; teamChanged(); renderTeamEditor(); } }, "⌫") : null,
+        h("button", { class: "ghost small", title: "Remove the player", onclick: () => { players.splice(i, 1); teamChanged(); renderTeamEditor(); } }, "✕")));
   }
   function renderTeamEditor() {
     const box = $("#t-edit");
     const t = teams[sel];
     if (!t) { box.replaceChildren(h("div", { class: "empty" }, "Pick a team on the left, or add one.")); return; }
-    const fileIn = h("input", { type: "file", accept: "image/*", hidden: true,
-      onchange: e => { const f = e.target.files[0]; e.target.value = ""; if (f) uploadTeamLogo(t, f); } });
-    const drop = h("div", { class: "logo-drop big" + (t.logo ? " has" : ""), title: "Click or drop the logo",
-      style: { backgroundImage: t.logo ? `url("${pic(t.logo)}")` : "" },
-      onclick: () => fileIn.click(),
-      ondragover: e => { e.preventDefault(); e.stopPropagation(); drop.classList.add("over"); },
-      ondragleave: () => drop.classList.remove("over"),
-      ondrop: e => { e.preventDefault(); e.stopPropagation(); drop.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) uploadTeamLogo(t, f); } },
-      t.logo ? "" : "Click or drop the logo");
-    const useAs = side => api("/api/global", { global: { [side]: Object.assign({ name: t.name, short: t.short, logo: t.logo }, t.color ? { color: t.color } : {}) } })
+    t.players = t.players || [];
+    const useAs = side => api("/api/global", { global: { [side]: Object.assign({ name: t.name, short: t.short, logo: t.logo, game: t.game || "" }, t.color ? { color: t.color } : {}) } })
       .then(() => toast(`${t.name} is the ${side} team`));
+    const head = h("div", { class: "t-head-title" }, h("b", {}, t.name || "New team"), h("span", { class: "muted" }, t.short ? ` / ${t.short}` : ""),
+      h("div", { class: "muted small" }, t.game || "No game set"));
     box.replaceChildren(
-      h("div", { class: "panel-head" }, h("h3", {}, t.name || "New team"),
-        h("button", { class: "small danger", onclick: () => {
-          if (t.name && !confirm(`Remove ${t.name} from the team list?`)) return;
+      h("div", { class: "t-top" },
+        h("div", { class: "t-logo big" + (t.logo ? " has" : ""), style: t.logo ? { backgroundImage: `url("${pic(t.logo)}")` } : { background: t.color || "" } }),
+        head, h("div", { class: "spacer" }),
+        h("button", { class: "small", onclick: () => useAs("left") }, "Use as left team"),
+        h("button", { class: "small", onclick: () => useAs("right") }, "Use as right team"),
+        h("button", { class: "small danger", title: "Remove the team", onclick: () => {
+          if (t.name && !confirm(`Remove ${label(t)} from the team list?`)) return;
           teams.splice(sel, 1); sel = Math.max(0, sel - 1); teamChanged(); renderTeamEditor();
-        } }, "Remove")),
-      h("div", { class: "pad" },
-        drop, fileIn,
-        h("div", { class: "row-gap", style: { justifyContent: "center" } },
-          t.logo ? h("button", { class: "ghost small", onclick: () => { t.logo = ""; teamChanged(); renderTeamEditor(); } }, "Remove logo") : null),
-        h("label", {}, "Name", h("input", { value: t.name, placeholder: "e.g. St. Clair Saints", "data-k": "name",
-          oninput: e => { t.name = e.target.value; box.querySelector("h3").textContent = t.name || "New team"; teamChanged(); } })),
-        h("div", { class: "colour-row" },
-          h("label", { style: { flex: 1 } }, "Short name", h("input", { value: t.short, maxlength: 12, placeholder: "e.g. SCC",
+        } }, "🗑")),
+      h("section", { class: "t-sect" },
+        h("div", { class: "t-sect-head" }, h("h4", {}, "Team details"), h("p", { class: "muted small" }, "What the graphics show for this team.")),
+        h("div", { class: "t-fields" },
+          h("label", {}, "Name", h("input", { value: t.name, placeholder: "e.g. St. Clair Saints", "data-k": "name",
+            oninput: e => { t.name = e.target.value; head.querySelector("b").textContent = t.name || "New team"; teamChanged(); } })),
+          h("label", {}, "Short name", h("input", { value: t.short, maxlength: 12, placeholder: "e.g. SCC",
             oninput: e => { t.short = e.target.value; teamChanged(); } })),
+          h("label", {}, "Game", h("input", { value: t.game || "", list: "team-games", placeholder: "e.g. Rocket League",
+            onchange: e => { t.game = e.target.value.trim(); teamChanged(); renderTeamEditor(); } })),
           h("label", {}, "Colour", h("input", { type: "color", value: /^#[0-9a-f]{6}$/i.test(t.color) ? t.color : "#333333",
-            oninput: e => { t.color = e.target.value; teamChanged(); } }))),
-        h("div", { class: "row-gap use-as" },
-          h("button", { class: "small", onclick: () => useAs("left") }, "Use as the left team"),
-          h("button", { class: "small", onclick: () => useAs("right") }, "Use as the right team"))));
+            oninput: e => { t.color = e.target.value; teamChanged(); } })))),
+      h("section", { class: "t-sect" },
+        h("div", { class: "t-sect-head" }, h("h4", {}, "Team logo"), h("p", { class: "muted small" }, "Click or drop the logo. A big PNG looks sharpest.")),
+        h("div", { class: "row-gap t-logo-row" }, dropZone("logo-drop big", t.logo, "Click or drop the logo", f => uploadTeamLogo(t, f)),
+          t.logo ? h("button", { class: "ghost small", onclick: () => { t.logo = ""; teamChanged(); renderTeamEditor(); } }, "Remove logo") : null)),
+      h("section", { class: "t-sect" },
+        h("div", { class: "t-sect-head row-gap" }, h("div", {}, h("h4", {}, "Team members"),
+          h("p", { class: "muted small" }, "The player graphics show these, in this order: the headshot, the flag and the name (or the in-game ID).")),
+          h("div", { class: "spacer" }),
+          h("button", { class: "small", onclick: () => { t.players.push({ name: "", ign: "", country: "", photo: "" }); teamChanged(); renderTeamEditor();
+            const rows = box.querySelectorAll(".t-roster tbody tr"); rows[rows.length - 1].querySelector("input").focus(); } }, "+ Add player")),
+        t.players.length ? h("table", { class: "t-roster" },
+          h("thead", {}, h("tr", {}, h("th", {}, "#"), h("th", {}, "Headshot"), h("th", {}, "Player name"), h("th", {}, "In-game ID"), h("th", {}, "Country"), h("th", {}))),
+          h("tbody", {}, ...t.players.map((p, i) => playerRow(t, p, i))))
+          : h("div", { class: "empty" }, "No players yet: + Add player.")));
+    return head;
   }
   function renderTeams(reload) {
     if (!teams || reload) teams = JSON.parse(JSON.stringify(App.state.teams || []));
@@ -90,7 +160,7 @@
   }
   $("#t-add").addEventListener("click", () => {
     find.value = "";
-    teams.unshift({ name: "", short: "", logo: "", color: "" });
+    teams.unshift({ name: "", short: "", logo: "", color: "", game: gameFilter.value || "", players: [] });
     sel = 0;
     renderTeams();
     $("#t-edit input[data-k=name]").focus();
@@ -108,7 +178,7 @@
   // The names to pick from.
   function renderNames() {
     const dl = $("#team-names");
-    const names = (App.state.teams || []).map(t => t.name).filter(Boolean);
+    const names = [...new Set((App.state.teams || []).map(t => t.name).filter(Boolean))];
     const sig = JSON.stringify(names);
     if (dl.dataset.sig === sig) return;
     dl.dataset.sig = sig;

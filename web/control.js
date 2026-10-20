@@ -296,8 +296,9 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const bracket = comp.layers.some(l => l.type === "bracket");
     const sched = comp.layers.some(l => /\{\{\s*Schedule!/i.test(l.show || ""));
     const clock = comp.layers.some(l => /\{\{\s*clock\s*\}\}/i.test(l.text || ""));
-    const extras = () => [clock ? clockField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
-    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, clock,
+    const roster = comp.layers.some(l => /\{\{\s*Roster!/i.test((l.text || "") + (l.src || "")));
+    const extras = () => [roster ? rosterField(s) : null, clock ? clockField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
+    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, clock, roster,
       Object.keys(s.data.feeds || {}), (s.data.tables.Global || []).map(r => r[0])]);
     if (!force && box.dataset.sig === sig) {
       markSize(box, s);
@@ -317,7 +318,7 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     }
     box.dataset.sig = sig;
     if (!fields.length) {
-      box.replaceChildren(...(bracket || sched || clock ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
+      box.replaceChildren(...(bracket || sched || clock || roster ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
       return;
     }
     box.replaceChildren(...fields.map(l => {
@@ -379,6 +380,16 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     markSize(el, s);
     return el;
   }
+  // The player graphics: whose players (the left or right team's roster, from the Teams tab).
+  function rosterField(s) {
+    const el = h("div", { class: "field roster-field" },
+      h("label", {}, "Players from", h("span", { class: "kind" }, "teams")),
+      h("select", { "data-k": "roster", onchange: e => api("/api/global", { global: { roster: e.target.value } }) },
+        h("option", { value: "left" }), h("option", { value: "right" })),
+      h("div", { class: "resolved", "data-k": "roster-note" }));
+    markSize(el, s);
+    return el;
+  }
   // The clock: the time of day, or a countdown for Starting Soon or Be Right Back
   // (Global's, so every clock changes, on air too).
   function clockField(s) {
@@ -394,6 +405,16 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     return el;
   }
   function markSize(el, s) {
+    const ro = el.querySelector("[data-k=roster]");
+    if (ro) {
+      const label = side => { const t = s.global[side]; return `${side === "left" ? "Left" : "Right"} team: ${t.name || "(none)"}${t.game ? ` (${t.game})` : ""}`; };
+      ro.options[0].textContent = label("left"); ro.options[1].textContent = label("right");
+      if (document.activeElement !== ro) ro.value = s.global.roster || "left";
+      const rows = Object.fromEntries((s.data.tables.Roster || []).slice(1));
+      el.querySelector("[data-k=roster-note]").textContent = rows.Team
+        ? `${rows.Players} player${rows.Players === "1" ? "" : "s"} on ${rows.Team}'s roster in the Teams tab.`
+        : "That team isn't in the Teams tab, so the names come from the game's stats.";
+    }
     const c = s.global.clock || { mode: "time", until: "" };
     const mode = el.querySelector("[data-k=clock-mode]"), until = el.querySelector("[data-k=clock-until]");
     if (mode && document.activeElement !== mode) mode.value = c.mode;
