@@ -90,6 +90,13 @@
     if (low === "time") { const h = now.getHours() % 12 || 12; return `${pad(h)}:${pad(now.getMinutes())} ${now.getHours() < 12 ? "AM" : "PM"}`; }
     if (low === "time24") return `${pad(now.getHours())}:${pad(now.getMinutes())}`;
     if (low === "date") return now.toLocaleDateString(undefined, { weekday: "short", month: "numeric", day: "numeric" }).toUpperCase();
+    if (low === "clock") {
+      // Global's clock: the time of day, or the countdown for Starting Soon / Be Right Back.
+      const g = k => GFX.lookup(ctx.tables.Global || [], k);
+      const mode = g("Clock mode"), until = g("Clock until");
+      if (mode === "soon" || mode === "brb") return until ? token("countdown:" + until) : "00:00";
+      return token("time") + (g("Clock zone") ? " " + g("Clock zone") : "");
+    }
     let m = /^countdown:\s*(\d{1,2}):(\d{2})$/i.exec(t);
     if (m) {
       // To a time of day (today, or tomorrow if it's gone).
@@ -108,7 +115,7 @@
   }
   GFX.resolve = s => String(s == null ? "" : s).replace(/\{\{\s*([^{}]+?)\s*\}\}/g, (_, t) => token(t));
   const hasTokens = s => /\{\{[^{}]+\}\}/.test(String(s || ""));
-  const ticking = s => /\{\{\s*(time|time24|date|countdown:[^}]*)\s*\}\}/i.test(String(s || ""));
+  const ticking = s => /\{\{\s*(time|time24|date|clock|countdown:[^}]*)\s*\}\}/i.test(String(s || ""));
 
   // What a layer shows: its field's value if set, else its own.
   GFX.content = function (layer, values) {

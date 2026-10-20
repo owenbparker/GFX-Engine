@@ -299,6 +299,7 @@ class PackTests(unittest.TestCase):
         self.assertTrue(any(l.get("src") == "{{Global!Left logo}}" for l in sch))
         self.assertTrue(all(l.get("divider") for l in sch if l.get("scroll")))
         self.assertEqual(len(data["global"]["schedule"]["matches"]), 3)
+        self.assertEqual([l["text"] for l in sch if l["name"].startswith("Clock")], ["{{clock}}", "{{Global!Clock label}}"])
 
 
 class ScheduleTests(unittest.TestCase):
@@ -490,6 +491,12 @@ class ServerTests(unittest.TestCase):
             self.assertEqual(len(s2["teams"]), 2)
             post("/api/teams", {"teams": s2["teams"][:1]})
             self.assertEqual([t["name"] for t in json.loads(get("/api/state"))["teams"]], ["Humber Hawks"])
+            # The clock: a countdown for Starting Soon.
+            post("/api/global", {"global": {"clock": {"mode": "soon", "until": "19:30"}}})
+            gl = dict(json.loads(get("/api/state"))["data"]["tables"]["Global"][1:])
+            self.assertEqual((gl["Clock mode"], gl["Clock until"], gl["Clock label"], gl["Clock zone"]), ("soon", "19:30", "STARTING SOON", "EST"))
+            post("/api/global", {"global": {"clock": {"mode": "nope", "until": "later"}}})
+            self.assertEqual(json.loads(get("/api/state"))["global"]["clock"]["mode"], "time")
             # The upcoming schedule.
             post("/api/global", {"global": {"schedule": {"count": 1, "matches": [
                 {"tournament": "NACE", "game": "VALORANT", "team1": "Humber Hawks", "team2": "SCC", "date": "2026-10-20", "time": "19:30"},

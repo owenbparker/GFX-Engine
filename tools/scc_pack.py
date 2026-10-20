@@ -13,6 +13,7 @@ gfxengine/pack.py).
 
 import json
 import os
+import re
 import shutil
 import sys
 
@@ -86,6 +87,12 @@ def _rows(layers, xs):
     return out
 
 
+# Each schedule card's lines: (size, baseline from the card's top), for the
+# big first card and the two smaller ones.
+CARD_TEXT = {True: {"tournament": (24, 36), "game": (15, 58), "teams": (20, 86), "when": (19, 114)},
+             False: {"tournament": (20, 30), "game": (13, 49), "teams": (17, 72), "when": (16, 96)}}
+
+
 def schedule(comps):
     """The Schedule: its three match cards from the Upcoming Schedule (shown as
     many as it's set to), and the teams' logos in front of their names."""
@@ -93,17 +100,22 @@ def schedule(comps):
     if not sch:
         return
     cards = ((195, 328), (328, 438), (438, 560))
+    tops = (199, 330, 440)
     fields = {"tournament": ("NACE VARSITY", "CANADIAN ESPORTS NATIONALS"),
               "game": ("ROCKET LEAGUE | PLAYOFFS", "Premier League of Legends | Semi-Finals", "VALORANT"),
               "teams": ("vs.",), "when": ("|",)}
-    for n, (top, bottom) in enumerate(cards, 1):
+    for n, (lo, bottom) in enumerate(cards, 1):
+        top = tops[n - 1]
         for l in sch["layers"]:
-            if l["x"] < 1400 or not (top <= l["y"] < bottom) or l["name"] == "SCHEDULE":
+            if l["x"] < 1400 or not (lo <= l["y"] < bottom) or l["name"] == "SCHEDULE":
                 continue
             l["show"] = f"{{{{Schedule!Match {n} show}}}}"
             if l["type"] != "text":
                 continue
-            if l["text"] in fields["game"]:
+            linked = re.match(r"^\{\{Schedule!Match \d (\w+)\}\}$", l["text"])
+            if linked:
+                key = linked.group(1)
+            elif l["text"] in fields["game"]:
                 key = "game"
             elif l["text"] in fields["tournament"]:
                 key = "tournament"
@@ -116,6 +128,19 @@ def schedule(comps):
             l["text"] = f"{{{{Schedule!Match {n} {key}}}}}"
             l["fit"] = "shrink"
             l["field"] = ""
+            # Sized to read: the teams and the date and time bigger than the design's.
+            size, base = CARD_TEXT[n == 1][key]
+            card_w = {1: 420, 2: 378, 3: 356}[n]
+            l.update(x=1437, w=card_w, size=size, baseline=round(size * 0.86, 1), y=round(top + base - size * 0.86),
+                     h=round(size * 1.3), valign="top", lineHeight=1.15, fit="squeeze" if key in ("teams", "when") else "shrink")
+    # The clock: the time (or a countdown) and under it, in yellow, what it is.
+    clock = next((l for l in sch["layers"] if l["type"] == "text" and "{{time}}" in l.get("text", "")), None)
+    if clock:
+        label = json.loads(json.dumps(clock))
+        clock.update(name="Clock", text="{{clock}}", field="", y=879, h=40, size=28, baseline=24.1, lineHeight=1.15)
+        label.update(id=new_id("l"), name="Clock label", text="{{Global!Clock label}}", field="", color=DIVIDER,
+                     y=917, h=34, w=220, size=22, baseline=round(22 * 0.86, 1), lineHeight=1.15, fit="shrink")
+        sch["layers"].insert(sch["layers"].index(clock) + 1, label)
     # The teams' logos in the score bar, in front of their short names.
     left, right = _text(sch, "SG"), _text(sch, "GMU")
     if left and right and not any(l["name"] == "Left logo" for l in sch["layers"]):

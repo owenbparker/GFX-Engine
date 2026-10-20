@@ -137,6 +137,12 @@ Control fields). In graphics: `{{Schedule!Match 1 tournament}}`,
 is only on screen while the second match is. The Schedule's score bar shows
 each team's logo in front of its name.
 
+The Schedule's **clock** has two lines: the time, and under it in yellow what
+it is. Its Control fields choose Current time (the time of day, LOCAL TIME),
+Starting Soon or Be Right Back (a countdown to the time picked, with STARTING
+SOON or BE RIGHT BACK under it). In graphics: `{{clock}}` and
+`{{Global!Clock label}}`.
+
 The SCC graphics in a workspace are brought up to date when the engine has
 newer versions of them, unless you've changed them in Composer.
 

@@ -15,6 +15,7 @@ take the team names, short names and logos from here.
 """
 
 import copy
+import re
 import time
 
 from . import schedule, tournament
@@ -33,7 +34,11 @@ DEFAULT = {
     "ticker": [],    # its lines, shown one after another
     "tournament": tournament.default(),
     "schedule": schedule.default(),
+    # The clock graphics show ({{clock}} and {{Global!Clock label}}): the time of
+    # day, or a countdown to "until" for Starting Soon or Be Right Back.
+    "clock": {"mode": "time", "until": "", "zone": "EST"},
 }
+CLOCK_LABELS = {"time": "LOCAL TIME", "soon": "STARTING SOON", "brb": "BE RIGHT BACK"}
 TICKER_GAP = "  |  "
 TEAM_KEYS = ("name", "short", "logo", "color", "score")
 DEFAULT_LOOP = "loops/scc-bg-loop.webm"   # (comes with the engine, in web/)
@@ -78,6 +83,11 @@ def clean(g):
     out["ticker"] = [str(x).strip()[:300] for x in (g.get("ticker") or []) if str(x).strip()][:40]
     out["tournament"] = tournament.clean(g.get("tournament"))
     out["schedule"] = schedule.clean(g.get("schedule"))
+    clock = dict(DEFAULT["clock"], **(g.get("clock") or {}))
+    until = str(clock.get("until") or "").strip()
+    out["clock"] = {"mode": clock.get("mode") if clock.get("mode") in CLOCK_LABELS else "time",
+                    "until": until if re.match(r"^\d{1,2}:\d{2}$", until) else "",
+                    "zone": str(clock.get("zone") or "")[:12]}
     return out
 
 
@@ -122,7 +132,9 @@ def rows(g):
             ["Sponsor logo", sp[0]["logo"] if sp else ""], ["Sponsors", str(len(sp))],
             ["BG loop", (loop["src"] or DEFAULT_LOOP) if loop["on"] else ""], ["BG loop colour", loop["color"]],
             ["BG loop brightness", str(loop["brightness"])], ["BG loop speed", str(loop["speed"])],
-            ["Ticker", TICKER_GAP.join(g["ticker"]) + (TICKER_GAP if g["ticker"] else "")]]
+            ["Ticker", TICKER_GAP.join(g["ticker"]) + (TICKER_GAP if g["ticker"] else "")],
+            ["Clock mode", g["clock"]["mode"]], ["Clock until", g["clock"]["until"]], ["Clock zone", g["clock"]["zone"]],
+            ["Clock label", CLOCK_LABELS[g["clock"]["mode"]]]]
     out += [[k, v] for k, v in g["custom"]]
     return out
 

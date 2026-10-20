@@ -295,8 +295,9 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     $("#fields-send").disabled = !fields.length;
     const bracket = comp.layers.some(l => l.type === "bracket");
     const sched = comp.layers.some(l => /\{\{\s*Schedule!/i.test(l.show || ""));
-    const extras = () => [bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
-    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched,
+    const clock = comp.layers.some(l => /\{\{\s*clock\s*\}\}/i.test(l.text || ""));
+    const extras = () => [clock ? clockField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
+    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, clock,
       Object.keys(s.data.feeds || {}), (s.data.tables.Global || []).map(r => r[0])]);
     if (!force && box.dataset.sig === sig) {
       markSize(box, s);
@@ -316,7 +317,7 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     }
     box.dataset.sig = sig;
     if (!fields.length) {
-      box.replaceChildren(...(bracket || sched ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
+      box.replaceChildren(...(bracket || sched || clock ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
       return;
     }
     box.replaceChildren(...fields.map(l => {
@@ -378,7 +379,30 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     markSize(el, s);
     return el;
   }
+  // The clock: the time of day, or a countdown for Starting Soon or Be Right Back
+  // (Global's, so every clock changes, on air too).
+  function clockField(s) {
+    const set = change => api("/api/global", { global: { clock: Object.assign({}, App.state.global.clock, change) } });
+    const el = h("div", { class: "field clock-field" },
+      h("label", {}, "Clock", h("span", { class: "kind" }, "global")),
+      h("div", { class: "row-gap" },
+        h("select", { "data-k": "clock-mode", onchange: e => set({ mode: e.target.value }) },
+          h("option", { value: "time" }, "Current time"), h("option", { value: "soon" }, "Starting Soon"), h("option", { value: "brb" }, "Be Right Back")),
+        h("input", { type: "time", "data-k": "clock-until", title: "Counts down to this time", onchange: e => set({ until: e.target.value }) })),
+      h("div", { class: "resolved", "data-k": "clock-note" }));
+    markSize(el, s);
+    return el;
+  }
   function markSize(el, s) {
+    const c = s.global.clock || { mode: "time", until: "" };
+    const mode = el.querySelector("[data-k=clock-mode]"), until = el.querySelector("[data-k=clock-until]");
+    if (mode && document.activeElement !== mode) mode.value = c.mode;
+    if (until) {
+      until.hidden = c.mode === "time";
+      if (document.activeElement !== until) until.value = c.until || "";
+      el.querySelector("[data-k=clock-note]").textContent = c.mode === "time" ? `Shows the time of day, with LOCAL TIME under it.`
+        : `Counts down to ${c.until || "(pick a time)"}, with ${c.mode === "soon" ? "STARTING SOON" : "BE RIGHT BACK"} under it.`;
+    }
     const size = ((s.global.tournament || {}).top || {}).size || 8;
     const sel = el.querySelector("[data-k=size]");
     if (sel && document.activeElement !== sel) sel.value = String(size);

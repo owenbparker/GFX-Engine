@@ -421,3 +421,6 @@ table.sheet td.c:hover { background: #1d3b5e; }
 .s-grid label { display: flex; flex-direction: column; gap: 3px; }
 .s-grid label:first-child { grid-column: 1 / -1; }
 #page-schedule .page-head select { width: auto; }
+.clock-field .row-gap { display: flex; gap: 6px; }
+.clock-field select { flex: 1; }
+.clock-field input[type=time] { flex: 0 0 130px; width: 130px; }
