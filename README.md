@@ -42,7 +42,7 @@ In / Out animation. Give a layer a **field** name to change it from Control.
 logo, name, short name, score or colour, the tournament logo, the sponsors,
 the ticker, the background loop or the knockout bracket.
 
-**Assets**: everything the graphics use. Drop files anywhere on the window:
+**Assets** (under **Extras**, with Data, Transitions and Outputs): everything the graphics use. Drop files anywhere on the window:
 
 | File | What happens |
 | --- | --- |
@@ -134,7 +134,8 @@ The **player graphics** (1 to 5 players) show the left or right team's roster
 (or in-game ID), with their flag before it. While the roster has no
 headshots, the design's own photo shows. In graphics: `{{Roster!Player 1}}`,
 `{{Roster!Player 1 flag}}`, `{{Roster!Player 1 headshot}}`,
-`{{Roster!Player 1 ID}}`, `{{Roster!Team}}`... The tournament's team boxes suggest names from it,
+`{{Roster!Player 1 ID}}`, `{{Roster!Team}}`... They play over the
+background loop, like the full-screen boards. The tournament's team boxes suggest names from it,
 and the brackets show each team's logo.
 
 The **Tournament** tab fills in the bracket graphics: the knockout bracket (8 or
@@ -179,6 +180,13 @@ The players' stats from whichever HUD is connected also go into one table,
 stats and player graphics use it. The last game's stats are kept after it
 ends (and over a restart) until the next game starts or you press **Clear
 stats** in Global.
+
+The **Player stats** page shows one player from the game: the one with the
+most of the first stat (kills, goals) unless another is picked in its
+Control fields (every player in the game is listed). Their name, flag and
+headshot come from their team's roster in the Teams tab, matched by in-game
+ID: `{{Stats!MVP name}}`, `{{Stats!MVP flag}}`, `{{Stats!MVP headshot}}`,
+`{{Stats!MVP stat 1}}`, `{{Stats!MVP K/D}}`...
 
 ## Outputs and the network
 

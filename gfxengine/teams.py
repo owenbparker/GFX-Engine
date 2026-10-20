@@ -255,6 +255,21 @@ class Teams:
                                                 for t in self.list()]
 
 
+def player_named(team, name):
+    """The player in a team's roster a game calls name (their in-game ID or
+    name, or one in it: "SCC Owen" is Owen), or None."""
+    n = str(name or "").strip().lower()
+    players = (team or {}).get("players") or []
+    if not n:
+        return None
+    for p in players:
+        if n in (p["ign"].lower(), p["name"].lower()):
+            return p
+    words = set(re.split(r"[\s#|._-]+", n))
+    return next((p for p in players if p["ign"] and (p["ign"].lower() in words or
+                                                    (len(p["ign"]) >= 4 and p["ign"].lower() in n))), None)
+
+
 def roster_rows(team, side, stats_names=None, slots=5):
     """The "Roster" data table: the team the player graphics show (a side's team
     from Global), each player's name (or in-game ID), ID, flag and headshot.

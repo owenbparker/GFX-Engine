@@ -209,6 +209,25 @@ class StatsTests(unittest.TestCase):
         self.assertIsNone(stats.read("valorant", {"SCORE LEFT": 3}))      # no players: no game going
         self.assertIsNone(stats.read("cod", f))
 
+    def test_player_stats_pick_and_roster(self):
+        from gfxengine import stats
+        from gfxengine.teams import player_named
+        team = {"players": [{"name": "Owen Parker", "ign": "Owen", "country": "ca", "photo": "library/teams/players/o.png"},
+                            {"name": "Sam Lee", "ign": "Sammy", "country": "", "photo": ""}]}
+        f = {"LEFT P1 NAME": "SCC Owen", "LEFT P1 K": "12", "LEFT P2 NAME": "Sammy", "LEFT P2 K": "20",
+             "RIGHT P1 NAME": "Zed", "RIGHT P1 K": "15"}
+        look = lambda side, name: player_named(team, name) if side == "left" else None
+        auto = dict(stats.rows(stats.read("valorant", f), True, {}, "auto", look)[1:])
+        self.assertEqual((auto["MVP"], auto["MVP name"], auto["MVP picked"], auto["MVP headshot shown"]), ("Sammy", "Sam Lee", "auto", ""))
+        mine = dict(stats.rows(stats.read("valorant", f), True, {}, "left 1", look)[1:])
+        self.assertEqual((mine["MVP name"], mine["MVP flag"], mine["MVP headshot"], mine["MVP stat 1"]),
+                         ("Owen Parker", "flags/ca.svg", "library/teams/players/o.png", "12"))
+        other = dict(stats.rows(stats.read("valorant", f), True, {}, "right 1", look)[1:])
+        self.assertEqual((other["MVP name"], other["MVP flag shown"]), ("Zed", ""))
+        gone = dict(stats.rows(stats.read("valorant", f), True, {}, "right 4", look)[1:])
+        self.assertEqual(gone["MVP"], "Sammy")                        # (picked one not in the game: the top one)
+        self.assertEqual(dict(stats.rows(None, False)[1:])["MVP headshot shown"], "1")
+
     def test_kept_after_the_game(self):
         from gfxengine.stats import Stats
         tmp = tempfile.mkdtemp()

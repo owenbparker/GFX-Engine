@@ -39,6 +39,8 @@ DEFAULT = {
     # day, or a countdown to "until" for Starting Soon or Be Right Back.
     "clock": {"mode": "time", "until": "", "zone": "EST"},
     "roster": "left",    # whose players the player graphics show
+    # who the Player stats page shows: the top player ("auto") or one picked ("left 3")
+    "player_stats": "auto",
 }
 CLOCK_LABELS = {"time": "LOCAL TIME", "soon": "STARTING SOON", "brb": "BE RIGHT BACK"}
 TICKER_GAP = "  |  "
@@ -87,6 +89,8 @@ def clean(g):
     out["tournament"] = tournament.clean(g.get("tournament"))
     out["schedule"] = schedule.clean(g.get("schedule"))
     out["roster"] = "right" if g.get("roster") == "right" else "left"
+    pick = str(g.get("player_stats") or "")
+    out["player_stats"] = pick if re.match(r"^(left|right) ([1-9]|10)$", pick) else "auto"
     clock = dict(DEFAULT["clock"], **(g.get("clock") or {}))
     until = str(clock.get("until") or "").strip()
     out["clock"] = {"mode": clock.get("mode") if clock.get("mode") in CLOCK_LABELS else "time",

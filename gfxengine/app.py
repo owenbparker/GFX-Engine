@@ -34,7 +34,7 @@ from .log import log, since
 from .media import Jobs, ffmpeg_path, stinger_cut
 from .project import Workspace, blank_comp, blank_layer, new_id
 from .stats import GAMES, Stats
-from .teams import Teams, roster_rows
+from .teams import Teams, player_named, roster_rows
 from . import schedule, tournament
 from .updater import Updater, clean_up_old_update
 from .workspaces import Workspaces
@@ -151,7 +151,9 @@ class Engine:
         g = self.global_config()
         snap["tables"]["Global"] = globalcfg.rows(g)
         snap["tables"]["Sponsors"] = globalcfg.sponsor_rows(g)
-        snap["tables"]["Stats"] = self.stats.rows({side: g[side]["name"] for side in ("left", "right")})
+        snap["tables"]["Stats"] = self.stats.rows(
+            {side: g[side]["name"] for side in ("left", "right")}, g["player_stats"],
+            lambda side, name: player_named(self.teams.find(g[side]["name"], g[side]["game"]), name))
         snap["tables"]["Tournament"] = tournament.rows(g["tournament"], self.teams.find)
         snap["tables"]["Teams"] = self.teams.rows()
         snap["tables"]["Schedule"] = schedule.rows(g["schedule"], self.teams.find)

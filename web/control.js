@@ -114,13 +114,25 @@ const pages = {};
 function showTab(name) {
   if (!pages[name] && name !== "control") name = "control";
   App.tab = name;
-  for (const b of document.querySelectorAll("#tabs button")) b.classList.toggle("on", b.dataset.tab === name);
+  for (const b of document.querySelectorAll("#tabs button[data-tab]")) b.classList.toggle("on", b.dataset.tab === name);
+  // (Assets, Data, Transitions and Outputs are under Extras: it shows which one is open)
+  const extra = document.querySelector(`#extras-menu button[data-tab="${name}"]`);
+  $("#extras-btn").classList.toggle("on", !!extra);
+  $("#extras-btn").firstChild.textContent = extra ? extra.textContent + " " : "Extras ";
+  extrasMenu(false);
   for (const p of document.querySelectorAll(".page")) p.hidden = p.id !== "page-" + name;
   try { localStorage.setItem("gfx-tab", name); } catch (e) { /* private window */ }
   if (pages[name] && pages[name].shown) pages[name].shown();
   if (location.hash !== "#" + name) history.replaceState(null, "", "#" + name);
 }
-document.querySelectorAll("#tabs button").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+document.querySelectorAll("#tabs button[data-tab]").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+function extrasMenu(open) {
+  $("#extras-menu").hidden = !open;
+  $("#extras-btn").setAttribute("aria-expanded", String(open));
+}
+$("#extras-btn").addEventListener("click", e => { e.stopPropagation(); extrasMenu($("#extras-menu").hidden); });
+document.addEventListener("click", e => { if (!e.target.closest("#extras")) extrasMenu(false); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") extrasMenu(false); });
 addEventListener("load", () => {
   let start = location.hash.slice(1);
   if (!start) { try { start = localStorage.getItem("gfx-tab") || "control"; } catch (e) { start = "control"; } }
@@ -297,8 +309,9 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const sched = comp.layers.some(l => /\{\{\s*Schedule!/i.test(l.show || ""));
     const clock = comp.layers.some(l => /\{\{\s*clock\s*\}\}/i.test(l.text || ""));
     const roster = comp.layers.some(l => /\{\{\s*Roster!/i.test((l.text || "") + (l.src || "")));
-    const extras = () => [roster ? rosterField(s) : null, clock ? clockField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
-    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, clock, roster,
+    const mvp = comp.layers.some(l => /\{\{\s*Stats!MVP/i.test((l.text || "") + (l.src || "")));
+    const extras = () => [roster ? rosterField(s) : null, mvp ? mvpField(s) : null, clock ? clockField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
+    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, clock, roster, mvp,
       Object.keys(s.data.feeds || {}), (s.data.tables.Global || []).map(r => r[0])]);
     if (!force && box.dataset.sig === sig) {
       markSize(box, s);
@@ -318,7 +331,7 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     }
     box.dataset.sig = sig;
     if (!fields.length) {
-      box.replaceChildren(...(bracket || sched || clock || roster ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
+      box.replaceChildren(...(bracket || sched || clock || roster || mvp ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
       return;
     }
     box.replaceChildren(...fields.map(l => {
@@ -390,6 +403,15 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     markSize(el, s);
     return el;
   }
+  // The Player stats page: the top player in the game (most of stat 1), or one picked.
+  function mvpField(s) {
+    const el = h("div", { class: "field mvp-field" },
+      h("label", {}, "Player", h("span", { class: "kind" }, "game")),
+      h("select", { "data-k": "mvp", onchange: e => api("/api/global", { global: { player_stats: e.target.value } }) }),
+      h("div", { class: "resolved", "data-k": "mvp-note" }));
+    markSize(el, s);
+    return el;
+  }
   // The clock: the time of day, or a countdown for Starting Soon or Be Right Back
   // (Global's, so every clock changes, on air too).
   function clockField(s) {
@@ -414,6 +436,26 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
       el.querySelector("[data-k=roster-note]").textContent = rows.Team
         ? `${rows.Players} player${rows.Players === "1" ? "" : "s"} on ${rows.Team}'s roster in the Teams tab.`
         : "That team isn't in the Teams tab, so the names come from the game's stats.";
+    }
+    const mv = el.querySelector("[data-k=mvp]");
+    if (mv) {
+      const st = Object.fromEntries((s.data.tables.Stats || []).slice(1));
+      const title = (st["Stat 1 title"] || "KILLS").toLowerCase();
+      const opts = [["auto", `Top player (most ${title})`]];
+      for (const side of ["Left", "Right"]) {
+        for (let n = 1; n <= 10 && (`${side} player ${n}` in st); n++) {
+          const name = st[`${side} player ${n}`];
+          if (name) opts.push([`${side.toLowerCase()} ${n}`, `${name} (${st[`${side} name`] || side}): ${st[`${side} player ${n} stat 1`] || 0} ${title}`]);
+        }
+      }
+      const pick = s.global.player_stats || "auto";
+      if (!opts.some(o => o[0] === pick)) opts.push([pick, "(the player picked, not in this game)"]);
+      const sig = JSON.stringify(opts);
+      if (mv.dataset.sig !== sig) { mv.dataset.sig = sig; mv.replaceChildren(...opts.map(([v, t]) => h("option", { value: v }, t))); }
+      if (document.activeElement !== mv) mv.value = pick;
+      el.querySelector("[data-k=mvp-note]").textContent = !st.Status
+        ? "No game's stats yet: connect a game HUD. The top player is picked automatically, or pick one here."
+        : `Showing ${st["MVP name"] || st.MVP || "nobody"}${st["MVP headshot"] ? "" : " (no headshot in the Teams tab)"}. Their name, flag and headshot come from their team's roster in the Teams tab.`;
     }
     const c = s.global.clock || { mode: "time", until: "" };
     const mode = el.querySelector("[data-k=clock-mode]"), until = el.querySelector("[data-k=clock-until]");

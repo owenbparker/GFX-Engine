@@ -86,18 +86,24 @@ def _kd(k, d):
     return f"{k / d:.2f}" if d else f"{k:.2f}" if k else "0.00"
 
 
-def rows(stats, live, names=None):
-    """The "Stats" table: label | value."""
+def rows(stats, live, names=None, pick="auto", lookup=None):
+    """The "Stats" table: label | value.
+
+    The MVP (the player the Player stats page shows) is the one with the most
+    of stat 1 (kills, goals), or the one picked ("left 3"). lookup(side,
+    in-game name) -> that player in the team's roster (for their name, flag
+    and headshot), or None."""
     names = names or {}
     out = [["Field", "Value"]]
     if not stats:
         out += [["Status", ""], ["Game", ""]] + [[f"Stat {i} title", t] for i, t in enumerate(("KILLS", "DEATHS", "ASSISTS"), 1)]
-        return out
+        # (no game yet: the design's own photo and flag)
+        return out + [["MVP headshot shown", "1"], ["MVP flag shown", "1"]]
     t = stats["titles"]
     out += [["Status", "LIVE" if live else "FINAL"], ["Game", GAMES.get(stats["game"], stats["game"])],
             ["From", stats.get("source", "")], ["Updated", time.strftime("%H:%M", time.localtime(stats.get("at", 0)))]]
     out += [[f"Stat {i + 1} title", t[i]] for i in range(3)]
-    best = None
+    best = picked = None
     for side in SIDES:
         S = side.title()
         team = stats[side]
@@ -111,12 +117,22 @@ def rows(stats, live, names=None):
             out += [[f"{k} stat {i + 1}", str(p["stats"][i]) if p["name"] else ""] for i in range(3)]
             out.append([f"{k} K/D", _kd(p["stats"][0], p["stats"][1]) if p["name"] else ""])
             # Best: most of stat 1 (kills, goals), then stat 3, then fewest stat 2.
-            rank = (p["stats"][0], p["stats"][2], -p["stats"][1]) if stats["game"] != "rl" else (p["stats"][2], p["stats"][0])
+            rank = (p["stats"][0], p["stats"][2], -p["stats"][1])
             if p["name"] and (best is None or rank > best[0]):
                 best = (rank, side, p)
+            if p["name"] and pick == f"{side} {n}":
+                picked = (rank, side, p)
+    best = picked or best
     if best:
         _, side, p = best
-        out += [["MVP", p["name"]], ["MVP team", names.get(side, side.title())], ["MVP character", p["character"]]]
+        r = (lookup(side, p["name"]) if lookup else None) or {}
+        out += [["MVP", p["name"]], ["MVP team", names.get(side, side.title())], ["MVP character", p["character"]],
+                ["MVP picked", "manual" if picked else "auto"], ["MVP side", side],
+                ["MVP name", r.get("name") or r.get("ign") or p["name"]], ["MVP ID", r.get("ign") or p["name"]],
+                ["MVP country", r.get("country", "")], ["MVP flag", f"flags/{r['country']}.svg" if r.get("country") else ""],
+                ["MVP headshot", r.get("photo", "")],
+                # (a player not in the roster: no one else's photo or flag)
+                ["MVP headshot shown", "1" if r.get("photo") else ""], ["MVP flag shown", "1" if r.get("country") else ""]]
         out += [[f"MVP stat {i + 1}", str(p["stats"][i])] for i in range(3)]
         out.append(["MVP K/D", _kd(p["stats"][0], p["stats"][1])])
     return out
@@ -171,7 +187,7 @@ class Stats:
     def live(self):
         return time.time() - self.heard < LIVE_FOR
 
-    def rows(self, names=None):
+    def rows(self, names=None, pick="auto", lookup=None):
         with self.lock:
             data = self.data
-        return rows(data, self.live(), names)
+        return rows(data, self.live(), names, pick, lookup)

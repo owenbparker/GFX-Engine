@@ -27,7 +27,8 @@ from gfxengine.project import new_id  # noqa: E402
 STARTER = os.path.join(ROOT, "starter")
 
 # Boards that fill the screen: the background loop plays over their backdrop.
-LOOP_BOARDS = ("Schedule", "Team stats", "Player stats", "Group bracket", "Top 8 bracket", "Final four")
+LOOP_BOARDS = ("Schedule", "Team stats", "Player stats", "Group bracket", "Top 8 bracket", "Final four",
+               *(f"Player graphic ({n})" for n in range(1, 6)))
 # What each graphic is: one board and one lower third can be on air at a time.
 KINDS = {"lower third": ("Caster lower third",),
          "overlay": ("Scorebug & footer", "Replay overlay")}
@@ -282,7 +283,15 @@ def link(data, starter=STARTER):
                 l["text"] = "{{Global!Game title}}"
     if "Player stats" in comps:
         ps = comps["Player stats"]
-        text("Player stats", "PLAYER NAME", "{{Stats!MVP}}")
+        text("Player stats", "PLAYER NAME", "{{Stats!MVP name}}")
+        # The player's headshot and flag from their team's roster (the design's
+        # own until a game is played; none for a player missing from the roster).
+        for l in ps["layers"]:
+            if l["type"] == "image" and l["name"] in ("Player Image", "FLAG") and not l["src"].startswith("{{"):
+                head = l["name"] == "Player Image"
+                l.update(placeholder=l["src"], src="{{Stats!MVP headshot}}" if head else "{{Stats!MVP flag}}",
+                         show="{{Stats!MVP headshot shown}}" if head else "{{Stats!MVP flag shown}}",
+                         fit="contain", position="bottom" if head else "left")
         text("Player stats", "TEAM NAME", "{{Stats!MVP team}}")
         text("Player stats", "GAME", "{{Global!Game title}}")
         for label, value, (lt, vt) in (("RATING (2.0)", "2.0", ("{{Stats!Stat 1 title}}", "{{Stats!MVP stat 1}}")),
@@ -297,6 +306,13 @@ def link(data, starter=STARTER):
             text(f"Player graphic ({n})", "GAME NAME", "{{Global!Game title}}")
     if "Team graphic" in comps:
         text("Team graphic", "GAME NAME", "{{Global!Game title}}")
+
+    # The player graphics: the boards' backdrop behind the players.
+    backdrop = next((l for l in (comps.get("Player stats") or {"layers": []})["layers"] if l["name"] == "Layer 1"), None)
+    for n in range(1, 6):
+        comp = comps.get(f"Player graphic ({n})")
+        if comp and backdrop and not any(l["name"] == "Backdrop" for l in comp["layers"]):
+            comp["layers"].insert(0, dict(json.loads(json.dumps(backdrop)), id=new_id("l"), name="Backdrop"))
 
     # The background loop over the boards' backdrop.
     for cname in LOOP_BOARDS:

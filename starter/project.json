@@ -5356,6 +5356,68 @@
    "layer": 0,
    "layers": [
     {
+     "id": "l3317c709",
+     "name": "Backdrop",
+     "type": "image",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 0.749,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 24
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Player stats/Layer 1.png",
+     "fit": "fill",
+     "loop": true
+    },
+    {
+     "id": "lf5e02b42",
+     "name": "Background loop",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "screen",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!BG loop}}",
+     "fit": "cover",
+     "loop": true,
+     "audio": false,
+     "tint": "{{Global!BG loop colour}}",
+     "brightness": "{{Global!BG loop brightness}}",
+     "speed": "{{Global!BG loop speed}}"
+    },
+    {
      "id": "lc16f7ab8",
      "name": "Player",
      "type": "image",
@@ -5624,6 +5686,68 @@
    "name": "Player graphic (2)",
    "layer": 0,
    "layers": [
+    {
+     "id": "lb1fa3aff",
+     "name": "Backdrop",
+     "type": "image",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 0.749,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 24
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Player stats/Layer 1.png",
+     "fit": "fill",
+     "loop": true
+    },
+    {
+     "id": "l7c8de2c9",
+     "name": "Background loop",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "screen",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!BG loop}}",
+     "fit": "cover",
+     "loop": true,
+     "audio": false,
+     "tint": "{{Global!BG loop colour}}",
+     "brightness": "{{Global!BG loop brightness}}",
+     "speed": "{{Global!BG loop speed}}"
+    },
     {
      "id": "l2702e65e",
      "name": "503-5039968_psg-png copy",
@@ -5994,6 +6118,68 @@
    "name": "Player graphic (3)",
    "layer": 0,
    "layers": [
+    {
+     "id": "lda21d66c",
+     "name": "Backdrop",
+     "type": "image",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 0.749,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 24
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Player stats/Layer 1.png",
+     "fit": "fill",
+     "loop": true
+    },
+    {
+     "id": "l7cd566a9",
+     "name": "Background loop",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "screen",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!BG loop}}",
+     "fit": "cover",
+     "loop": true,
+     "audio": false,
+     "tint": "{{Global!BG loop colour}}",
+     "brightness": "{{Global!BG loop brightness}}",
+     "speed": "{{Global!BG loop speed}}"
+    },
     {
      "id": "lad1af08e",
      "name": "503-5039968_psg-png copy",
@@ -6465,6 +6651,68 @@
    "name": "Player graphic (4)",
    "layer": 0,
    "layers": [
+    {
+     "id": "l9d25e60d",
+     "name": "Backdrop",
+     "type": "image",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 0.749,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 24
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Player stats/Layer 1.png",
+     "fit": "fill",
+     "loop": true
+    },
+    {
+     "id": "l29b5b60c",
+     "name": "Background loop",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "screen",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!BG loop}}",
+     "fit": "cover",
+     "loop": true,
+     "audio": false,
+     "tint": "{{Global!BG loop colour}}",
+     "brightness": "{{Global!BG loop brightness}}",
+     "speed": "{{Global!BG loop speed}}"
+    },
     {
      "id": "l16502fa9",
      "name": "503-5039968_psg-png copy",
@@ -7037,6 +7285,68 @@
    "name": "Player graphic (5)",
    "layer": 0,
    "layers": [
+    {
+     "id": "l2359b185",
+     "name": "Backdrop",
+     "type": "image",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 0.749,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 24
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Player stats/Layer 1.png",
+     "fit": "fill",
+     "loop": true
+    },
+    {
+     "id": "l7e6e9ad1",
+     "name": "Background loop",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "screen",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!BG loop}}",
+     "fit": "cover",
+     "loop": true,
+     "audio": false,
+     "tint": "{{Global!BG loop colour}}",
+     "brightness": "{{Global!BG loop brightness}}",
+     "speed": "{{Global!BG loop speed}}"
+    },
     {
      "id": "l156825eb",
      "name": "503-5039968_psg-png",
@@ -7943,9 +8253,12 @@
        "delay": 0
       }
      },
-     "src": "assets/Player stats/Player Image.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Stats!MVP headshot}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Player stats/Player Image.png",
+     "show": "{{Stats!MVP headshot shown}}",
+     "position": "bottom"
     },
     {
      "id": "l4df52c6c",
@@ -8721,9 +9034,12 @@
        "delay": 0
       }
      },
-     "src": "assets/Player stats/FLAG.png",
-     "fit": "fill",
-     "loop": true
+     "src": "{{Stats!MVP flag}}",
+     "fit": "contain",
+     "loop": true,
+     "placeholder": "assets/Player stats/FLAG.png",
+     "show": "{{Stats!MVP flag shown}}",
+     "position": "left"
     },
     {
      "id": "lb0a3c0f1",
@@ -8750,7 +9066,7 @@
        "delay": 0
       }
      },
-     "text": "{{Stats!MVP}}",
+     "text": "{{Stats!MVP name}}",
      "font": "VTFRedzone-Classic",
      "size": 53.9,
      "color": "#ffffff",
@@ -18156,7 +18472,8 @@
    "f5206d0a5a78daf3",
    "d01a05d0e6cb4e2d",
    "850828a972a6c7eb",
-   "d7266d2c9d25a42e"
+   "d7266d2c9d25a42e",
+   "ff552eb95deae327"
   ],
   "Title screen": [
    "a617db4af2bfcbff",
@@ -18175,36 +18492,43 @@
    "8c1dee324e6f133d",
    "2ede72c1889786a4",
    "1a0c171c72af9e04",
-   "a140ba0c516a9dc4"
+   "a140ba0c516a9dc4",
+   "6ce825efb252d4d4"
   ],
   "Player graphic (2)": [
    "f57f5269c6bfdb57",
    "3a1a2bb617fbbb9d",
    "f0fe2829bf41c1ed",
-   "08ba6af9dbcf91b5"
+   "08ba6af9dbcf91b5",
+   "4bce06f4093ca598"
   ],
   "Player graphic (3)": [
    "66f9983151e42156",
    "7c4398f555776ac8",
    "f0a2b509cadf8e6c",
-   "f0691269846090d7"
+   "f0691269846090d7",
+   "f6d73b765f58dda0"
   ],
   "Player graphic (4)": [
    "539fff97b1538910",
    "988e54ae4889c68e",
    "8cb47a567a38599f",
-   "b2dd85c1971346ba"
+   "b2dd85c1971346ba",
+   "2bb2032a7107e174"
   ],
   "Player graphic (5)": [
    "7f5069cf9c4782d0",
    "cc5f4d9f02b8c6f8",
    "f3c576ca8cc480e5",
-   "fce1c73696a66073"
+   "fce1c73696a66073",
+   "5ec78b0bcbd1503c"
   ],
   "Player stats": [
    "7870e4bac7a22c3d",
    "a0685547a7772d37",
-   "29bddf33609addf2"
+   "29bddf33609addf2",
+   "d5dce73c6f590dc8",
+   "89212692f9971a8b"
   ],
   "Group bracket": [
    "277e2bab153a8817",
@@ -18224,7 +18548,8 @@
   "Replay overlay": [
    "0dedc50699b7a414",
    "766398ce0d3c28bf",
-   "dbc84988f70a3292"
+   "dbc84988f70a3292",
+   "6007ac1c81f5c41d"
   ],
   "Sponsor footer": [
    "7bf16bdaabfc4d94",

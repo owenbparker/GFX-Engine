@@ -19,10 +19,15 @@
     <button data-tab="teams">Teams</button>
     <button data-tab="tournament">Tournament</button>
     <button data-tab="schedule">Upcoming Schedule</button>
-    <button data-tab="assets">Assets</button>
-    <button data-tab="data">Data</button>
-    <button data-tab="transitions">Transitions</button>
-    <button data-tab="outputs">Outputs</button>
+    <div class="extras" id="extras">
+      <button class="extras-btn" id="extras-btn" aria-haspopup="true" aria-expanded="false">Extras <span class="caret">▾</span></button>
+      <div class="extras-menu" id="extras-menu" hidden>
+        <button data-tab="assets">Assets</button>
+        <button data-tab="data">Data</button>
+        <button data-tab="transitions">Transitions</button>
+        <button data-tab="outputs">Outputs</button>
+      </div>
+    </div>
   </nav>
   <div class="top-right">
     <span id="net" class="pill" title="Other PCs reach this engine at"></span>
