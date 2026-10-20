@@ -99,6 +99,45 @@
         <p class="muted small">Plays behind the schedule and the other full-screen boards.</p>
       </div>
     </section>
+    <section class="panel g-ticker">
+      <div class="panel-head"><h3>Ticker</h3><span class="muted small">One line each, shown one after another</span></div>
+      <div class="pad">
+        <textarea id="g-ticker" rows="7" placeholder="WELCOME TO ST. CLAIR SAINTS ESPORTS&#10;FOLLOW @SCCSAINTS FOR HIGHLIGHTS"></textarea>
+        <p class="muted small">Every ticker in the graphics scrolls these ({{Global!Ticker}}).</p>
+      </div>
+    </section>
+    <section class="panel g-teams">
+      <div class="panel-head"><h3>Team list</h3>
+        <div class="row-gap">
+          <button class="small" id="t-add">+ Add</button>
+          <button class="small" id="t-import" title="Name, Short name, Logo, Colour columns">Import CSV…</button>
+          <a class="btn small ghost" id="t-export" href="/library/teams.csv" download="teams.csv">Export CSV</a>
+          <input type="file" id="t-import-file" accept=".csv,text/csv" hidden>
+        </div></div>
+      <div class="pad">
+        <input id="t-find" class="search" placeholder="Find a team…">
+        <div id="t-list" class="team-list"></div>
+        <p class="muted small">Every workspace shares this list. Pick from it in each team above and in the tournament. Click a logo to change it.</p>
+      </div>
+    </section>
+    <section class="panel g-tournament">
+      <div class="panel-head"><h3>Tournament</h3><span class="muted small">The bracket graphics show these. Enter the scores and the winners go through.</span></div>
+      <div class="pad tourney">
+        <div class="tn-part">
+          <div class="tn-head"><h4>Knockout bracket</h4>
+            <div class="seg" id="tn-size"><button data-size="8">8 teams</button><button data-size="16">16 teams</button></div>
+            <div class="spacer"></div>
+            <button class="small ghost" id="tn-top-scores" title="Keep the teams, clear every score">Clear scores</button></div>
+          <div id="tn-top" class="tn-rounds"></div>
+        </div>
+        <div class="tn-part">
+          <div class="tn-head"><h4>Groups</h4><div class="spacer"></div>
+            <button class="small ghost" id="tn-group-scores" title="Keep the teams, clear every score">Clear scores</button></div>
+          <div id="tn-groups" class="tn-groups"></div>
+        </div>
+        <datalist id="team-names"></datalist>
+      </div>
+    </section>
     <section class="panel g-custom">
       <div class="panel-head"><h3>More fields</h3><button class="small" id="g-custom-add">+ Add</button></div>
       <div id="g-custom" class="pad"></div>
@@ -168,6 +207,7 @@
         <button class="small" data-add="image" title="Add a picture">🖼</button>
         <button class="small" data-add="video" title="Add a video">▶</button>
         <button class="small" data-add="lottie" title="Add a Lottie (After Effects) animation">✦</button>
+        <select id="add-special" class="small" title="Special elements: the teams' logos, names and scores, the tournament logo, the sponsors… from Global"></select>
       </div></div>
     <div id="layer-list" class="layer-list"></div>
   </aside>
@@ -308,5 +348,6 @@
 <script src="composer.js"></script>
 <script src="pages.js"></script>
 <script src="home.js"></script>
+<script src="tournament.js"></script>
 </body>
 </html>

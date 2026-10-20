@@ -34,6 +34,8 @@ from .log import log, since
 from .media import Jobs, ffmpeg_path, stinger_cut
 from .project import Workspace, blank_comp, blank_layer, new_id
 from .stats import Stats
+from .teams import Teams
+from . import tournament
 from .updater import Updater, clean_up_old_update
 from .workspaces import Workspaces
 
@@ -57,6 +59,7 @@ class Engine:
                                      config.STARTER_DIR if starter is None else starter,
                                      legacy=config.LEGACY_WORKSPACE_DIR if legacy_dir is None else legacy_dir)
         self.library_dir = library_dir or config.LIBRARY_DIR
+        self.teams = Teams(self.library_dir)
         self.jobs = Jobs()
         self.updater = Updater()
         self.server = None
@@ -149,9 +152,11 @@ class Engine:
         snap["tables"]["Global"] = globalcfg.rows(g)
         snap["tables"]["Sponsors"] = globalcfg.sponsor_rows(g)
         snap["tables"]["Stats"] = self.stats.rows({side: g[side]["name"] for side in ("left", "right")})
+        snap["tables"]["Tournament"] = tournament.rows(g["tournament"], self.teams.find)
+        snap["tables"]["Teams"] = self.teams.rows()
         for name, feed in self.feeds.items():
             snap["tables"][name] = feed["rows"]
-        snap["rev"] = f"{snap['rev']}.{self.ws.rev}.{self.feeds_rev}.{int(self.stats.live())}"
+        snap["rev"] = f"{snap['rev']}.{self.ws.rev}.{self.feeds_rev}.{int(self.stats.live())}.{self.teams.rev}"
         snap["now"] = time.time()   # (the outputs line their clocks up with it: the sponsors change together)
         snap["stats"] = {"live": self.stats.live(), "kept": bool(self.stats.data),
                          "from": (self.stats.data or {}).get("source", ""), "at": (self.stats.data or {}).get("at", 0)}
@@ -172,6 +177,7 @@ class Engine:
             "rev": self.ws.rev, "assets_rev": self.assets_rev,
             "project": project, "live": self.live.get(), "data": self.data_snapshot(),
             "global": globalcfg.clean(project.get("global")),
+            "teams": self.teams.list(),
             "fonts": self.assets.fonts(), "jobs": self.jobs.list(), "update": self.updater.info(),
         }
 
@@ -222,6 +228,23 @@ class Engine:
         if side == "bgloop":
             return self.set_global({"bgloop": {"src": rel, "on": True}})
         return self.set_global({side: {"logo": rel}})
+
+    def save_teams(self, teams):
+        out = self.teams.save(teams)
+        self.changed()
+        return out
+
+    def import_teams(self, text):
+        n = self.teams.import_csv(text)
+        self.assets_rev += 1
+        self.changed()
+        return n
+
+    def save_team_logo(self, name, filename, blob):
+        logo = self.teams.save_logo(name, filename, blob)
+        self.assets_rev += 1
+        self.changed()
+        return logo
 
     def ingest(self, body, client):
         """A game HUD's data: its fields (a table named after the HUD) and the
@@ -609,6 +632,16 @@ def make_handler(engine):
                     name = unquote(self.headers.get("X-Filename") or (q.get("name") or [""])[0])
                     fps = float((q.get("fps") or ["0"])[0]) or None
                     return self._json(engine.upload(name, self.rfile, length, fps))
+                if path in ("/api/teams/import", "/api/teams/logo"):
+                    if length > 30 << 20:
+                        raise ValueError("That file is too big (30 MB at most)")
+                    blob = self.rfile.read(length)
+                    if path == "/api/teams/import":
+                        n = engine.import_teams(blob.decode("utf-8-sig", "replace"))
+                        return self._json({"added": n, "teams": engine.teams.list()})
+                    name = unquote(self.headers.get("X-Filename") or (q.get("name") or [""])[0])
+                    logo = engine.save_team_logo((q.get("team") or [""])[0], name, blob)
+                    return self._json({"logo": logo, "teams": engine.teams.list()})
                 if path in ("/api/workspaces/picture", "/api/global/logo"):
                     # (the picture's bytes are the body)
                     name = unquote(self.headers.get("X-Filename") or (q.get("name") or [""])[0])
@@ -653,6 +686,8 @@ def make_handler(engine):
                 # --- global configuration, game HUDs ---
                 elif path == "/api/global":
                     result = {"global": engine.set_global(body.get("global") or {})}
+                elif path == "/api/teams":
+                    result = {"teams": engine.save_teams(body.get("teams") or [])}
                 elif path == "/api/stats/clear":
                     engine.clear_stats()
                 elif path == "/api/ingest":

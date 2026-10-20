@@ -123,7 +123,7 @@ label > input, label > select, label > textarea { margin-top: 3px; color: var(--
 .comp-item .thumb { width: 48px; height: 27px; border-radius: 3px; }
 .comp-item .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .add-layer { display: flex; gap: 3px; }
-.add-layer button { width: 28px; padding: 3px 0; }
+.add-layer button { width: 26px; padding: 3px 0; }
 .layer-list { overflow-y: auto; flex: 1; padding: 6px; }
 .ly { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border-radius: 5px; cursor: pointer; border: 1px solid transparent; user-select: none; }
 .ly:hover { background: var(--panel2); }
@@ -344,3 +344,45 @@ table.sheet td.c:hover { background: #1d3b5e; }
 .field select.link { width: 34px; flex: 0 0 34px; padding: 3px 2px; text-align: center; }
 .team-card .colour-row label { display: flex; flex-direction: column; gap: 3px; }
 .team-card .colour-row label > input { margin-top: 0; }
+
+/* Global: the ticker, the team list, the tournament */
+.global .g-teams { grid-column: span 2; }
+.global .g-tournament { grid-column: 1 / -1; }
+.g-ticker textarea { resize: vertical; font-family: inherit; }
+.team-list { display: flex; flex-direction: column; gap: 6px; max-height: 330px; overflow: auto; margin-top: 8px; padding-right: 4px; }
+.t-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) 90px 40px auto; gap: 6px; align-items: center; }
+.t-row input[type=color] { padding: 2px; height: 32px; }
+.t-logo { width: 40px; height: 40px; border-radius: 6px; border: 1px dashed var(--line2); background: #0f1113 center / contain no-repeat;
+  display: flex; align-items: center; justify-content: center; color: var(--muted); cursor: pointer; }
+.t-logo.has { border-style: solid; }
+.t-logo:hover, .t-logo.over { border-color: var(--gold); }
+.tourney { display: flex; flex-direction: column; gap: 18px; }
+.tn-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.tn-head h4 { margin: 0; font-size: 13px; }
+.tn-rounds { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 6px; }
+.tn-col { display: flex; flex-direction: column; min-width: 230px; flex: 1 0 230px; }
+.tn-col.champ { min-width: 200px; flex: 0 0 200px; }
+.tn-title { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.tn-col-body { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 8px; }
+.tn-match { background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; padding: 4px; display: flex; flex-direction: column; gap: 3px; }
+.tn-slot { display: flex; align-items: center; gap: 5px; min-height: 30px; }
+.tn-logo { flex: 0 0 22px; height: 22px; background: center / contain no-repeat; }
+.tn-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px; }
+.tn-team { flex: 1; padding: 4px 6px; }
+.tn-score { flex: 0 0 42px; width: 42px; text-align: center; padding: 4px; }
+.tn-groups { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.tn-group { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.tn-group .tn-match { background: var(--panel); }
+.tn-gname { font-weight: 700; }
+.tn-seeds { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; }
+.tn-seed { flex: 0 0 10px; }
+.tn-mname { margin: 2px 0 2px 2px; }
+.tn-result { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 8px; align-items: center; padding: 6px 4px 2px; border-top: 1px solid var(--line); }
+.tn-result .tn-name { font-weight: 700; color: var(--gold); }
+@media (max-width: 1300px) { .tn-groups { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 1100px) { .global .g-teams { grid-column: span 2; } }
+
+/* Control: the graphics by kind */
+.rd-group { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 10px 4px 4px; }
+.rd-group:first-child { padding-top: 2px; }
+#add-special { width: 40px; padding: 3px 2px; }

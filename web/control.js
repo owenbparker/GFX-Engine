@@ -194,6 +194,7 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
   });
 
   // The rundown.
+  const KIND_TITLES = [["board", "Full-page boards"], ["lower third", "Lower thirds"], ["overlay", "Overlays"]];
   const filter = $("#rundown-filter");
   filter.addEventListener("input", () => renderRundown(App.state, true));
   let dragId = null;
@@ -203,41 +204,49 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const comps = s.project.compositions.filter(c => !q || c.name.toLowerCase().includes(q));
     const pv = s.live.preview, pg = s.live.program;
     if (!selected || !App.comp(selected)) selected = comps[0] && comps[0].id;
-    const sig = JSON.stringify([comps.map(c => [c.id, c.name, c.layers]), pv.on, pg.on, pv.values, selected]);
+    const sig = JSON.stringify([comps.map(c => [c.id, c.name, c.kind, c.layers]), pv.on, pg.on, pv.values, selected]);
     if (!force && list.dataset.sig === sig) return;
     list.dataset.sig = sig;
     if (!comps.length) {
       list.replaceChildren(h("div", { class: "empty" }, q ? "Nothing matches." : "No graphics yet. Make one in Composer, or add a Photoshop file in Assets."));
       return;
     }
-    list.replaceChildren(...comps.map(c => {
-      const onPvw = pv.on.includes(c.id), onPgm = pg.on.includes(c.id);
-      const nFields = App.fields(c).length;
-      const row = h("div", {
-        class: `rd${onPvw ? " on-pvw" : ""}${onPgm ? " on-pgm" : ""}${c.id === selected ? " sel" : ""}`, draggable: true,
-        onclick: () => select(c.id),
-        ondblclick: () => api("/api/cue", { id: c.id, on: !onPvw }),
-        ondragstart: e => { dragId = c.id; e.dataTransfer.effectAllowed = "move"; },
-        ondragover: e => { e.preventDefault(); },
-        ondrop: e => {
-          e.preventDefault();
-          if (!dragId || dragId === c.id) return;
-          const ids = App.comps().map(x => x.id).filter(x => x !== dragId);
-          ids.splice(ids.indexOf(c.id), 0, dragId);
-          api("/api/comp/order", { ids });
-        },
+    // Full-page boards, lower thirds, overlays: one board and one lower third on air at a time.
+    const rows = [];
+    for (const [kind, title] of KIND_TITLES) {
+      const these = comps.filter(c => (c.kind || "overlay") === kind);
+      if (!these.length) continue;
+      rows.push(h("div", { class: "rd-group" }, title), ...these.map(row));
+    }
+    list.replaceChildren(...rows);
+  }
+  function row(c) {
+    const pv = App.state.live.preview, pg = App.state.live.program;
+    const onPvw = pv.on.includes(c.id), onPgm = pg.on.includes(c.id);
+    const nFields = App.fields(c).length;
+    return h("div", {
+      class: `rd${onPvw ? " on-pvw" : ""}${onPgm ? " on-pgm" : ""}${c.id === selected ? " sel" : ""}`, draggable: true,
+      onclick: () => select(c.id),
+      ondblclick: () => api("/api/cue", { id: c.id, on: !onPvw }),
+      ondragstart: e => { dragId = c.id; e.dataTransfer.effectAllowed = "move"; },
+      ondragover: e => { e.preventDefault(); },
+      ondrop: e => {
+        e.preventDefault();
+        if (!dragId || dragId === c.id) return;
+        const ids = App.comps().map(x => x.id).filter(x => x !== dragId);
+        ids.splice(ids.indexOf(c.id), 0, dragId);
+        api("/api/comp/order", { ids });
       },
-        h("div", { class: "bar" }),
-        thumb(c, pv.values[c.id], 112),
-        h("div", { style: { minWidth: 0 } }, h("div", { class: "name" }, c.name),
-          h("div", { class: "sub" }, `${nFields} field${nFields === 1 ? "" : "s"}`, onPgm ? " · ON AIR" : onPvw ? " · on preview" : "")),
-        h("div", { class: "btns" },
-          h("button", { class: "pvw-btn" + (onPvw ? " on" : ""), title: "On / off Preview (double-click the row)",
-            onclick: e => { e.stopPropagation(); api("/api/cue", { id: c.id, on: !onPvw }); } }, "PVW"),
-          h("button", { class: "in-btn" + (onPgm ? " on" : ""), title: onPgm ? "Take it off air (its Out animation)" : "Straight on air (its In animation), leaving the rest",
-            onclick: e => { e.stopPropagation(); api("/api/program", { id: c.id, on: !onPgm }); } }, onPgm ? "OUT" : "IN")));
-      return row;
-    }));
+    },
+      h("div", { class: "bar" }),
+      thumb(c, pv.values[c.id], 112),
+      h("div", { style: { minWidth: 0 } }, h("div", { class: "name" }, c.name),
+        h("div", { class: "sub" }, `${nFields} field${nFields === 1 ? "" : "s"}`, onPgm ? " · ON AIR" : onPvw ? " · on preview" : "")),
+      h("div", { class: "btns" },
+        h("button", { class: "pvw-btn" + (onPvw ? " on" : ""), title: "On / off Preview (double-click the row)",
+          onclick: e => { e.stopPropagation(); api("/api/cue", { id: c.id, on: !onPvw }); } }, "PVW"),
+        h("button", { class: "in-btn" + (onPgm ? " on" : ""), title: onPgm ? "Take it off air (its Out animation)" : "Straight on air (its In animation): a board or lower third replaces the one on air, the rest stays",
+          onclick: e => { e.stopPropagation(); api("/api/program", { id: c.id, on: !onPgm }); } }, onPgm ? "OUT" : "IN")));
   }
   function select(id) {
     selected = id;
@@ -284,9 +293,11 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const differs = onAir && fields.some(l => (pvVals[l.field] ?? "") !== (pgVals[l.field] ?? ""));
     $("#fields-send").classList.toggle("differs", differs);
     $("#fields-send").disabled = !fields.length;
-    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev,
+    const bracket = comp.layers.some(l => l.type === "bracket");
+    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket,
       Object.keys(s.data.feeds || {}), (s.data.tables.Global || []).map(r => r[0])]);
     if (!force && box.dataset.sig === sig) {
+      if (bracket) markSize(box, s);
       // Same fields: only bring in values changed elsewhere (not the one being typed in).
       for (const l of fields) {
         const input = box.querySelector(`[data-field="${CSS.escape(l.field)}"]`);
@@ -303,7 +314,7 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     }
     box.dataset.sig = sig;
     if (!fields.length) {
-      box.replaceChildren(h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here."));
+      box.replaceChildren(bracket ? sizeField(s) : h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here."));
       return;
     }
     box.replaceChildren(...fields.map(l => {
@@ -335,6 +346,26 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
           h("button", { class: "ghost small", title: "Back to the design's own", onclick: () => { input.value = ""; push(comp.id, l.field, null); updateResolved(res, l, ""); } }, "↺")),
         res);
     }));
+    if (bracket) box.prepend(sizeField(s));
+  }
+  // A knockout bracket: how many teams (the tournament's, in Global; changes it on air too).
+  function sizeField(s) {
+    const set = size => {
+      const t = JSON.parse(JSON.stringify(App.state.global.tournament));
+      t.top.size = size;
+      api("/api/global", { global: { tournament: t } });
+    };
+    const el = h("div", { class: "field bracket-size" },
+      h("label", {}, "Teams in the bracket", h("span", { class: "kind" }, "tournament")),
+      h("select", { "data-k": "size", onchange: e => set(+e.target.value) }, ...[8, 16].map(n => h("option", { value: n }, `${n} teams`))),
+      h("div", { class: "resolved" }, "The teams and scores are in Global > Tournament. This changes the bracket on air too."));
+    markSize(el, s);
+    return el;
+  }
+  function markSize(el, s) {
+    const size = ((s.global.tournament || {}).top || {}).size || 8;
+    const sel = el.querySelector("[data-k=size]");
+    if (sel && document.activeElement !== sel) sel.value = String(size);
   }
   function linkOptions(s, type) {
     const out = [h("option", { value: "" }, "⛓")];

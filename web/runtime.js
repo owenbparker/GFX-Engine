@@ -64,7 +64,7 @@
 
   // --- data and fields -----------------------------------------------------------
   const ctx = { tables: {} };
-  GFX.setData = function (tables) { ctx.tables = tables || {}; GFX.retext(); tickRotators(); };
+  GFX.setData = function (tables) { ctx.tables = tables || {}; GFX.retext(); tickRotators(); redrawBrackets(); };
   // The engine's clock (seconds), so every output changes sponsor at the same moment.
   let clockOffset = 0;
   GFX.setClock = function (engineNow) { if (engineNow) clockOffset = engineNow * 1000 - Date.now(); };
@@ -188,6 +188,7 @@
     const t = layer.type;
     if (t === "image" && value === "{{Sponsors}}") return sponsorBox(layer, opts);
     if (t === "video" && layer.tint) return tintedVideo(layer, value, opts);
+    if (t === "bracket") return bracketBox(layer);
     if (t === "image") {
       if (!value) return el("div");
       const img = el("img", "gfx-media", { objectFit: fitOf(layer.fit) });
@@ -230,6 +231,105 @@
     v.addEventListener("error", () => { v.remove(); tint.remove(); });
     box.append(v, tint);
     return box;
+  }
+
+  // --- the knockout bracket: drawn from the "Tournament" data, for 8 or 16
+  // teams ({{Tournament!Top teams}}), in the layer's box. The first round's
+  // slots are gold, the later ones dark, the champion's outlined; a slot shows
+  // the team's logo, name and score, and the team that lost is dimmed.
+  const brackets = new Set();
+  function bracketBox(layer) {
+    const box = el("div", "gfx-media gfx-bracket");
+    box._layer = layer;
+    brackets.add(box);
+    drawBracket(box);
+    return box;
+  }
+  function redrawBrackets() {
+    for (const b of brackets) { if (!b.isConnected && b._seen) brackets.delete(b); else { if (b.isConnected) b._seen = true; drawBracket(b); } }
+  }
+  function drawBracket(box) {
+    const layer = box._layer;
+    const rows = (ctx.tables.Tournament || []).filter(r => /^Top /.test(r[0] || ""));
+    const size = +GFX.lookup(rows, "Top teams") === 16 ? 16 : 8;
+    const key = JSON.stringify([rows, layer.w, layer.h, layer.font, layer.color, layer.gold, layer.line]);
+    if (box._key === key) return;
+    box._key = key;
+    box.textContent = "";
+    const get = k => GFX.lookup(rows, k);
+    const Wd = layer.w, Ht = layer.h, rounds = Math.log2(size);
+    const sw = Wd * (size === 16 ? 0.17 : 0.196), cw = Wd * (size === 16 ? 0.25 : 0.278);
+    const gap = (Wd - rounds * sw - cw) / rounds;
+    const unit = Ht / (size / 2);
+    const sh = Math.min(Ht * 0.08, unit * 0.34), g = sh / 6;
+    const gold = layer.gold || "#b28a1d", dark = layer.dark || "#000b05", line = layer.line || gold;
+    const [family, weight] = GFX.fontFor(layer);
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("width", Wd); svg.setAttribute("height", Ht);
+    Object.assign(svg.style, { position: "absolute", left: 0, top: 0, overflow: "visible" });
+    box.appendChild(svg);
+    const path = d => { const p = document.createElementNS(svgNS, "path"); p.setAttribute("d", d); p.setAttribute("fill", "none");
+      p.setAttribute("stroke", line); p.setAttribute("stroke-width", Math.max(2, sh / 18)); svg.appendChild(p); };
+    function slot(x, y, w, hgt, team, score, fill, lost, big) {
+      const s = el("div", "gfx-bk-slot", { left: x + "px", top: y + "px", width: w + "px", height: hgt + "px", background: fill,
+        opacity: lost ? 0.5 : 1, fontFamily: family, fontWeight: weight, color: layer.color || "#ffffff" });
+      const name = get(team), logo = get(team + " logo");
+      const sq = big ? 0 : hgt * 0.67;
+      if (logo) {
+        const img = el("img", "gfx-bk-logo", { width: hgt * 0.8 + "px", height: hgt * 0.8 + "px", left: hgt * 0.12 + "px", top: hgt * 0.1 + "px" });
+        img.src = url(encodeURI(logo));
+        s.appendChild(img);
+      }
+      const left = logo ? hgt * 1.05 : hgt * 0.25;
+      const nameBox = el("div", "gfx-bk-name", { left: left + "px", right: sq + hgt * 0.2 + "px", fontSize: hgt * (big ? 0.42 : 0.6) + "px",
+        justifyContent: big ? "center" : "flex-start" });
+      nameBox.textContent = name;
+      s.appendChild(nameBox);
+      if (!big) {
+        const sc = el("div", "gfx-bk-score", { width: sq + "px", fontSize: hgt * 0.6 + "px" });
+        sc.textContent = get(score);
+        s.appendChild(sc);
+      }
+      box.appendChild(s);
+      // (too long: narrower)
+      requestAnimationFrame(() => { const k = nameBox.clientWidth / (nameBox.scrollWidth || 1); if (k < 1) nameBox.style.fontSize = parseFloat(nameBox.style.fontSize) * Math.max(0.5, k) + "px"; });
+    }
+    let centres = [];
+    for (let r = 0; r < rounds; r++) {
+      const n = size >> (r + 1), x = r * (sw + gap), next = [];
+      for (let m = 0; m < n; m++) {
+        const cy = r === 0 ? unit * (m + 0.5) : (centres[2 * m] + centres[2 * m + 1]) / 2;
+        next.push(cy);
+        const k = `Top R${r + 1} M${m + 1}`;
+        const winner = get(r + 1 < rounds ? `Top R${r + 2} M${(m >> 1) + 1} team ${(m & 1) + 1}` : "Top champion");
+        for (let t = 0; t < 2; t++) {
+          const team = `${k} team ${t + 1}`;
+          const lost = !!winner && !!get(team) && get(team) !== winner;
+          slot(x, t ? cy + g / 2 : cy - g / 2 - sh, sw, sh, team, team + " score", r === 0 ? gold : dark, lost);
+        }
+        if (r + 1 === rounds) path(`M${x + sw + 4} ${cy}H${x + sw + gap - 4}`);   // (on to the champion)
+      }
+      if (r + 1 < rounds) {
+        // The line on to where the winner goes: the next round's matches sit
+        // between the two that feed them.
+        for (let m = 0; m < n; m++) {
+          const cy = next[m], pair = m >> 1, side = m & 1;
+          const ny = (next[2 * pair] + next[2 * pair + 1]) / 2;
+          const ty = side ? ny + g / 2 + sh / 2 : ny - g / 2 - sh / 2;
+          const x1 = x + sw + 4, x2 = x + sw + gap - 4, xm = (x1 + x2) / 2;
+          path(`M${x1} ${cy}H${xm}V${ty}H${x2}`);
+        }
+      }
+      centres = next;
+    }
+    // The champion.
+    const cx = rounds * (sw + gap), ch = sh * 2.4, cy = centres[0];
+    const frame = el("div", "gfx-bk-champ", { left: cx + "px", top: cy - ch / 2 + "px", width: cw + "px", height: ch + "px",
+      borderColor: layer.champ || "#ffc52a", borderWidth: Math.max(2, sh / 14) + "px" });
+    box.appendChild(frame);
+    const pad = ch * 0.1;
+    slot(cx + pad, cy - ch / 2 + pad, cw - 2 * pad, ch - 2 * pad, "Top champion", "", dark, false, true);
   }
 
   function buildOther(layer, value, opts) {
@@ -659,6 +759,12 @@
     .gfx-rot{overflow:visible}
     .gfx-rot-img{position:absolute;inset:0;width:100%;height:100%;display:block}
     .gfx-rot-bar{position:absolute;left:0;right:0;bottom:-8px;height:3px;background:currentColor;color:#f5c518;transform-origin:0 50%;opacity:.85}
+    .gfx-bracket{overflow:visible}
+    .gfx-bk-slot{position:absolute;box-sizing:border-box;overflow:hidden;transition:opacity .4s}
+    .gfx-bk-logo{position:absolute;object-fit:contain}
+    .gfx-bk-name{position:absolute;top:0;bottom:0;display:flex;align-items:center;white-space:nowrap;text-transform:uppercase;letter-spacing:-.01em;overflow:hidden}
+    .gfx-bk-score{position:absolute;right:0;top:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center}
+    .gfx-bk-champ{position:absolute;box-sizing:border-box;border-style:solid}
     .gfx-cover{position:absolute;inset:0;z-index:9000}
     .gfx-stinger{position:absolute;inset:0;width:100%;height:100%;z-index:9500;visibility:hidden;object-fit:cover;pointer-events:none}
   `;

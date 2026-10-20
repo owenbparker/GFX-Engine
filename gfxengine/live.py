@@ -1,10 +1,14 @@
 """What's on air: the Preview and Program buses.
 
 Each bus has the graphics that are on it and the field values they show.
-Graphics are cued up and edited on Preview, then Take puts Preview on
-Program with a transition (cut, fade, stinger...). A graphic can also be
-taken in or out of Program on its own, and its new values sent to air
+Graphics are cued up and edited on Preview, then Take puts them on Program
+with a transition (cut, fade, stinger...) and clears Preview. A graphic can
+also be taken in or out of Program on its own, and its new values sent to air
 without a transition.
+
+Graphics are full-page boards, lower thirds or overlays (the graphic's
+"kind"). A bus shows one board and one lower third at a time (a new one
+replaces the one there), and any number of overlays (scorebug, ticker...).
 
     {"preview": {"on": [comp ids], "values": {comp id: {field: value}}},
      "program": {...same...},
@@ -21,6 +25,8 @@ import threading
 import time
 
 BUSES = ("preview", "program")
+KINDS = ("board", "lower third", "overlay")
+ONE_AT_A_TIME = ("board", "lower third")
 
 
 def _bus():
@@ -76,6 +82,19 @@ class Live:
         graphic's own animation."""
         return self.ws.transition(tid) or {"id": "animate", "type": "animate"}
 
+    def _with(self, on, new):
+        """on, plus the graphics in new: each board or lower third in new
+        replaces the one of its kind in on."""
+        kinds = {c["id"]: c.get("kind") or "overlay" for c in self.ws.get()["compositions"]}
+        out = list(on)
+        for cid in new:
+            kind = kinds.get(cid)
+            if kind in ONE_AT_A_TIME:
+                out = [i for i in out if kinds.get(i) != kind]
+            if cid not in out:
+                out.append(cid)
+        return self._order(out)
+
     def _order(self, ids):
         """ids in the project's order (which is also their stacking order)."""
         order = [c["id"] for c in self.ws.get()["compositions"]]
@@ -88,9 +107,8 @@ class Live:
         if cid not in self._ids():
             raise KeyError("No such graphic")
         with self.lock:
-            on_now = set(self.state["preview"]["on"])
-            on_now.add(cid) if on else on_now.discard(cid)
-            self.state["preview"]["on"] = self._order(on_now)
+            on_now = self.state["preview"]["on"]
+            self.state["preview"]["on"] = self._with(on_now, [cid]) if on else [i for i in on_now if i != cid]
             self.state["preview"]["seq"] += 1
         self._changed()
 
@@ -123,12 +141,19 @@ class Live:
     # --- Program -------------------------------------------------------
 
     def take(self, transition=None):
-        """Preview goes to Program with a transition."""
+        """What's on Preview goes to Program with a transition (replacing the
+        board or lower third there), and comes off Preview."""
         t = self._transition(transition)
         with self.lock:
-            self.state["program"]["on"] = list(self.state["preview"]["on"])
-            self.state["program"]["values"] = copy.deepcopy(self.state["preview"]["values"])
+            cued = list(self.state["preview"]["on"])
+            if not cued:
+                return t
+            self.state["program"]["on"] = self._with(self.state["program"]["on"], cued)
+            for cid in cued:
+                self.state["program"]["values"][cid] = copy.deepcopy(self.state["preview"]["values"].get(cid, {}))
             self.state["program"]["seq"] += 1
+            self.state["preview"]["on"] = []
+            self.state["preview"]["seq"] += 1
             self._bump_take(t, None)
         self._changed()
         return t
@@ -139,15 +164,18 @@ class Live:
             raise KeyError("No such graphic")
         t = self._quick(transition)
         with self.lock:
-            on_now = set(self.state["program"]["on"])
+            on_now = self.state["program"]["on"]
             if on:
-                on_now.add(cid)
-                # Goes on air with what it shows on Preview.
+                on_now = self._with(on_now, [cid])
+                # Goes on air with what it shows on Preview (and comes off Preview).
                 if cid in self.state["preview"]["values"]:
                     self.state["program"]["values"][cid] = copy.deepcopy(self.state["preview"]["values"][cid])
+                if cid in self.state["preview"]["on"]:
+                    self.state["preview"]["on"].remove(cid)
+                    self.state["preview"]["seq"] += 1
             else:
-                on_now.discard(cid)
-            self.state["program"]["on"] = self._order(on_now)
+                on_now = [i for i in on_now if i != cid]
+            self.state["program"]["on"] = on_now
             self.state["program"]["seq"] += 1
             self._bump_take(t, [cid])
         self._changed()

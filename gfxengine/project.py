@@ -7,6 +7,7 @@ sources, and the asset files they use.
 A composition is a 1920x1080 graphic made of layers, bottom to top:
 
     {"id", "name", "layer": 0 (stacking on the output: higher is in front),
+     "kind": "board" | "lower third" | "overlay" (one board and one lower third on air at a time),
      "layers": [{"id", "name", "type": "image" | "video" | "text" | "rect" | "lottie",
                  "x", "y", "w", "h", "opacity", "rotation", "visible", "blend",
                  "field": "" (the name it's edited by in Control; "" = fixed),

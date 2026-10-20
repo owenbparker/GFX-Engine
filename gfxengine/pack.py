@@ -77,6 +77,9 @@ def upgrade(ws, starter):
                 copy_files({"src": sp["logo"]}, starter, ws)
             g["sponsors"] = copy.deepcopy(pg["sponsors"])
             changed_global = True
+        if "ticker" not in g and pg.get("ticker"):
+            g["ticker"] = list(pg["ticker"])
+            changed_global = True
         if changed_global:
             ws.data["global"] = g
         if done or changed_global:

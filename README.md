@@ -24,16 +24,23 @@ list of graphics and the selected graphic's fields.
 
 - **PVW** puts a graphic on Preview (or double-click it). Type in its fields
   on the right: Preview changes as you type.
-- **TAKE** (Space) puts Preview on Program with the transition picked above it
-  (1–9 pick one); **CUT** (Enter) does it at once.
+- **TAKE** (Space) puts what's on Preview on Program with the transition
+  picked above it (1–9 pick one), and clears Preview; **CUT** (Enter) does it at once.
 - **IN / OUT** takes one graphic straight on or off air with its own
   animation, leaving the rest alone.
+- Graphics are listed as **full-page boards**, **lower thirds** and
+  **overlays** (Composer sets which). One board and one lower third can be on
+  air at a time, together: taking another board replaces the board, another
+  lower third replaces the lower third, and overlays (scorebug, replay) stay.
 - **Update on air** sends the fields' new values to Program without a transition.
 
 **Composer**: make and edit graphics. Pick a graphic on the left and its layers
 below it; drag on the canvas to move, handles to resize (snaps to the edges,
 the middle and other layers). On the right: the layer's position, look, and
 In / Out animation. Give a layer a **field** name to change it from Control.
+**★** adds a special element that follows Global: the left or right team's
+logo, name, short name, score or colour, the tournament logo, the sponsors,
+the ticker, the background loop or the knockout bracket.
 
 **Assets**: everything the graphics use. Drop files anywhere on the window:
 
@@ -102,6 +109,22 @@ loop**, which every SCC graphic uses, so changing them here changes them all:
 - The background loop plays behind the full-screen boards (schedule, stats,
   brackets). Turn it off, pick its colour, brightness and speed, or drop in
   another video.
+
+The **ticker** has the lines every ticker scrolls (`{{Global!Ticker}}`).
+
+The **team list** (shared by every workspace, kept in `library/teams.csv`)
+has each team's name, short name, logo and colour. Import or export it as a
+CSV (Name, Short name, Logo, Colour), pick a team for each side from it, or
+save a side's team to it. The tournament's team boxes suggest names from it,
+and the brackets show each team's logo.
+
+The **tournament** fills in the bracket graphics: the knockout bracket (8 or
+16 teams: the Top 8 bracket graphic redraws itself for 16, and its Control
+fields have the choice) and four groups played GSL style (two opening
+matches, winners', elimination and decider). Enter the teams and the scores,
+and the winners go through by themselves; the final four shows the
+knockout's last two rounds. In graphics: `{{Tournament!Top R1 M1 team 1}}`,
+`{{Tournament!Top champion}}`, `{{Tournament!Group A 1st}}`...
 
 The SCC graphics in a workspace are brought up to date when the engine has
 newer versions of them, unless you've changed them in Composer.

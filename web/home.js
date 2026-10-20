@@ -168,11 +168,45 @@ App.on(s => {
         drop, fileIn,
         h("div", { class: "row-gap", style: { justifyContent: "center" } },
           h("button", { class: "ghost small", "data-k": "logo-clear", onclick: () => { g[side].logo = ""; change({ [side]: { logo: "" } }); render(true); } }, "Remove logo")),
-        h("label", {}, "Name", input("name", { placeholder: side === "left" ? "e.g. St. Clair Saints" : "e.g. George Mason" })),
+        h("label", {}, "From the team list", h("select", { class: "t-pick", "data-k": "pick", onchange: e => pickTeam(side, e.target.value) })),
+        h("label", {}, "Name", input("name", { placeholder: side === "left" ? "e.g. St. Clair Saints" : "e.g. George Mason", list: "team-names" })),
         h("div", { class: "colour-row" },
           h("label", { style: { flex: 1 } }, "Short name", input("short", { placeholder: "e.g. SCC", maxlength: 8 })),
-          h("label", {}, "Colour", input("color", { type: "color" })))));
+          h("label", {}, "Colour", input("color", { type: "color" }))),
+        h("div", { class: "row-gap", style: { justifyContent: "flex-end", marginTop: "8px" } },
+          h("button", { class: "ghost small", title: "Add this team (or its changes) to the list every workspace shares", onclick: () => saveToList(side) }, "Save to the team list"))));
     return card;
+  }
+  // A team from the shared list fills this side in.
+  function pickTeam(side, name) {
+    const tm = (App.state.teams || []).find(x => x.name === name);
+    if (!tm) return;
+    const changes = { name: tm.name, short: tm.short || g[side].short, logo: tm.logo || "" };
+    if (tm.color) changes.color = tm.color;
+    Object.assign(g[side], changes);
+    change({ [side]: changes });
+    render(true);
+  }
+  async function saveToList(side) {
+    const t = g[side];
+    if (!t.name.trim()) return toast("Give the team a name first", true);
+    const list = (App.state.teams || []).map(x => Object.assign({}, x));
+    const i = list.findIndex(x => x.name.toLowerCase() === t.name.trim().toLowerCase());
+    const entry = { name: t.name.trim(), short: t.short || "", logo: t.logo || "", color: t.color || "" };
+    if (i >= 0) list[i] = entry; else list.push(entry);
+    await api("/api/teams", { teams: list });
+    toast(i >= 0 ? `${entry.name} updated in the team list` : `${entry.name} added to the team list`);
+  }
+  function renderPickers() {
+    const names = (App.state.teams || []).map(x => x.name).filter(Boolean);
+    for (const side of ["left", "right"]) {
+      const sel = cards[side].querySelector("[data-k=pick]");
+      const sig = JSON.stringify([names, g[side].name]);
+      if (sel.dataset.sig === sig) continue;
+      sel.dataset.sig = sig;
+      sel.replaceChildren(h("option", { value: "" }, names.length ? "Pick a team…" : "(the team list is empty)"),
+        ...names.map(n => h("option", { value: n, selected: n === g[side].name }, n)));
+    }
   }
   async function uploadLogo(side, file) {
     const r = await postFile(`/api/global/logo?side=${side}`, file);
@@ -390,6 +424,7 @@ App.on(s => {
   function render(force) {
     const s = App.state;
     if (!g || force) g = JSON.parse(JSON.stringify(g || s.global));
+    renderPickers();
     for (const side of ["left", "right"]) {
       const card = cards[side], t = g[side];
       for (const input of card.querySelectorAll("input[data-k]")) {
@@ -424,7 +459,7 @@ App.on(s => {
       lastGlobal = sig;
       if (!Object.keys(queued).length) g = JSON.parse(JSON.stringify(s.global));
       if (App.tab === "global") render();
-    } else if (App.tab === "global") { renderFeeds(s); renderStats(s); }
+    } else if (App.tab === "global") { renderFeeds(s); renderStats(s); renderPickers(); }
   });
   pages.global = { shown() { if (App.state) { g = JSON.parse(JSON.stringify(App.state.global)); render(true); } } };
 })();

@@ -558,7 +558,7 @@
        "delay": 0
       }
      },
-     "text": "{{Match!Ticker}}",
+     "text": "{{Global!Ticker}}",
      "font": "Gotham-Medium",
      "size": 28.0,
      "color": "#ffffff",
@@ -1414,7 +1414,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   },
   {
    "id": "c2412b52d",
@@ -1852,7 +1853,7 @@
        "delay": 0
       }
      },
-     "text": "{{Match!Ticker}}",
+     "text": "{{Global!Ticker}}",
      "font": "Gotham-Medium",
      "size": 28.0,
      "color": "#ffffff",
@@ -2198,7 +2199,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "overlay"
   },
   {
    "id": "c586fbc50",
@@ -2374,7 +2376,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "lower third"
   },
   {
    "id": "cb778ca51",
@@ -5339,7 +5342,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   },
   {
    "id": "ccbc0eef9",
@@ -5783,7 +5787,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   },
   {
    "id": "ca89e1131",
@@ -6227,7 +6232,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   },
   {
    "id": "c71dc0d47",
@@ -6422,7 +6428,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   },
   {
    "id": "ca52826a4",
@@ -6657,7 +6664,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   },
   {
    "id": "c6fde6f66",
@@ -6961,7 +6969,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   },
   {
    "id": "c6b0a9694",
@@ -7334,7 +7343,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   },
   {
    "id": "c716be057",
@@ -7776,7 +7786,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   },
   {
    "id": "cc74a10eb",
@@ -8287,7 +8298,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   },
   {
    "id": "c4e36141a",
@@ -9495,7 +9507,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   },
   {
    "id": "c53ee5ed0",
@@ -9710,6 +9723,46 @@
      "loop": true
     },
     {
+     "id": "l809e374a",
+     "name": "Group D 2nd",
+     "type": "text",
+     "x": 1601,
+     "y": 880,
+     "w": 214,
+     "h": 42,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D 2nd}}",
+     "font": "Redzone-Standard",
+     "size": 30,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 25.8
+    },
+    {
      "id": "l0a4b8950",
      "name": "Rectangle 3",
      "type": "image",
@@ -9737,6 +9790,46 @@
      "src": "assets/Group bracket/Rectangle 3.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l38ae3c26",
+     "name": "Group D 1st",
+     "type": "text",
+     "x": 1601,
+     "y": 710,
+     "w": 214,
+     "h": 42,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D 1st}}",
+     "font": "Redzone-Standard",
+     "size": 30,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 25.8
     },
     {
      "id": "l6fd29641",
@@ -9768,6 +9861,86 @@
      "loop": true
     },
     {
+     "id": "lc9098b53",
+     "name": "Group D Decider team 2 score",
+     "type": "text",
+     "x": 1472,
+     "y": 908,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Decider team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l36162ba9",
+     "name": "Group D Decider team 2",
+     "type": "text",
+     "x": 1323,
+     "y": 908,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Decider team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "l4e6059ad",
      "name": "Position 3",
      "type": "image",
@@ -9795,6 +9968,86 @@
      "src": "assets/Group bracket/Position 3.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "lee233b10",
+     "name": "Group D Decider team 1 score",
+     "type": "text",
+     "x": 1472,
+     "y": 866,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Decider team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "lfec075de",
+     "name": "Group D Decider team 1",
+     "type": "text",
+     "x": 1323,
+     "y": 866,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Decider team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "l7efb19e2",
@@ -9826,6 +10079,86 @@
      "loop": true
     },
     {
+     "id": "l7e819fbc",
+     "name": "Group D Winners team 2 score",
+     "type": "text",
+     "x": 1472,
+     "y": 735,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Winners team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l27cc7b52",
+     "name": "Group D Winners team 2",
+     "type": "text",
+     "x": 1323,
+     "y": 735,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Winners team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "lda6cee12",
      "name": "Position 1",
      "type": "image",
@@ -9853,6 +10186,86 @@
      "src": "assets/Group bracket/Position 1.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l334bee08",
+     "name": "Group D Winners team 1 score",
+     "type": "text",
+     "x": 1472,
+     "y": 693,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Winners team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l3c6e6b62",
+     "name": "Group D Winners team 1",
+     "type": "text",
+     "x": 1323,
+     "y": 693,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Winners team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "l345460a5",
@@ -9884,6 +10297,86 @@
      "loop": true
     },
     {
+     "id": "l54512180",
+     "name": "Group D Elimination team 2 score",
+     "type": "text",
+     "x": 1258,
+     "y": 908,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Elimination team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l44c4757a",
+     "name": "Group D Elimination team 2",
+     "type": "text",
+     "x": 1109,
+     "y": 908,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Elimination team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "l086ed499",
      "name": "Position 5",
      "type": "image",
@@ -9911,6 +10404,86 @@
      "src": "assets/Group bracket/Position 5.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l1d1a2fd7",
+     "name": "Group D Elimination team 1 score",
+     "type": "text",
+     "x": 1258,
+     "y": 866,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Elimination team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l79e3627d",
+     "name": "Group D Elimination team 1",
+     "type": "text",
+     "x": 1109,
+     "y": 866,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Elimination team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "l6edbfdf3",
@@ -9942,6 +10515,86 @@
      "loop": true
     },
     {
+     "id": "l31d7af51",
+     "name": "Group D Opening 2 team 2 score",
+     "type": "text",
+     "x": 1258,
+     "y": 792,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Opening 2 team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l14e761f2",
+     "name": "Group D Opening 2 team 2",
+     "type": "text",
+     "x": 1109,
+     "y": 792,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Opening 2 team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "l795561b6",
      "name": "Position 3",
      "type": "image",
@@ -9969,6 +10622,86 @@
      "src": "assets/Group bracket/Position 3-2.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "le3770e83",
+     "name": "Group D Opening 2 team 1 score",
+     "type": "text",
+     "x": 1258,
+     "y": 752,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Opening 2 team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l10309d20",
+     "name": "Group D Opening 2 team 1",
+     "type": "text",
+     "x": 1109,
+     "y": 752,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Opening 2 team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "l1f8c15d5",
@@ -10000,6 +10733,86 @@
      "loop": true
     },
     {
+     "id": "ld4434141",
+     "name": "Group D Opening 1 team 2 score",
+     "type": "text",
+     "x": 1258,
+     "y": 674,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Opening 1 team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "le3727855",
+     "name": "Group D Opening 1 team 2",
+     "type": "text",
+     "x": 1109,
+     "y": 674,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Opening 1 team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "l0917db48",
      "name": "Position 1",
      "type": "image",
@@ -10027,6 +10840,86 @@
      "src": "assets/Group bracket/Position 1-2.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "ld93a3d1c",
+     "name": "Group D Opening 1 team 1 score",
+     "type": "text",
+     "x": 1258,
+     "y": 633,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Opening 1 team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l5f3ff538",
+     "name": "Group D Opening 1 team 1",
+     "type": "text",
+     "x": 1109,
+     "y": 633,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group D Opening 1 team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "l0465c4f9",
@@ -10256,7 +11149,7 @@
        "delay": 0
       }
      },
-     "text": "GROUP D",
+     "text": "{{Tournament!Group D name}}",
      "font": "Redzone-Standard",
      "size": 34.84,
      "color": "#ffffff",
@@ -10301,6 +11194,46 @@
      "loop": true
     },
     {
+     "id": "ld2cde5e9",
+     "name": "Group C 2nd",
+     "type": "text",
+     "x": 1601,
+     "y": 452,
+     "w": 214,
+     "h": 42,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C 2nd}}",
+     "font": "Redzone-Standard",
+     "size": 30,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 25.8
+    },
+    {
      "id": "lc4dba9d3",
      "name": "Rectangle 3",
      "type": "image",
@@ -10328,6 +11261,46 @@
      "src": "assets/Group bracket/Rectangle 3-2.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l0ab4ee20",
+     "name": "Group C 1st",
+     "type": "text",
+     "x": 1601,
+     "y": 283,
+     "w": 214,
+     "h": 42,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C 1st}}",
+     "font": "Redzone-Standard",
+     "size": 30,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 25.8
     },
     {
      "id": "ldad1e0e6",
@@ -10359,6 +11332,86 @@
      "loop": true
     },
     {
+     "id": "l67ed4ccb",
+     "name": "Group C Decider team 2 score",
+     "type": "text",
+     "x": 1472,
+     "y": 480,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Decider team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "ld6069f48",
+     "name": "Group C Decider team 2",
+     "type": "text",
+     "x": 1323,
+     "y": 480,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Decider team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "lecbca34d",
      "name": "Position 3",
      "type": "image",
@@ -10386,6 +11439,86 @@
      "src": "assets/Group bracket/Position 3-3.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l13843bcf",
+     "name": "Group C Decider team 1 score",
+     "type": "text",
+     "x": 1472,
+     "y": 439,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Decider team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "lb37e7742",
+     "name": "Group C Decider team 1",
+     "type": "text",
+     "x": 1323,
+     "y": 439,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Decider team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "lf2d0c12a",
@@ -10417,6 +11550,86 @@
      "loop": true
     },
     {
+     "id": "l835ed07e",
+     "name": "Group C Winners team 2 score",
+     "type": "text",
+     "x": 1472,
+     "y": 308,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Winners team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "ldcba6fd7",
+     "name": "Group C Winners team 2",
+     "type": "text",
+     "x": 1323,
+     "y": 308,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Winners team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "laa72b97f",
      "name": "Position 1",
      "type": "image",
@@ -10444,6 +11657,86 @@
      "src": "assets/Group bracket/Position 1-3.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "lefce18d9",
+     "name": "Group C Winners team 1 score",
+     "type": "text",
+     "x": 1472,
+     "y": 266,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Winners team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "ldc9da050",
+     "name": "Group C Winners team 1",
+     "type": "text",
+     "x": 1323,
+     "y": 266,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Winners team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "l91e7d149",
@@ -10475,6 +11768,86 @@
      "loop": true
     },
     {
+     "id": "l9ae335b3",
+     "name": "Group C Elimination team 2 score",
+     "type": "text",
+     "x": 1258,
+     "y": 480,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Elimination team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l68d8e8f8",
+     "name": "Group C Elimination team 2",
+     "type": "text",
+     "x": 1109,
+     "y": 480,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Elimination team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "l9ed1a148",
      "name": "Position 5",
      "type": "image",
@@ -10502,6 +11875,86 @@
      "src": "assets/Group bracket/Position 5-2.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l233acd36",
+     "name": "Group C Elimination team 1 score",
+     "type": "text",
+     "x": 1258,
+     "y": 439,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Elimination team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l52c90825",
+     "name": "Group C Elimination team 1",
+     "type": "text",
+     "x": 1109,
+     "y": 439,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Elimination team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "ldb9f0f44",
@@ -10533,6 +11986,86 @@
      "loop": true
     },
     {
+     "id": "l8187a1e9",
+     "name": "Group C Opening 2 team 2 score",
+     "type": "text",
+     "x": 1258,
+     "y": 365,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Opening 2 team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l0add992b",
+     "name": "Group C Opening 2 team 2",
+     "type": "text",
+     "x": 1109,
+     "y": 365,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Opening 2 team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "lc3e35e96",
      "name": "Position 3",
      "type": "image",
@@ -10560,6 +12093,86 @@
      "src": "assets/Group bracket/Position 3-4.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l6bbe32dd",
+     "name": "Group C Opening 2 team 1 score",
+     "type": "text",
+     "x": 1258,
+     "y": 324,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Opening 2 team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l0dbb7221",
+     "name": "Group C Opening 2 team 1",
+     "type": "text",
+     "x": 1109,
+     "y": 324,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Opening 2 team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "l044136a1",
@@ -10591,6 +12204,86 @@
      "loop": true
     },
     {
+     "id": "l35602a85",
+     "name": "Group C Opening 1 team 2 score",
+     "type": "text",
+     "x": 1258,
+     "y": 247,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Opening 1 team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "lacea52ae",
+     "name": "Group C Opening 1 team 2",
+     "type": "text",
+     "x": 1109,
+     "y": 247,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Opening 1 team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "l74f7fcca",
      "name": "Position 1",
      "type": "image",
@@ -10618,6 +12311,86 @@
      "src": "assets/Group bracket/Position 1-4.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l7e3add52",
+     "name": "Group C Opening 1 team 1 score",
+     "type": "text",
+     "x": 1258,
+     "y": 206,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Opening 1 team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "le4f89b5b",
+     "name": "Group C Opening 1 team 1",
+     "type": "text",
+     "x": 1109,
+     "y": 206,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group C Opening 1 team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "l31201db9",
@@ -10847,7 +12620,7 @@
        "delay": 0
       }
      },
-     "text": "GROUP C",
+     "text": "{{Tournament!Group C name}}",
      "font": "Redzone-Standard",
      "size": 34.84,
      "color": "#ffffff",
@@ -10892,6 +12665,46 @@
      "loop": true
     },
     {
+     "id": "lb5e3d8c5",
+     "name": "Group B 2nd",
+     "type": "text",
+     "x": 592,
+     "y": 880,
+     "w": 214,
+     "h": 42,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B 2nd}}",
+     "font": "Redzone-Standard",
+     "size": 30,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 25.8
+    },
+    {
      "id": "l24fab2bc",
      "name": "Rectangle 3",
      "type": "image",
@@ -10919,6 +12732,46 @@
      "src": "assets/Group bracket/Rectangle 3-3.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l394f7a1d",
+     "name": "Group B 1st",
+     "type": "text",
+     "x": 592,
+     "y": 710,
+     "w": 214,
+     "h": 42,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B 1st}}",
+     "font": "Redzone-Standard",
+     "size": 30,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 25.8
     },
     {
      "id": "l2246b59c",
@@ -10950,6 +12803,86 @@
      "loop": true
     },
     {
+     "id": "l7a1d1e87",
+     "name": "Group B Decider team 2 score",
+     "type": "text",
+     "x": 463,
+     "y": 908,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Decider team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l2b0a6b83",
+     "name": "Group B Decider team 2",
+     "type": "text",
+     "x": 314,
+     "y": 908,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Decider team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "l108845fd",
      "name": "Position 3",
      "type": "image",
@@ -10977,6 +12910,86 @@
      "src": "assets/Group bracket/Position 3-5.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l38c7aa8c",
+     "name": "Group B Decider team 1 score",
+     "type": "text",
+     "x": 463,
+     "y": 866,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Decider team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l21a878d6",
+     "name": "Group B Decider team 1",
+     "type": "text",
+     "x": 314,
+     "y": 866,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Decider team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "l283e8ee3",
@@ -11008,6 +13021,86 @@
      "loop": true
     },
     {
+     "id": "lc66d9940",
+     "name": "Group B Winners team 2 score",
+     "type": "text",
+     "x": 463,
+     "y": 735,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Winners team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l91caf0cc",
+     "name": "Group B Winners team 2",
+     "type": "text",
+     "x": 314,
+     "y": 735,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Winners team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "l8796fbdf",
      "name": "Position 1",
      "type": "image",
@@ -11035,6 +13128,86 @@
      "src": "assets/Group bracket/Position 1-5.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "ldd1cc3a4",
+     "name": "Group B Winners team 1 score",
+     "type": "text",
+     "x": 463,
+     "y": 693,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Winners team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l7a72d2d7",
+     "name": "Group B Winners team 1",
+     "type": "text",
+     "x": 314,
+     "y": 693,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Winners team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "l0ddf25c0",
@@ -11066,6 +13239,86 @@
      "loop": true
     },
     {
+     "id": "l954e8406",
+     "name": "Group B Elimination team 2 score",
+     "type": "text",
+     "x": 249,
+     "y": 908,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Elimination team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l34c52d20",
+     "name": "Group B Elimination team 2",
+     "type": "text",
+     "x": 100,
+     "y": 908,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Elimination team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "l417849af",
      "name": "Position 5",
      "type": "image",
@@ -11093,6 +13346,86 @@
      "src": "assets/Group bracket/Position 5-3.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l21ced34b",
+     "name": "Group B Elimination team 1 score",
+     "type": "text",
+     "x": 249,
+     "y": 866,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Elimination team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "lbe4c14ef",
+     "name": "Group B Elimination team 1",
+     "type": "text",
+     "x": 100,
+     "y": 866,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Elimination team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "l70bc4ec7",
@@ -11124,6 +13457,86 @@
      "loop": true
     },
     {
+     "id": "l290ae56f",
+     "name": "Group B Opening 2 team 2 score",
+     "type": "text",
+     "x": 249,
+     "y": 792,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Opening 2 team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l0f1aba5b",
+     "name": "Group B Opening 2 team 2",
+     "type": "text",
+     "x": 100,
+     "y": 792,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Opening 2 team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "l4315002a",
      "name": "Position 3",
      "type": "image",
@@ -11151,6 +13564,86 @@
      "src": "assets/Group bracket/Position 3-6.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "lab720e29",
+     "name": "Group B Opening 2 team 1 score",
+     "type": "text",
+     "x": 249,
+     "y": 752,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Opening 2 team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l857b75da",
+     "name": "Group B Opening 2 team 1",
+     "type": "text",
+     "x": 100,
+     "y": 752,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Opening 2 team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "lc152fdbd",
@@ -11182,6 +13675,86 @@
      "loop": true
     },
     {
+     "id": "lf860b8b3",
+     "name": "Group B Opening 1 team 2 score",
+     "type": "text",
+     "x": 249,
+     "y": 674,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Opening 1 team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l27b76c8d",
+     "name": "Group B Opening 1 team 2",
+     "type": "text",
+     "x": 100,
+     "y": 674,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Opening 1 team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "le8c407e5",
      "name": "Position 1",
      "type": "image",
@@ -11209,6 +13782,86 @@
      "src": "assets/Group bracket/Position 1-6.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l1600d57f",
+     "name": "Group B Opening 1 team 1 score",
+     "type": "text",
+     "x": 249,
+     "y": 633,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Opening 1 team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "lb092ba65",
+     "name": "Group B Opening 1 team 1",
+     "type": "text",
+     "x": 100,
+     "y": 633,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group B Opening 1 team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "ldbc78d91",
@@ -11438,7 +14091,7 @@
        "delay": 0
       }
      },
-     "text": "GROUP B",
+     "text": "{{Tournament!Group B name}}",
      "font": "Redzone-Standard",
      "size": 34.84,
      "color": "#ffffff",
@@ -11483,6 +14136,46 @@
      "loop": true
     },
     {
+     "id": "ld5da1977",
+     "name": "Group A 2nd",
+     "type": "text",
+     "x": 592,
+     "y": 452,
+     "w": 213,
+     "h": 42,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A 2nd}}",
+     "font": "Redzone-Standard",
+     "size": 30,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 25.8
+    },
+    {
      "id": "l579782cb",
      "name": "Rectangle 3",
      "type": "image",
@@ -11510,6 +14203,46 @@
      "src": "assets/Group bracket/Rectangle 3-4.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "lc445dada",
+     "name": "Group A 1st",
+     "type": "text",
+     "x": 592,
+     "y": 282,
+     "w": 213,
+     "h": 42,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A 1st}}",
+     "font": "Redzone-Standard",
+     "size": 30,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 25.8
     },
     {
      "id": "la7f4ab87",
@@ -11541,6 +14274,86 @@
      "loop": true
     },
     {
+     "id": "laf9e3533",
+     "name": "Group A Decider team 2 score",
+     "type": "text",
+     "x": 462,
+     "y": 480,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Decider team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l35c6c588",
+     "name": "Group A Decider team 2",
+     "type": "text",
+     "x": 313,
+     "y": 480,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Decider team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "l668f8dc7",
      "name": "Position 3",
      "type": "image",
@@ -11568,6 +14381,86 @@
      "src": "assets/Group bracket/Position 3-7.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "la6edba64",
+     "name": "Group A Decider team 1 score",
+     "type": "text",
+     "x": 462,
+     "y": 439,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Decider team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l85ae3fea",
+     "name": "Group A Decider team 1",
+     "type": "text",
+     "x": 313,
+     "y": 439,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Decider team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "l16dbae54",
@@ -11599,6 +14492,86 @@
      "loop": true
     },
     {
+     "id": "l2d5a3516",
+     "name": "Group A Winners team 2 score",
+     "type": "text",
+     "x": 462,
+     "y": 308,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Winners team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l18be11f1",
+     "name": "Group A Winners team 2",
+     "type": "text",
+     "x": 313,
+     "y": 308,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Winners team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "l9dd3c501",
      "name": "Position 1",
      "type": "image",
@@ -11626,6 +14599,86 @@
      "src": "assets/Group bracket/Position 1-7.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "lcf556838",
+     "name": "Group A Winners team 1 score",
+     "type": "text",
+     "x": 462,
+     "y": 266,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Winners team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l6a8cef76",
+     "name": "Group A Winners team 1",
+     "type": "text",
+     "x": 313,
+     "y": 266,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Winners team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "l2b22b4e7",
@@ -11657,6 +14710,86 @@
      "loop": true
     },
     {
+     "id": "l983eeb15",
+     "name": "Group A Elimination team 2 score",
+     "type": "text",
+     "x": 248,
+     "y": 480,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Elimination team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "le3c9b06e",
+     "name": "Group A Elimination team 2",
+     "type": "text",
+     "x": 99,
+     "y": 480,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Elimination team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "la3c87ff5",
      "name": "Position 5",
      "type": "image",
@@ -11684,6 +14817,86 @@
      "src": "assets/Group bracket/Position 5-4.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l73793fb4",
+     "name": "Group A Elimination team 1 score",
+     "type": "text",
+     "x": 248,
+     "y": 439,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Elimination team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "ld528e474",
+     "name": "Group A Elimination team 1",
+     "type": "text",
+     "x": 99,
+     "y": 439,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Elimination team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "lbd9d5c89",
@@ -11715,6 +14928,86 @@
      "loop": true
     },
     {
+     "id": "l1738c322",
+     "name": "Group A Opening 2 team 2 score",
+     "type": "text",
+     "x": 248,
+     "y": 365,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Opening 2 team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l486d66bc",
+     "name": "Group A Opening 2 team 2",
+     "type": "text",
+     "x": 99,
+     "y": 365,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Opening 2 team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "l756617a3",
      "name": "Position 3",
      "type": "image",
@@ -11742,6 +15035,86 @@
      "src": "assets/Group bracket/Position 3-8.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "ld195fdfc",
+     "name": "Group A Opening 2 team 1 score",
+     "type": "text",
+     "x": 248,
+     "y": 324,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Opening 2 team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l79d1e890",
+     "name": "Group A Opening 2 team 1",
+     "type": "text",
+     "x": 99,
+     "y": 324,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Opening 2 team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "l800c8019",
@@ -11773,6 +15146,86 @@
      "loop": true
     },
     {
+     "id": "ld26ba1d8",
+     "name": "Group A Opening 1 team 2 score",
+     "type": "text",
+     "x": 248,
+     "y": 247,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Opening 1 team 2 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "le3fe2500",
+     "name": "Group A Opening 1 team 2",
+     "type": "text",
+     "x": 99,
+     "y": 247,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Opening 1 team 2}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
      "id": "l43cfe394",
      "name": "Position 1",
      "type": "image",
@@ -11800,6 +15253,86 @@
      "src": "assets/Group bracket/Position 1-8.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l10e33e55",
+     "name": "Group A Opening 1 team 1 score",
+     "type": "text",
+     "x": 248,
+     "y": 206,
+     "w": 23,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Opening 1 team 1 score}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
+    },
+    {
+     "id": "l9170605f",
+     "name": "Group A Opening 1 team 1",
+     "type": "text",
+     "x": 99,
+     "y": 206,
+     "w": 144,
+     "h": 31,
+     "opacity": 1.0,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-up",
+       "dur": 450,
+       "delay": 186
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Tournament!Group A Opening 1 team 1}}",
+     "font": "Redzone-Standard",
+     "size": 22,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": -25.0,
+     "caps": true,
+     "lineHeight": 1.2,
+     "fit": "squeeze",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 18.9
     },
     {
      "id": "lf6510421",
@@ -12029,7 +15562,7 @@
        "delay": 0
       }
      },
-     "text": "GROUP A",
+     "text": "{{Tournament!Group A name}}",
      "font": "Redzone-Standard",
      "size": 34.89,
      "color": "#ffffff",
@@ -12099,7 +15632,7 @@
        "delay": 0
       }
      },
-     "text": "HEADING TITLE TEXT",
+     "text": "{{Global!Event}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 20.0,
      "color": "#ffffff",
@@ -12139,7 +15672,7 @@
        "delay": 0
       }
      },
-     "text": "FOOTER TITLE TEXT",
+     "text": "{{Global!Stage}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 20.0,
      "color": "#ffffff",
@@ -12156,7 +15689,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   },
   {
    "id": "c6b3bed4e",
@@ -12351,7 +15885,7 @@
      "h": 106,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
      "field": "",
      "anim": {
@@ -12380,7 +15914,7 @@
      "h": 150,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
      "field": "",
      "anim": {
@@ -12409,9 +15943,9 @@
      "h": 60,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
-     "field": "Position 2",
+     "field": "",
      "anim": {
       "in": {
        "type": "wipe-right",
@@ -12438,9 +15972,9 @@
      "h": 60,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
-     "field": "Position 1",
+     "field": "",
      "anim": {
       "in": {
        "type": "wipe-right",
@@ -12467,9 +16001,9 @@
      "h": 60,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
-     "field": "Position 4",
+     "field": "",
      "anim": {
       "in": {
        "type": "wipe-right",
@@ -12496,9 +16030,9 @@
      "h": 60,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
-     "field": "Position 3",
+     "field": "",
      "anim": {
       "in": {
        "type": "wipe-right",
@@ -12525,9 +16059,9 @@
      "h": 60,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
-     "field": "Position 2 2",
+     "field": "",
      "anim": {
       "in": {
        "type": "wipe-right",
@@ -12554,9 +16088,9 @@
      "h": 60,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
-     "field": "Position 1 2",
+     "field": "",
      "anim": {
       "in": {
        "type": "wipe-right",
@@ -12583,9 +16117,9 @@
      "h": 60,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
-     "field": "Position 8",
+     "field": "",
      "anim": {
       "in": {
        "type": "wipe-right",
@@ -12612,9 +16146,9 @@
      "h": 60,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
-     "field": "Position 7",
+     "field": "",
      "anim": {
       "in": {
        "type": "wipe-right",
@@ -12641,9 +16175,9 @@
      "h": 60,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
-     "field": "Position 6",
+     "field": "",
      "anim": {
       "in": {
        "type": "wipe-right",
@@ -12670,9 +16204,9 @@
      "h": 60,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
-     "field": "Position 5",
+     "field": "",
      "anim": {
       "in": {
        "type": "wipe-right",
@@ -12699,9 +16233,9 @@
      "h": 60,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
-     "field": "Position 4 2",
+     "field": "",
      "anim": {
       "in": {
        "type": "wipe-right",
@@ -12728,9 +16262,9 @@
      "h": 60,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
-     "field": "Position 3 2",
+     "field": "",
      "anim": {
       "in": {
        "type": "wipe-right",
@@ -12757,9 +16291,9 @@
      "h": 60,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
-     "field": "Position 2 3",
+     "field": "",
      "anim": {
       "in": {
        "type": "wipe-right",
@@ -12786,9 +16320,9 @@
      "h": 60,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
-     "field": "Position 1 3",
+     "field": "",
      "anim": {
       "in": {
        "type": "wipe-right",
@@ -12844,7 +16378,7 @@
      "h": 207,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
      "field": "",
      "anim": {
@@ -12873,7 +16407,7 @@
      "h": 207,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
      "field": "",
      "anim": {
@@ -12902,7 +16436,7 @@
      "h": 7,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
      "field": "",
      "anim": {
@@ -12931,7 +16465,7 @@
      "h": 410,
      "opacity": 1.0,
      "rotation": 0,
-     "visible": true,
+     "visible": false,
      "blend": "normal",
      "field": "",
      "anim": {
@@ -12949,6 +16483,38 @@
      "src": "assets/Top 8 bracket/Vector Smart Object-2.png",
      "fit": "fill",
      "loop": true
+    },
+    {
+     "id": "l0d70c5a9",
+     "name": "Bracket",
+     "type": "bracket",
+     "x": 144,
+     "y": 196,
+     "w": 1566,
+     "h": 748,
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 500,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "font": "Redzone-Standard",
+     "color": "#ffffff",
+     "gold": "#b28a1d",
+     "dark": "#000b05",
+     "line": "#b28a1d",
+     "champ": "#ffc52a"
     },
     {
      "id": "lc8adbee5",
@@ -12975,7 +16541,7 @@
        "delay": 0
       }
      },
-     "text": "8 COMPETITOR BRACKET",
+     "text": "{{Tournament!Top teams}} COMPETITOR BRACKET",
      "font": "Redzone-Standard",
      "size": 34.89,
      "color": "#ffffff",
@@ -13045,7 +16611,7 @@
        "delay": 0
       }
      },
-     "text": "HEADING TITLE TEXT",
+     "text": "{{Global!Event}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 20.0,
      "color": "#ffffff",
@@ -13085,7 +16651,7 @@
        "delay": 0
       }
      },
-     "text": "FOOTER TITLE TEXT",
+     "text": "{{Global!Stage}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 20.0,
      "color": "#ffffff",
@@ -13102,7 +16668,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   },
   {
    "id": "cad501b89",
@@ -13595,7 +17162,7 @@
        "delay": 0
       }
      },
-     "text": "ST. CLAIR COLLEGE",
+     "text": "{{Tournament!Top champion}}",
      "font": "VTFRedzone-Classic",
      "size": 74.1,
      "color": "#ffffff",
@@ -13635,7 +17202,7 @@
        "delay": 0
       }
      },
-     "text": "0",
+     "text": "{{Tournament!Top final 2 score}}",
      "font": "VTFRedzone-Classic",
      "size": 88.38,
      "color": "#ffffff",
@@ -13675,7 +17242,7 @@
        "delay": 0
       }
      },
-     "text": "COMPETITORRRRRRRRR",
+     "text": "{{Tournament!Top final 2}}",
      "font": "VTFRedzone-Classic",
      "size": 45.0,
      "color": "#ffffff",
@@ -13715,7 +17282,7 @@
        "delay": 0
       }
      },
-     "text": "0",
+     "text": "{{Tournament!Top final 1 score}}",
      "font": "VTFRedzone-Classic",
      "size": 88.38,
      "color": "#ffffff",
@@ -13755,7 +17322,7 @@
        "delay": 0
       }
      },
-     "text": "COMPETITORRRRRRRRR",
+     "text": "{{Tournament!Top final 1}}",
      "font": "VTFRedzone-Classic",
      "size": 45.0,
      "color": "#ffffff",
@@ -13795,7 +17362,7 @@
        "delay": 0
       }
      },
-     "text": "0",
+     "text": "{{Tournament!Top semi 4 score}}",
      "font": "VTFRedzone-Classic",
      "size": 88.38,
      "color": "#ffffff",
@@ -13835,7 +17402,7 @@
        "delay": 0
       }
      },
-     "text": "COMPETITORRRRRRRRR",
+     "text": "{{Tournament!Top semi 4}}",
      "font": "VTFRedzone-Classic",
      "size": 45.0,
      "color": "#ffffff",
@@ -13875,7 +17442,7 @@
        "delay": 0
       }
      },
-     "text": "0",
+     "text": "{{Tournament!Top semi 3 score}}",
      "font": "VTFRedzone-Classic",
      "size": 88.38,
      "color": "#ffffff",
@@ -13915,7 +17482,7 @@
        "delay": 0
       }
      },
-     "text": "COMPETITORRRRRRRRR",
+     "text": "{{Tournament!Top semi 3}}",
      "font": "VTFRedzone-Classic",
      "size": 45.0,
      "color": "#ffffff",
@@ -13955,7 +17522,7 @@
        "delay": 0
       }
      },
-     "text": "0",
+     "text": "{{Tournament!Top semi 2 score}}",
      "font": "VTFRedzone-Classic",
      "size": 88.38,
      "color": "#ffffff",
@@ -13995,7 +17562,7 @@
        "delay": 0
       }
      },
-     "text": "COMPETITORRRRRRRRR",
+     "text": "{{Tournament!Top semi 2}}",
      "font": "VTFRedzone-Classic",
      "size": 45.0,
      "color": "#ffffff",
@@ -14035,7 +17602,7 @@
        "delay": 0
       }
      },
-     "text": "0",
+     "text": "{{Tournament!Top semi 1 score}}",
      "font": "VTFRedzone-Classic",
      "size": 88.38,
      "color": "#ffffff",
@@ -14075,7 +17642,7 @@
        "delay": 0
       }
      },
-     "text": "COMPETITORRRRRRRRR",
+     "text": "{{Tournament!Top semi 1}}",
      "font": "VTFRedzone-Classic",
      "size": 45.0,
      "color": "#ffffff",
@@ -14145,7 +17712,7 @@
        "delay": 0
       }
      },
-     "text": "HEADING TITLE TEXT",
+     "text": "{{Global!Event}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 20.0,
      "color": "#ffffff",
@@ -14214,7 +17781,7 @@
        "delay": 0
       }
      },
-     "text": "FOOTER TITLE TEXT",
+     "text": "{{Global!Stage}}",
      "font": "TradeGothicLTStd-BdCn20",
      "size": 20.0,
      "color": "#ffffff",
@@ -14231,7 +17798,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   },
   {
    "id": "c14310932",
@@ -15201,7 +18769,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "overlay"
   },
   {
    "id": "cfad8f3f7",
@@ -15558,7 +19127,8 @@
     }
    ],
    "width": 1920,
-   "height": 1080
+   "height": 1080,
+   "kind": "board"
   }
  ],
  "transitions": [
@@ -15672,21 +19242,30 @@
     "logo": "assets/sponsors/NAC Esports.png",
     "secs": 10
    }
+  ],
+  "ticker": [
+   "WELCOME TO ST. CLAIR SAINTS ESPORTS",
+   "FOLLOW @SCCSAINTS FOR HIGHLIGHTS",
+   "THANKS FOR WATCHING!"
   ]
  },
  "picture": "cover.png",
  "pack_history": {
   "Schedule": [
-   "ed271e0cf8d424b0"
+   "ed271e0cf8d424b0",
+   "5756b8152c37fddb"
   ],
   "Scorebug & footer": [
-   "04910753a20533bb"
+   "04910753a20533bb",
+   "5d5e3ffc983f63bb"
   ],
   "Caster lower third": [
-   "2320941025e868b7"
+   "2320941025e868b7",
+   "ae6aa86ce5f7ec9b"
   ],
   "Team stats": [
-   "f5206d0a5a78daf3"
+   "f5206d0a5a78daf3",
+   "d01a05d0e6cb4e2d"
   ],
   "Title screen": [
    "a617db4af2bfcbff"
@@ -15695,37 +19274,48 @@
    "f0d27a8e45cadce1"
   ],
   "Team graphic": [
-   "7c3006ffe1242e71"
+   "7c3006ffe1242e71",
+   "aa1dbc39e2840b4d"
   ],
   "Player graphic (1)": [
-   "8c1dee324e6f133d"
+   "8c1dee324e6f133d",
+   "2ede72c1889786a4"
   ],
   "Player graphic (2)": [
-   "f57f5269c6bfdb57"
+   "f57f5269c6bfdb57",
+   "3a1a2bb617fbbb9d"
   ],
   "Player graphic (3)": [
-   "66f9983151e42156"
+   "66f9983151e42156",
+   "7c4398f555776ac8"
   ],
   "Player graphic (4)": [
-   "539fff97b1538910"
+   "539fff97b1538910",
+   "988e54ae4889c68e"
   ],
   "Player graphic (5)": [
-   "7f5069cf9c4782d0"
+   "7f5069cf9c4782d0",
+   "cc5f4d9f02b8c6f8"
   ],
   "Player stats": [
-   "7870e4bac7a22c3d"
+   "7870e4bac7a22c3d",
+   "a0685547a7772d37"
   ],
   "Group bracket": [
-   "277e2bab153a8817"
+   "277e2bab153a8817",
+   "024132d6d699dbba"
   ],
   "Top 8 bracket": [
-   "669bd4475847cdfe"
+   "669bd4475847cdfe",
+   "91a9ec25dee8ae2f"
   ],
   "Final four": [
-   "bf940e4ee1610913"
+   "bf940e4ee1610913",
+   "31ef8363e479ef9c"
   ],
   "Replay overlay": [
-   "0dedc50699b7a414"
+   "0dedc50699b7a414",
+   "766398ce0d3c28bf"
   ],
   "Sponsor footer": [
    "7bf16bdaabfc4d94"

@@ -91,6 +91,7 @@ class LiveTests(unittest.TestCase):
         self.assertEqual(state["program"]["on"], [self.a["id"], self.b["id"]])
         self.assertEqual(state["program"]["values"][self.a["id"]], {"Name": "Owen"})
         self.assertEqual(state["take"]["seq"], 1)
+        self.assertEqual(state["preview"]["on"], [])          # taken: off Preview
         # New values on Preview stay off air until sent.
         live.set_values(self.a["id"], {"Name": "Sam"})
         self.assertEqual(live.get()["program"]["values"][self.a["id"]]["Name"], "Owen")
@@ -101,7 +102,8 @@ class LiveTests(unittest.TestCase):
         state = live.get()
         self.assertEqual(state["program"]["on"], [self.a["id"]])
         self.assertEqual(state["take"]["comps"], [self.b["id"]])
-        live.take("cut")                                      # always there
+        live.take("cut")                                      # always there (nothing on Preview: nothing changes)
+        self.assertEqual(live.get()["program"]["on"], [self.a["id"]])
         live.clear()
         self.assertEqual(live.get()["program"]["on"], [])
         with self.assertRaises(KeyError):
@@ -109,7 +111,30 @@ class LiveTests(unittest.TestCase):
         with self.assertRaises(KeyError):
             live.cue("nope")
         # Saved, and read back.
-        self.assertEqual(Live(self.ws).get()["preview"]["on"], [self.a["id"], self.b["id"]])
+        live.cue(self.b["id"])
+        self.assertEqual(Live(self.ws).get()["preview"]["on"], [self.b["id"]])
+
+    def test_one_board_and_one_lower_third(self):
+        live, ws = self.live, self.ws
+        board2 = ws.add_comp(dict(blank_comp("Board 2"), kind="board"))
+        lt1 = ws.add_comp(dict(blank_comp("LT 1"), kind="lower third"))
+        lt2 = ws.add_comp(dict(blank_comp("LT 2"), kind="lower third"))
+        for c in (self.a,):
+            ws.put_comp(dict(ws.comp(c["id"]), kind="board"))
+        # (b is an overlay)
+        live.cue(self.a["id"]); live.cue(board2["id"])
+        self.assertEqual(live.get()["preview"]["on"], [board2["id"]])        # the other board went
+        live.cue(lt1["id"]); live.cue(self.b["id"])
+        live.take("cut")
+        self.assertEqual(set(live.get()["program"]["on"]), {board2["id"], lt1["id"], self.b["id"]})
+        live.cue(lt2["id"])
+        live.take("cut")                                      # replaces the lower third only
+        self.assertEqual(set(live.get()["program"]["on"]), {board2["id"], lt2["id"], self.b["id"]})
+        live.cue(self.a["id"])
+        live.program(self.a["id"], True)                      # IN: the board swaps, and it's off Preview
+        state = live.get()
+        self.assertEqual(set(state["program"]["on"]), {self.a["id"], lt2["id"], self.b["id"]})
+        self.assertEqual(state["preview"]["on"], [])
 
     def test_delete_takes_it_off(self):
         self.live.cue(self.a["id"])
@@ -264,6 +289,67 @@ class PackTests(unittest.TestCase):
         for sp in data["global"]["sponsors"]:
             self.assertTrue(os.path.isfile(os.path.join(ROOT, "starter", sp["logo"])), sp)
         self.assertTrue(data["pack_history"])
+        kinds = {c["name"]: c.get("kind") for c in data["compositions"]}
+        self.assertEqual((kinds["Schedule"], kinds["Caster lower third"], kinds["Scorebug & footer"]), ("board", "lower third", "overlay"))
+        self.assertTrue(any(l["type"] == "bracket" for l in comps["Top 8 bracket"]["layers"]))
+        self.assertTrue(any("{{Tournament!Group A 1st}}" == l.get("text") for l in comps["Group bracket"]["layers"]))
+        self.assertTrue(data["global"]["ticker"])
+
+
+class TournamentTests(unittest.TestCase):
+    def test_knockout_winners_go_through(self):
+        from gfxengine import tournament
+        t = tournament.clean({"top": {"size": 8, "teams": ["A", "B", "C", "D", "E", "", "G", "H"],
+                                      "scores": {"R1 M1": [2, 0], "R1 M2": ["1", "2"], "R1 M4": ["3", "3"], "R2 M1": ["2", "1"]}}})
+        rows = dict(tournament.rows(t, lambda n: {"short": n.lower(), "logo": f"library/teams/{n}.png"} if n == "A" else None)[1:])
+        self.assertEqual(rows["Top teams"], "8")
+        self.assertEqual((rows["Top R2 M1 team 1"], rows["Top R2 M1 team 2"]), ("A", "D"))
+        self.assertEqual(rows["Top R2 M2 team 1"], "E")                  # nobody against it: through
+        self.assertEqual(rows["Top R2 M2 team 2"], "")                   # a draw: not decided
+        self.assertEqual((rows["Top R3 M1 team 1"], rows["Top R3 M1 team 1 logo"], rows["Top R3 M1 team 1 short"]),
+                         ("A", "library/teams/A.png", "a"))
+        self.assertEqual((rows["Top semi 1"], rows["Top semi 1 score"], rows["Top final 1"]), ("A", "2", "A"))
+        self.assertEqual(rows["Top champion"], "")
+        t["top"]["size"] = 16
+        rows16 = dict(tournament.rows(t)[1:])
+        self.assertIn("Top R4 M1 team 1", rows16)
+        self.assertEqual(rows16["Top R2 M3 team 1"], "")                 # (16: the 9th team on is empty)
+        self.assertEqual(tournament.clean({"top": {"size": 12}})["top"]["size"], 8)
+
+    def test_groups(self):
+        from gfxengine import tournament
+        g = {"name": "GROUP A", "teams": ["A", "B", "C", "D"],
+             "scores": {"Opening 1": ["2", "1"], "Opening 2": ["0", "2"], "Winners": ["1", "2"], "Elimination": ["2", "0"], "Decider": ["0", "2"]}}
+        rows = dict(tournament.rows({"groups": [g]})[1:])
+        self.assertEqual((rows["Group A Winners team 1"], rows["Group A Winners team 2"]), ("A", "D"))
+        self.assertEqual((rows["Group A Elimination team 1"], rows["Group A Elimination team 2"]), ("B", "C"))
+        self.assertEqual((rows["Group A Decider team 1"], rows["Group A Decider team 2"]), ("A", "B"))
+        self.assertEqual((rows["Group A 1st"], rows["Group A 2nd"]), ("D", "B"))
+        self.assertEqual(rows["Group B name"], "GROUP B")
+
+
+class TeamsTests(unittest.TestCase):
+    def test_csv(self):
+        from gfxengine.teams import Teams
+        tmp = tempfile.mkdtemp()
+        try:
+            teams = Teams(tmp)
+            n = teams.import_csv("Team,Abbreviation,Logo,Color\nSt. Clair Saints,SCC,saints.png,0b6b3a\nGeorge Mason,GMU,https://x/gmu.png,#123456\n,,,\n")
+            self.assertEqual(n, 2)
+            self.assertEqual(teams.find("scc"), {"name": "St. Clair Saints", "short": "SCC", "logo": "library/teams/saints.png", "color": "#0b6b3a"})
+            self.assertEqual(teams.find("george mason")["logo"], "https://x/gmu.png")
+            teams.import_csv("Name,Short name\nSt. Clair Saints,SAINTS\n")      # updates, keeps the rest
+            again = Teams(tmp)                                                   # (read back from the CSV)
+            self.assertEqual((len(again.list()), again.find("St. Clair Saints")["short"], again.find("St. Clair Saints")["color"]),
+                             (2, "SAINTS", "#0b6b3a"))
+            logo = again.save_logo("Humber Hawks", "hawks.png", b"png")
+            self.assertEqual(logo, "library/teams/Humber Hawks.png")
+            self.assertTrue(os.path.isfile(os.path.join(tmp, "teams", "Humber Hawks.png")))
+            self.assertEqual(again.find("Humber Hawks")["logo"], logo)
+            with self.assertRaises(ValueError):
+                again.import_csv("Name,Short name\n")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
 
 class ServerTests(unittest.TestCase):
@@ -370,6 +456,22 @@ class ServerTests(unittest.TestCase):
             tables = json.loads(get("/api/state"))["data"]["tables"]
             self.assertIn(["BG loop colour", "#ff0000"], tables["Global"])
             self.assertEqual(tables["Sponsors"][-1][0], g["sponsors"][-1]["logo"])
+            # The ticker, the team list and the tournament.
+            post("/api/global", {"global": {"ticker": ["Welcome", " ", "Follow us"]}})
+            self.assertIn(["Ticker", "Welcome  |  Follow us  |  "], json.loads(get("/api/state"))["data"]["tables"]["Global"])
+            r = post("/api/teams/import", b"Name,Short name\nHumber Hawks,HUM\nDurham Lords,DUR\n", {"X-Filename": "teams.csv"})
+            self.assertEqual(r["added"], 2)
+            r = post("/api/teams/logo?team=Humber%20Hawks&name=h.png", buf.getvalue(), {"X-Filename": "h.png"})
+            self.assertEqual(get("/" + urllib.parse.quote(r["logo"])), buf.getvalue())
+            self.assertIn("Humber Hawks,HUM", get("/library/teams.csv").decode())
+            post("/api/global", {"global": {"tournament": {"top": {"size": 8, "teams": ["Humber Hawks", "Durham Lords"],
+                                                                   "scores": {"R1 M1": ["3", "1"]}}}}})
+            s2 = json.loads(get("/api/state"))
+            tn = dict(s2["data"]["tables"]["Tournament"][1:])
+            self.assertEqual((tn["Top R2 M1 team 1"], tn["Top R2 M1 team 1 short"], tn["Top R2 M1 team 1 logo"]), ("Humber Hawks", "HUM", r["logo"]))
+            self.assertEqual(len(s2["teams"]), 2)
+            post("/api/teams", {"teams": s2["teams"][:1]})
+            self.assertEqual([t["name"] for t in json.loads(get("/api/state"))["teams"]], ["Humber Hawks"])
             # A game HUD's data: its own table, and the series score into Global.
             post("/api/ingest", {"source": "League HUD", "game": "lol", "fields": {"Blue kills": 7, "Game time": "12:34"},
                                  "series": {"left": {"score": 2}, "right": {"score": 1}, "best_of": 5}})

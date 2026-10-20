@@ -26,6 +26,13 @@ STARTER = os.path.join(ROOT, "starter")
 
 # Boards that fill the screen: the background loop plays over their backdrop.
 LOOP_BOARDS = ("Schedule", "Team stats", "Player stats", "Group bracket", "Top 8 bracket", "Final four")
+# What each graphic is: one board and one lower third can be on air at a time.
+KINDS = {"lower third": ("Caster lower third",),
+         "overlay": ("Scorebug & footer", "Replay overlay")}
+TICKER = ["WELCOME TO ST. CLAIR SAINTS ESPORTS", "FOLLOW @SCCSAINTS FOR HIGHLIGHTS", "THANKS FOR WATCHING!"]
+BRACKETS = ("Group bracket", "Top 8 bracket", "Final four")
+# The knockout bracket's own drawing replaces the design's 8 slots and lines.
+TOP8_PARTS = ("Position ", "Vector Smart Object", "Line 3", "Rectangle 3", "Rectangle 4")
 # Picture layers -> what they show from Global (the design's own stays as the
 # picture shown while Global has none).
 PICTURES = {
@@ -186,6 +193,19 @@ def link(data, starter=STARTER):
             "src": "{{Global!BG loop}}", "fit": "cover", "loop": True, "audio": False,
             "tint": "{{Global!BG loop colour}}", "brightness": "{{Global!BG loop brightness}}", "speed": "{{Global!BG loop speed}}"})
 
+    # Boards, lower thirds and overlays.
+    for comp in data["compositions"]:
+        comp["kind"] = next((k for k, names in KINDS.items() if comp["name"] in names), "board")
+
+    # The ticker's lines from Global.
+    for comp in data["compositions"]:
+        for l in comp["layers"]:
+            if l["type"] == "text" and l.get("scroll") and "{{Match!Ticker}}" in l["text"]:
+                l["text"] = "{{Global!Ticker}}"
+    data.setdefault("global", {}).setdefault("ticker", list(TICKER))
+
+    tournament(comps)
+
     # The sponsors a new workspace starts with.
     g = data.setdefault("global", {})
     if not g.get("sponsors"):
@@ -197,6 +217,102 @@ def link(data, starter=STARTER):
                 shutil.copy(os.path.join(starter, src), dest)
                 g["sponsors"].append({"logo": f"assets/sponsors/{name}", "secs": 10})
     return data
+
+
+def _label(like, **kw):
+    """A new text layer in the style of another (a long name gets narrower)."""
+    l = json.loads(json.dumps(like))
+    l.update(id=new_id("l"), field="", fit="squeeze", **kw)
+    l["baseline"] = round(l["size"] * 0.86, 1)
+    l["y"] = round(l["y"])
+    return l
+
+
+def tournament(comps):
+    """The bracket graphics, filled in from Global's tournament."""
+    for cname in BRACKETS:
+        comp = comps.get(cname)
+        if not comp:
+            continue
+        for l in comp["layers"]:
+            if l["type"] == "text" and l["name"] == "HEADING TITLE TEXT":
+                l["text"] = "{{Global!Event}}"
+            elif l["type"] == "text" and l["name"] == "FOOTER TITLE TEXT":
+                l["text"] = "{{Global!Stage}}"
+
+    # The knockout bracket: drawn for 8 or 16 teams.
+    top = comps.get("Top 8 bracket")
+    if top and not any(l["type"] == "bracket" for l in top["layers"]):
+        last = 0
+        for i, l in enumerate(top["layers"]):
+            if l["type"] == "image" and l["name"].startswith(TOP8_PARTS):
+                l.update(visible=False, field="")
+                last = i
+        title = _text(top, "8 COMPETITOR BRACKET")
+        if title:
+            title["text"] = "{{Tournament!Top teams}} COMPETITOR BRACKET"
+        top["layers"].insert(last + 1, {
+            "id": new_id("l"), "name": "Bracket", "type": "bracket", "x": 144, "y": 196, "w": 1566, "h": 748,
+            "opacity": 1, "rotation": 0, "visible": True, "blend": "normal", "field": "",
+            "anim": {"in": {"type": "fade", "dur": 500, "delay": 150}, "out": {"type": "fade", "dur": 250, "delay": 0}},
+            "font": title["font"] if title else "Redzone-Standard", "color": "#ffffff",
+            "gold": "#b28a1d", "dark": "#000b05", "line": "#b28a1d", "champ": "#ffc52a"})
+
+    # The groups: names and scores on the design's slots.
+    groups = comps.get("Group bracket")
+    if groups and not any("{{Tournament!" in str(l.get("text")) for l in groups["layers"]):
+        head = _text(groups, "GROUP A")
+        slots = {}
+        for l in groups["layers"]:
+            if l["type"] == "image" and (l["name"].startswith("Position ") or l["name"] in ("Rectangle 3", "Rectangle 3 copy")):
+                g = ("A" if l["y"] < 560 else "B") if l["x"] < 900 else ("C" if l["y"] < 560 else "D")
+                col = 0 if l["x"] % 1010 < 200 else 1 if l["name"].startswith("Position") else 2
+                slots.setdefault((g, col), []).append(l)
+        names = {0: [("Opening 1", 1), ("Opening 1", 2), ("Opening 2", 1), ("Opening 2", 2), ("Elimination", 1), ("Elimination", 2)],
+                 1: [("Winners", 1), ("Winners", 2), ("Decider", 1), ("Decider", 2)]}
+        new = []
+        for (g, col), boxes in slots.items():
+            boxes.sort(key=lambda l: l["y"])
+            for i, box in enumerate(boxes):
+                if col == 2:
+                    key = f"Group {g} {'1st' if i == 0 else '2nd'}"
+                    new.append((box, _label(head, name=key, text=f"{{{{Tournament!{key}}}}}", x=box["x"] + 10, w=box["w"] - 20,
+                                            size=30, align="center", y=box["y"] + (box["h"] - 30 * 1.2) / 2, h=round(30 * 1.4))))
+                    continue
+                match, side = names[col][i]
+                key = f"Group {g} {match} team {side}"
+                size = 22
+                sq = round(box["h"] * 0.67)
+                top_y = box["y"] + (box["h"] - size * 1.15) / 2
+                new.append((box, _label(head, name=key, text=f"{{{{Tournament!{key}}}}}", x=box["x"] + 7, w=box["w"] - sq - 12,
+                                        size=size, align="left", y=top_y, h=round(size * 1.4))))
+                new.append((box, _label(head, name=key + " score", text=f"{{{{Tournament!{key} score}}}}",
+                                        x=box["x"] + box["w"] - sq, w=sq, size=size, align="center", y=top_y, h=round(size * 1.4))))
+        for box, label in new:
+            groups["layers"].insert(groups["layers"].index(box) + 1, label)
+        for g in "ABCD":
+            l = _text(groups, f"GROUP {g}")
+            if l:
+                l["text"] = f"{{{{Tournament!Group {g} name}}}}"
+
+    # The final four: the knockout bracket's last two rounds.
+    ff = comps.get("Final four")
+    if ff:
+        for n in range(1, 5):
+            l = _text(ff, f"Semi{n}")
+            if l:
+                l["text"] = f"{{{{Tournament!Top semi {n}}}}}"
+        for n in range(1, 3):
+            l = _text(ff, f"GF{n}")
+            if l:
+                l["text"] = f"{{{{Tournament!Top final {n}}}}}"
+        l = _text(ff, "WINNING TEAM")
+        if l:
+            l["text"] = "{{Tournament!Top champion}}"
+        scores = sorted([l for l in ff["layers"] if l["type"] == "text" and l["name"] == "0"], key=lambda l: (l["x"], l["y"]))
+        keys = [f"Top semi {n} score" for n in range(1, 5)] + [f"Top final {n} score" for n in range(1, 3)]
+        for l, key in zip(scores, keys):
+            l["text"] = f"{{{{Tournament!{key}}}}}"
 
 
 def remember(old, new):
