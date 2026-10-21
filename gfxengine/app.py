@@ -72,6 +72,7 @@ class Engine:
         self.feeds_rev = 0
         self.ws = self.live = self.assets = self.sources = self.stats = None
         self._cond = threading.Condition()
+        threading.Thread(target=self._trim_photos, daemon=True).start()
         self._open_lock = threading.Lock()
         self.jobs.listeners.append(self.changed)
         self.jobs.listeners.append(self._job_changed)
@@ -290,6 +291,14 @@ class Engine:
         team = self.teams.link(g[side]["name"], g[side]["game"], int(index), ign)
         self.changed()
         return team
+
+    def _trim_photos(self):
+        """Headshots kept before they were trimmed on upload: trimmed now."""
+        n = self.teams.trim_photos()
+        if n:
+            log(f"Trimmed the empty space around {n} headshot(s), so they line up on the player graphics")
+            self.assets_rev += 1
+            self.changed()
 
     def save_team_photo(self, name, filename, blob):
         photo = self.teams.save_photo(name, filename, blob)
@@ -644,6 +653,8 @@ def make_handler(engine):
                     logo = g[side]["logo"]
                     g[side]["logo_url"] = (f"http://{host}/{quote(logo)}" if logo and not re.match(r"https?://", logo)
                                            else logo)
+                for sp in g["sponsors"]:
+                    sp["logo_url"] = sp["logo"] if re.match(r"https?://", sp["logo"]) else f"http://{host}/{quote(sp['logo'])}"
                 return self._json({"global": g, "workspace": engine.ws.get()["name"], "engine": engine.name()})
             if path == "/api/pack":
                 return self._json({"graphics": engine.pack()})

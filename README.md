@@ -143,7 +143,10 @@ pick its team from the list, or save its team to it.
 
 The **player graphics** (1 to 5 players) show the left or right team's roster
 (chosen in their Control fields): each player's headshot over their name
-(or in-game ID), with their flag before it. While the roster has no
+(or in-game ID), with their flag before it. Headshots are trimmed
+to the player when they're added (see-through margins cut off, and those
+added before are trimmed when the engine starts), so every player fills
+their spot the same way. While the roster has no
 headshots, the design's own photo shows. In graphics: `{{Roster!Player 1}}`,
 `{{Roster!Player 1 flag}}`, `{{Roster!Player 1 headshot}}`,
 `{{Roster!Player 1 ID}}`, `{{Roster!Team}}`... They play over the
@@ -183,7 +186,11 @@ The League, VALORANT, CoD and Rocket League HUDs have a **GFX Engine** page:
 scan the network, connect, and the HUD sends its live stats (a data table
 named after it, e.g. `{{League HUD!KILLS LEFT}}`) and the series score (into
 Global) about once a second. **Use Global Information** takes the teams'
-names, short names and logos from here into the HUD. The HUD side is in
+names, short names and logos, and the sponsors (their logos, in order, and
+seconds each) from here into the HUD (CoD HUD: the teams only; it has no
+sponsor spot). Each HUD's Players & Teams page also has **Players**: each
+player in the game, linked or unlinked to their team's roster here, with
+**Save IGN to player** (CoD HUD: none, it doesn't read player names). The HUD side is in
 `hud-link/` (copied into each HUD).
 
 The players' stats from whichever HUD is connected also go into one table,

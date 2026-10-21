@@ -12,7 +12,9 @@ original, in hud-link/). A HUD makes one EngineLink with:
                   "short", "score", "color"}, "right": {...}, "best_of": n}}
     apply_global(g, fetch) -> a short summary of what changed: takes the
                   engine's global configuration (g["left"]["name"], "short",
-                  "logo_url", "color"...); fetch(url) -> bytes for the logos
+                  "logo_url", "color"..., g["sponsors"]: [{"logo_url", "secs",
+                  "white"}]); fetch(url) -> bytes for the logos (see
+                  save_sponsors())
     load() / save(dict)   where the chosen engine is remembered
 
 and serves its routes (see handle()). While connected it sends the snapshot
@@ -322,6 +324,24 @@ class EngineLink:
             b = body or {}
             return self.roster({"side": b.get("side"), "player": b.get("player"), "ign": b.get("ign")})
         return None
+
+
+def save_sponsors(g, fetch, folder, prefix, log=None):
+    """The engine's sponsors (g["sponsors"]: {"logo_url", "secs"...}) downloaded
+    into folder. Returns their paths (prefix + file name), in order, and the
+    seconds each shows (the first one's), or ([], None) when it has none."""
+    import os
+    import urllib.parse
+    paths = []
+    sponsors = [sp for sp in g.get("sponsors") or [] if sp.get("logo_url")]
+    for i, sp in enumerate(sponsors, 1):
+        base = os.path.splitext(os.path.basename(urllib.parse.unquote(sp["logo_url"].split("?")[0])))[0]
+        try:
+            paths.append(prefix + save_logo_bytes(folder, f"engine-{i}-{base}", fetch(sp["logo_url"])))
+        except Exception as e:
+            if log:
+                log(f"Couldn't fetch the sponsor {base} from the GFX Engine: {e}", "warn")
+    return paths, (sponsors[0].get("secs") if sponsors else None)
 
 
 def save_logo_bytes(folder, name, blob):

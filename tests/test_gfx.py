@@ -291,6 +291,22 @@ class RosterLinkTests(unittest.TestCase):
             shutil.rmtree(d)
 
 
+class HeadshotTests(unittest.TestCase):
+    def test_trimmed_to_the_player(self):
+        from gfxengine.teams import trim_photo
+        d = tempfile.mkdtemp()
+        try:
+            path = os.path.join(d, "p.png")
+            im = Image.new("RGBA", (400, 600), (0, 0, 0, 0))
+            im.paste((200, 50, 50, 255), (100, 200, 300, 600))
+            im.save(path)
+            self.assertTrue(trim_photo(path))
+            self.assertEqual(Image.open(path).size, (204, 402))     # (the player, and 2px around)
+            self.assertFalse(trim_photo(path))                       # (once is enough)
+        finally:
+            shutil.rmtree(d)
+
+
 class UpdaterTests(unittest.TestCase):
     def test_update_leaves_the_users_files(self):
         from gfxengine.updater import Updater

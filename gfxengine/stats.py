@@ -74,7 +74,8 @@ def _valorant(f):
 def _rl(f):
     teams = {}
     for side in SIDES:
-        players = [{"name": f.get(f"{side}_p{n}_name") or "", "character": "",
+        # (the in-game name; "_name" can be one the HUD shows instead)
+        players = [{"name": f.get(f"{side}_p{n}_ign") or f.get(f"{side}_p{n}_name") or "", "character": "",
                     "stats": [_int(f.get(f"{side}_p{n}_{x}")) for x in ("goals", "saves", "score")],
                     "extra": f.get(f"{side}_p{n}_assists", ""), "values": {"assists": _int(f.get(f"{side}_p{n}_assists"))}}
                    for n in range(1, 5)]

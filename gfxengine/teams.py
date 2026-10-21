@@ -231,8 +231,16 @@ class Teams:
 
     def save_photo(self, name, filename, blob):
         """A player's headshot: where it's kept (the roster is saved with it by the Teams tab)."""
-        return self._store(str(name or "").strip() or os.path.splitext(os.path.basename(filename or ""))[0],
-                           filename, blob, sub="players")
+        rel = self._store(str(name or "").strip() or os.path.splitext(os.path.basename(filename or ""))[0],
+                          filename, blob, sub="players")
+        trim_photo(os.path.join(self.folder, "players", os.path.basename(rel)))
+        return rel
+
+    def trim_photos(self):
+        """Trims the headshots already kept (see trim_photo). Returns how many changed."""
+        folder = os.path.join(self.folder, "players")
+        names = os.listdir(folder) if os.path.isdir(folder) else []
+        return sum(trim_photo(os.path.join(folder, n)) for n in names)
 
     def find(self, name, game=None):
         """A team by its name (or short name), the one in that game first; or None."""
@@ -268,6 +276,36 @@ class Teams:
         """The "Teams" data table."""
         return [list(COLUMNS) + ["Players"]] + [[t["name"], t["short"], t["logo"], t["color"], t["game"], str(len(t["players"]))]
                                                 for t in self.list()]
+
+
+def trim_photo(path):
+    """Crops a cut-out headshot to the player (its see-through margins off), so
+    every player fills their spot on the player graphics the same way, however
+    much empty space their photo had. True if it changed."""
+    if os.path.splitext(path)[1].lower() not in (".png", ".webp"):
+        return False
+    try:
+        from PIL import Image
+        with Image.open(path) as im:
+            if "A" not in im.getbands():
+                return False
+            im.load()
+            alpha = im.getchannel("A").point(lambda a: 255 if a > 8 else 0)
+            box = alpha.getbbox()
+            if not box or box == (0, 0) + im.size:
+                return False
+            pad = 2
+            box = (max(0, box[0] - pad), max(0, box[1] - pad), min(im.width, box[2] + pad), min(im.height, box[3] + pad))
+            if box == (0, 0) + im.size:
+                return False
+            out = im.crop(box)
+            fmt = im.format
+        tmp = path + ".tmp"
+        out.save(tmp, fmt)
+        os.replace(tmp, path)
+        return True
+    except Exception:    # (an odd file: kept as it is)
+        return False
 
 
 def ign_key(v):
