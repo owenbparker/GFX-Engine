@@ -48,11 +48,13 @@
 
   // Following an engine.
   GFX.base = remote ? remote.replace(/\/+$/, "") : "";
-  let dataRev = null;
-  function apply(state) {
-    if (state.data) GFX.setClock(state.data.now);
-    if (state.data && state.data.rev !== dataRev) { dataRev = state.data.rev; GFX.setData(state.data.tables); }
-    bus.apply(state);
+  let dataRev = null, state = {};
+  // Each message has only what changed (the rest is as it was).
+  function apply(msg) {
+    state = Object.assign({}, state, msg);
+    if (msg.data) GFX.setClock(msg.data.now);
+    if (msg.data && msg.data.rev !== dataRev) { dataRev = msg.data.rev; GFX.setData(msg.data.tables); }
+    if (state.project && state.live) bus.apply(state);
   }
   let source;
   function connect() {

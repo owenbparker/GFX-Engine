@@ -250,6 +250,13 @@ shows its graphic, whether it's on Program or not (with its Program values,
 or else its Preview ones); off, it shows nothing, so a browser source you
 aren't using costs the PC nothing.
 
+The outputs are made to keep up on a busy show: the engine works out what
+changed once for every output and sends each only that (a take is a few
+hundred bytes, not the whole project), and an output keeps every picture its
+graphics use loaded and decoded ahead, so a graphic plays in only once it's
+all there, never half drawn. That costs some memory (a few hundred MB with
+many graphics), on purpose.
+
 Engines announce themselves on the network (UDP 8783) and show up under
 Outputs > Engines on the network; **Scan** also looks for them directly.
 Turn off "Let other PCs use this engine" to keep it to this PC. **Other PCs

@@ -92,11 +92,14 @@ const App = {
     this.emit("assets");
   },
   emit(what) { for (const fn of this.listeners) { try { fn(this.state, what); } catch (e) { console.error(e); } } },
-  apply(state) {
-    this.state = state;
-    GFX.loadFonts(state.fonts);
-    GFX.setClock(state.data.now);
-    GFX.setData(state.data.tables);
+  apply(msg) {
+    // (each message has only what changed: the rest is as it was)
+    const state = this.state = Object.assign({}, this.state, msg);
+    if (msg.fonts) GFX.loadFonts(state.fonts);
+    if (msg.data) {
+      GFX.setClock(state.data.now);
+      GFX.setData(state.data.tables);
+    }
     if (state.assets_rev !== this.assetsRev) this.loadAssets();
     this.emit("state");
   },

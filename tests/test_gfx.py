@@ -568,6 +568,20 @@ class ServerTests(unittest.TestCase):
             post("/api/take", {"transition": "cut"})
             live = json.loads(get("/api/state"))["live"]
             self.assertIn(cid, live["program"]["on"])
+            self.assertIn("now", json.loads(get("/api/state"))["data"])
+            # The stream: everything first, then only what changed (a cue: not the project).
+            with urllib.request.urlopen(base + "/api/stream", timeout=10) as r:
+                def message():
+                    while True:
+                        line = r.readline().decode()
+                        if line.startswith("data: "):
+                            return json.loads(line[6:])
+                first = message()
+                self.assertTrue({"project", "live", "data"} <= set(first))
+                post("/api/cue", {"id": cid, "on": False})
+                after = message()
+                self.assertIn("live", after)
+                self.assertNotIn("project", after)
             self.assertEqual(live["program"]["values"][cid]["Name"], "Owen")
             # Bitfocus Companion: Preview, Program, Take and the quick functions.
             comp_state = json.loads(get("/api/companion"))

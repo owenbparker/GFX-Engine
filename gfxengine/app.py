@@ -73,6 +73,10 @@ class Engine:
         self.feeds_rev = 0
         self.ws = self.live = self.assets = self.sources = self.stats = None
         self._cond = threading.Condition()
+        self._parts_lock = threading.Lock()
+        self._parts = None      # (version, made at, {key: JSON}): the state, made once for every output
+        self._fonts_cache = (None, 0, [])
+        self._ffmpeg_cache = (0, False)
         threading.Thread(target=self._trim_photos, daemon=True).start()
         self._open_lock = threading.Lock()
         self.jobs.listeners.append(self.changed)
@@ -143,12 +147,14 @@ class Engine:
             self.version += 1
             self._cond.notify_all()
 
-    def wait(self, timeout):
+    def wait(self, timeout, version=None):
+        """Waits for a change (or, given the version last seen, returns at once if it's already changed)."""
         with self._cond:
-            self._cond.wait(timeout)
+            if version is None or self.version == version:
+                self._cond.wait(timeout)
 
     def global_config(self):
-        return globalcfg.clean(self.ws.get().get("global"))
+        return globalcfg.clean(copy.deepcopy(self.ws.snapshot().get("global")))
 
     def data_snapshot(self):
         """The tables graphics read: the data sources, "Global", and what game HUDs send."""
@@ -188,14 +194,14 @@ class Engine:
     def state(self):
         """Everything the pages show (the outputs only use project, live and data)."""
         s = self.settings.get()
-        project = self.ws.get()
+        project = self.ws.snapshot()
         return {
             "app": {"name": self.name(), "version": self.updater.current, "port": s["http_port"],
                     "network": s["allow_network"],
                     # (where other PCs reach it: the one network chosen, or every one)
                     "addresses": [s["network_address"]] if s.get("network_address") else discover.own_addresses(),
                     "all_addresses": discover.own_addresses(), "network_address": s.get("network_address") or "",
-                    "ffmpeg": bool(ffmpeg_path()), "platform": platform.system()},
+                    "ffmpeg": self._has_ffmpeg(), "platform": platform.system()},
             "workspace": {"id": self.workspace_id, "name": project.get("name", ""),
                           "picture": bool(project.get("picture"))},
             "rev": self.ws.rev, "assets_rev": self.assets_rev,
@@ -203,8 +209,45 @@ class Engine:
             "global": globalcfg.clean(project.get("global")),
             "teams": self.teams.list(),
             "games": list(GAMES.values()),   # (the games there are HUDs for)
-            "fonts": self.assets.fonts(), "jobs": self.jobs.list(), "update": self.updater.info(),
+            "fonts": self._fonts(), "jobs": self.jobs.list(), "update": self.updater.info(),
         }
+
+    def _fonts(self):
+        key = (id(self.ws), self.assets_rev)
+        if self._fonts_cache[0] != key or time.monotonic() - self._fonts_cache[1] > 5:
+            self._fonts_cache = (key, time.monotonic(), self.assets.fonts())
+        return self._fonts_cache[2]
+
+    def _has_ffmpeg(self):
+        if time.monotonic() - self._ffmpeg_cache[0] > 30:
+            self._ffmpeg_cache = (time.monotonic(), bool(ffmpeg_path()))
+        return self._ffmpeg_cache[1]
+
+    def state_parts(self):
+        """The state as {key: JSON text}, made once per change however many
+        pages follow it (the outputs, the monitors, the control panel); the
+        data's "now" is left out (state_json puts it back)."""
+        with self._parts_lock:
+            version = self.version
+            p = self._parts
+            if not p or p[0] != version or time.monotonic() - p[1] > 1:
+                state = self.state()
+                data = dict(state["data"])
+                data.pop("now", None)
+                state["data"] = data
+                p = self._parts = (version, time.monotonic(), {k: json.dumps(v) for k, v in state.items()})
+            return p[2]
+
+    def state_json(self, parts=None, keys=None):
+        """The state (or just `keys` of it) as JSON text."""
+        parts = parts or self.state_parts()
+        out = []
+        for k in (parts if keys is None else keys):
+            v = parts[k]
+            if k == "data":
+                v = v[:-1] + ',"now":%r}' % time.time()
+            out.append(json.dumps(k) + ":" + v)
+        return "{" + ",".join(out) + "}"
 
     def stop(self):
         self.sources.stop()
@@ -652,11 +695,12 @@ def make_handler(engine):
             self.send_header("Connection", "close")
             self.end_headers()
             self.close_connection = True
-            last, sent = None, 0.0
+            last, sent, had = None, 0.0, {}
             try:
                 self.wfile.write(b"retry: 1000\n\n")
                 while True:
-                    engine.wait(1.0)
+                    if last is not None:
+                        engine.wait(1.0, last)
                     now = time.monotonic()
                     if engine.version == last:
                         if now - sent > 10:   # keep the connection alive
@@ -667,7 +711,12 @@ def make_handler(engine):
                     if now - sent < 1 / 30:
                         time.sleep(1 / 30 - (now - sent))
                     last, sent = engine.version, time.monotonic()
-                    self.wfile.write(b"data: " + json.dumps(engine.state()).encode() + b"\n\n")
+                    # Only what changed since the last message (a take is a few hundred
+                    # bytes, not the whole project): the pages keep the rest.
+                    parts = engine.state_parts()
+                    keys = [k for k, v in parts.items() if had.get(k) != v]
+                    had = dict(parts)
+                    self.wfile.write(b"data: " + engine.state_json(parts, keys).encode() + b"\n\n")
                     self.wfile.flush()
             except (ConnectionError, OSError):
                 pass
@@ -700,7 +749,7 @@ def make_handler(engine):
                 return self._json({"app": discover.APP, "name": engine.name(), "version": engine.updater.current,
                                    "port": engine.settings.get()["http_port"]})
             if path == "/api/state":
-                return self._json(engine.state())
+                return self._send(engine.state_json())
             if path == "/api/stream":
                 return self._stream()
             if path == "/api/companion":

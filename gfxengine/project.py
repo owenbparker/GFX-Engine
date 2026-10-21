@@ -93,6 +93,14 @@ class Workspace:
         with self.lock:
             return copy.deepcopy(self.data)
 
+    def snapshot(self):
+        """Like get(), but the same copy until the project changes: read it,
+        never change it (the outputs' state is made from it many times a second)."""
+        with self.lock:
+            if getattr(self, "_snap_rev", None) != self.rev:
+                self._snap, self._snap_rev = copy.deepcopy(self.data), self.rev
+            return self._snap
+
     def comp(self, cid):
         with self.lock:
             c = next((c for c in self.data["compositions"] if c["id"] == cid), None)

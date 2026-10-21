@@ -240,8 +240,9 @@
       if (!value) return el("div");
       const img = el("img", "gfx-media", { objectFit: fitOf(layer.fit), objectPosition: POSITIONS[layer.position] || "" });
       img.draggable = false;
-      img.src = url(encodeURI(value));
-      if (layer.fit !== "fill" && !/\.(gif|svg)(\?|$)/i.test(value)) img.addEventListener("load", () => smooth(img, layer), { once: true });
+      const done = smoothed.get(smoothKey(value, layer));
+      img.src = done || url(encodeURI(value));
+      if (!done && layer.fit !== "fill" && !/\.(gif|svg)(\?|$)/i.test(value)) img.addEventListener("load", () => smooth(img, layer, value), { once: true });
       return img;
     }
     if (t === "video") {
@@ -431,11 +432,15 @@
   // A big picture in a small box (a team's logo, say) is scaled down by the
   // browser in one step, which looks jagged: it's resampled once, smoothly, to
   // twice the size it's shown at.
-  function smooth(img, layer) {
+  // (each picture is resampled once, then kept: the next take has it at once)
+  const smoothed = new Map();
+  const smoothKey = (value, layer) => [value, layer.w, layer.h, layer.fit].join("|");
+  function smooth(img, layer, value) {
     const nw = img.naturalWidth, nh = img.naturalHeight;
     const k = layer.fit === "cover" ? Math.max(layer.w / nw, layer.h / nh) : Math.min(layer.w / nw, layer.h / nh);
     if (!nw || !nh || k * 2 >= 0.75 || !window.createImageBitmap) return;
     const w = Math.max(1, Math.round(nw * k * 2)), h = Math.max(1, Math.round(nh * k * 2));
+    const key = smoothKey(value, layer);
     createImageBitmap(img, { resizeWidth: w, resizeHeight: h, resizeQuality: "high" }).then(bmp => {
       const c = document.createElement("canvas");
       c.width = w; c.height = h;
@@ -444,11 +449,75 @@
       c.toBlob(b => {
         if (!b) return;
         const u = URL.createObjectURL(b);
-        img.addEventListener("load", () => URL.revokeObjectURL(u), { once: true });
-        img.src = u;
+        // (swapped in once it's decoded: no blank frame)
+        const next = new Image();
+        next.src = u;
+        (next.decode ? next.decode() : Promise.resolve()).catch(() => {}).then(() => {
+          if (smoothed.size > 400) { for (const old of smoothed.values()) URL.revokeObjectURL(old); smoothed.clear(); }
+          smoothed.set(key, u);
+          warm.set(u, next);
+          if (img.isConnected || !img.complete) img.src = u;
+        });
       }, "image/png");
     }).catch(() => {});
   }
+
+  // --- pictures kept ready ----------------------------------------------------------
+  // Every picture the graphics show is loaded and decoded ahead, and kept in
+  // memory, so a graphic taken to air has all of them on its first frame.
+  const warm = new Map();      // address -> decoded <img>
+  const warmVideos = new Map(); // address -> <video> kept loading
+  GFX.warm = function (comps, valuesOf) {
+    const want = new Set(), videos = new Set();
+    const add = v => { if (v && !/\{\{/.test(v)) want.add(url(encodeURI(v))); };
+    for (const s of GFX.sponsors()) add(s.logo);
+    for (const comp of comps || []) {
+      const values = valuesOf(comp.id) || {};
+      for (const layer of comp.layers || []) {
+        if (layer.visible === false) continue;
+        if (layer.type !== "image" && layer.type !== "video") continue;
+        const v = GFX.content(layer, values);
+        if (layer.type === "video") { if (v && !/\{\{/.test(v)) videos.add(url(encodeURI(v))); continue; }
+        if (v.startsWith("{{Sponsors")) continue;
+        add(v);
+        const done = smoothed.get(smoothKey(v, layer));
+        if (done) want.add(done);
+      }
+    }
+    for (const u of want) {
+      if (warm.has(u)) continue;
+      const img = new Image();
+      img.decoding = "async";
+      img.src = u;
+      img._ready = (img.decode ? img.decode() : new Promise(r => { img.onload = img.onerror = r; })).catch(() => {});
+      warm.set(u, img);
+    }
+    for (const u of [...warm.keys()]) if (!want.has(u)) warm.delete(u);
+    // (the few videos, the background loop say, are kept loaded too)
+    for (const u of [...videos].slice(0, 8)) {
+      if (warmVideos.has(u)) continue;
+      const v = document.createElement("video");
+      v.muted = true; v.preload = "auto"; v.src = u;
+      warmVideos.set(u, v);
+    }
+    for (const [u, v] of [...warmVideos]) if (!videos.has(u)) { v.removeAttribute("src"); v.load(); warmVideos.delete(u); }
+  };
+  // Resolves once a graphic's pictures are ready to show (or after `ms`, whatever comes first).
+  GFX.ready = function (root, ms) {
+    const waits = [];
+    root.querySelectorAll("img").forEach(img => {
+      if (!img.src) return;
+      const kept = warm.get(img.src);
+      if (kept) waits.push(kept._ready);
+      else if (!img.complete) waits.push(new Promise(r => { img.addEventListener("load", r, { once: true }); img.addEventListener("error", r, { once: true }); }));
+      else if (img.decode) waits.push(img.decode().catch(() => {}));
+    });
+    // (a game HUD's page: loaded before it's shown, a little longer allowed)
+    const pages = root.querySelectorAll("iframe");
+    pages.forEach(f => waits.push(new Promise(r => { f.addEventListener("load", r, { once: true }); f.addEventListener("error", r, { once: true }); })));
+    if (!waits.length) return Promise.resolve();
+    return Promise.race([Promise.all(waits), new Promise(r => setTimeout(r, pages.length ? 1500 : ms || 400))]);
+  };
 
   function setText(box, opts) {
     const layer = box._layer;
@@ -726,8 +795,13 @@
     }
 
     apply(state) {
+      // (nothing it shows changed: nothing to do)
+      const sig = [state.project, state.live, state.global, state.data, state.fonts];
+      if (this.sig && sig.every((v, i) => v === this.sig[i])) return;
+      this.sig = sig;
       GFX.loadFonts(state.fonts);
       this.preload(state.project.transitions || []);
+      this.warmUp(state);
       const want = this.wanted(state);
       const bus = state.live[this.opts.bus] || {};
       const take = (state.live.take || {}).seq || 0;
@@ -760,7 +834,13 @@
         const root = GFX.buildComp(want.comps.get(id), want.values[id] || {}, { muted: this.opts.monitor });
         this.scene.appendChild(root);
         this.shown.set(id, root);
-        this.in(root, mode, t);
+        // Played in once its pictures are decoded, so it never comes in half drawn.
+        root.style.visibility = "hidden";
+        GFX.ready(root, 400).then(() => {
+          if (this.shown.get(id) !== root) return;
+          root.style.visibility = "";
+          this.in(root, mode, t);
+        });
       }
       // Stacking: the graphic's "layer" setting, then its kind (full-page
       // boards at the back, overlays over them, lower thirds in front), then
@@ -860,6 +940,20 @@
         this.stingers.set(src, v);
       }
       return v;
+    }
+
+    // The pictures of every graphic that could go on air, ready before the take
+    // (on Program; a graphic's own output: its pictures).
+    warmUp(state) {
+      if (this.opts.bus !== "program" || this.warmed === state.project && this.warmedData === state.data && this.warmedLive === state.live) return;
+      this.warmed = state.project; this.warmedData = state.data; this.warmedLive = state.live;
+      const live = state.live || {}, pg = live.program || {}, pv = live.preview || {};
+      const comps = state.project.compositions.filter(c => !this.opts.comp || c.id === this.opts.comp);
+      const go = () => { this.warmTimer = null; this.warmAt = performance.now(); GFX.warm(comps, id => Object.assign({}, (pv.values || {})[id], (pg.values || {})[id])); };
+      // (the game's data changes many times a second: looked at again every few seconds at most)
+      if (this.warmTimer) clearTimeout(this.warmTimer);
+      const wait = this.warmAt == null ? 0 : Math.max(250, 3000 - (performance.now() - this.warmAt));
+      this.warmTimer = setTimeout(() => (window.requestIdleCallback || setTimeout)(go, { timeout: 1000 }), wait);
     }
 
     // Stinger videos load before they're needed, so they start on the button.
