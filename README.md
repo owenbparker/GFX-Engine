@@ -193,6 +193,12 @@ player in the game, linked or unlinked to their team's roster here, with
 **Save IGN to player** (CoD HUD: none, it doesn't read player names). The HUD side is in
 `hud-link/` (copied into each HUD).
 
+A HUD can also offer its own pages: the VALORANT HUD's agent select, in-game
+HUD and scoreboard. Each shows up in Control's graphics under **Game HUD**
+(added once, the first time; delete one and it stays gone), live from the
+HUD, to take on air like any other graphic. A HUD on another PC needs "Let
+other PCs on the network read the HUD" ticked in it.
+
 The players' stats from whichever HUD is connected also go into one table,
 `Stats`, the same for every game: `{{Stats!Left player 1}}`,
 `{{Stats!Left player 1 stat 1}}`, `{{Stats!Stat 1 title}}` (KILLS, GOALS...),
@@ -203,9 +209,14 @@ stats** in Global.
 
 Each game has its own columns on **Team stats** and rows on **Player stats**:
 League of Legends shows K/D/A, CS and DMG (and GOLD on Player stats), VALORANT
-kills, deaths and assists, Rocket League goals, saves and score. The big
-numbers at the top of Team stats are each team's kills (goals in Rocket
-League): `{{Stats!Left kills}}`. League's damage only comes once the game is
+ACS, kills and deaths (and assists on Player stats), Rocket League goals,
+saves and score. The big numbers at the top of Team stats are each team's
+kills in League, rounds won in VALORANT and goals in Rocket League:
+`{{Stats!Left kills}}` (`{{Stats!Left total kills}}` is always the kills).
+VALORANT's ACS is an estimate: the spectator screen the HUD reads has no
+damage or ACS, so each kill counts about 200 and each assist 25, over the
+rounds played. The top player on Player stats is the one with the most of
+its first row (ACS in VALORANT). League's damage only comes once the game is
 over, from the League client's end-of-game stats on the HUD's PC (Riot's live
 game API doesn't report it); until then DMG shows a dash. Gold is the HUD's
 estimate during the game and exact after it.
@@ -219,8 +230,9 @@ ID: `{{Stats!MVP name}}`, `{{Stats!MVP flag}}`, `{{Stats!MVP headshot}}`,
 
 Team stats (a picture left of each player) and Player stats show each
 team's players as their **headshots** (from the Teams tab) or the
-**champions** they're playing (League), picked per team in either page's
-Control fields ("Player pictures": Left team, Right team). On Team stats a
+**champions** (League) or **agents** (VALORANT) they're playing, picked per
+team in each page's own Control fields ("Player pictures": Left team, Right
+team; Team stats and Player stats are set separately). On Team stats a
 headshot shows only its top third (the face); on Player stats the headshot
 is full size (it can rise above the top of the box) and the champion's
 square art fills the box, uncropped. `{{Stats!Left player 1 headshot}}`,

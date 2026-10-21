@@ -226,10 +226,13 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     // Full-page boards, lower thirds, overlays: one board and one lower third on air at a time.
     const rows = [];
     for (const [kind, title] of KIND_TITLES) {
-      const these = comps.filter(c => (c.kind || "overlay") === kind);
+      const these = comps.filter(c => (c.kind || "overlay") === kind && !c.hud);
       if (!these.length) continue;
       rows.push(h("div", { class: "rd-group" }, title), ...these.map(row));
     }
+    // A connected game HUD's own pages (VALORANT's agent select...), live from the HUD.
+    const huds = comps.filter(c => c.hud);
+    if (huds.length) rows.push(h("div", { class: "rd-group" }, "Game HUD"), ...huds.map(row));
     list.replaceChildren(...rows);
   }
   function row(c) {
@@ -312,9 +315,12 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const mvp = comp.layers.some(l => /\{\{\s*Stats!MVP/i.test((l.text || "") + (l.src || "")));
     const caster = comp.layers.some(l => /Global!Caster/i.test(l.move || ""));
     const pics = comp.layers.some(l => /\{\{\s*Stats!.*(headshot|champion)\}\}/i.test(l.src || ""));
-    const extras = () => [caster ? casterField(s) : null, roster ? rosterField(s) : null, mvp ? mvpField(s) : null, pics ? picturesField(s) : null, clock ? clockField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
-    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, clock, roster, mvp, caster, pics,
-      Object.keys(s.data.feeds || {}), (s.data.tables.Global || []).map(r => r[0])]);
+    // (Player stats has its own setting: its picture is the MVP's)
+    const picsPage = comp.layers.some(l => /\{\{\s*Stats!MVP (headshot|champion)\}\}/i.test(l.src || "")) ? "player" : "team";
+    const extras = () => [comp.hud ? hudField(s, comp) : null, caster ? casterField(s) : null, roster ? rosterField(s) : null, mvp ? mvpField(s) : null, pics ? picturesField(s, picsPage) : null, clock ? clockField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
+    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, clock, roster, mvp, caster, pics, picsPage,
+      Object.keys(s.data.feeds || {}), (s.data.tables.Global || []).map(r => r[0]),
+      comp.hud ? JSON.stringify(s.data.feeds[comp.hud.split("/")[0]] && s.data.feeds[comp.hud.split("/")[0]].unreachable) : ""]);
     if (!force && box.dataset.sig === sig) {
       markSize(box, s);
       // Same fields: only bring in values changed elsewhere (not the one being typed in).
@@ -333,7 +339,7 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     }
     box.dataset.sig = sig;
     if (!fields.length) {
-      box.replaceChildren(...(bracket || sched || clock || roster || mvp || caster || pics ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
+      box.replaceChildren(...(bracket || sched || clock || roster || mvp || caster || pics || comp.hud ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
       return;
     }
     box.replaceChildren(...fields.map(l => {
@@ -422,17 +428,27 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     markSize(el, s);
     return el;
   }
+  // A game HUD's own page (VALORANT's agent select...), shown live from the HUD.
+  function hudField(s, comp) {
+    const hud = comp.hud.split("/")[0], feed = (s.data.feeds || {})[hud];
+    const note = !feed ? `Shows when the ${hud} is connected (its GFX Engine page).`
+      : feed.unreachable ? `The ${hud} is on another PC: tick "Let other PCs on the network read the HUD" in it, so this can show here.`
+      : `Live from the ${hud} (${feed.from}). Take it like any other graphic.`;
+    return h("div", { class: "field" }, h("label", {}, "Game HUD", h("span", { class: "kind" }, hud)),
+      h("div", { class: "resolved" }, note));
+  }
   // The stats pages: each team's players shown with their headshot or their
-  // champion (Global's, so Team stats and Player stats change together, on air too).
-  function picturesField(s) {
-    const set = (side, v) => api("/api/global", { global: { pictures: { [side]: v } } });
+  // champion / agent. Team stats and Player stats each have their own (in
+  // Global, so it changes on air too).
+  function picturesField(s, page) {
+    const set = (side, v) => api("/api/global", { global: { pictures: { [page]: { [side]: v } } } });
     const pick = side => h("label", { class: "swatch" }, side === "left" ? "Left team" : "Right team",
       h("select", { "data-k": "pic-" + side, onchange: e => set(side, e.target.value) },
-        h("option", { value: "headshot" }, "Headshots"), h("option", { value: "champion" }, "Champions")));
-    const el = h("div", { class: "field caster-field" },
-      h("label", {}, "Player pictures", h("span", { class: "kind" }, "global")),
+        h("option", { value: "headshot" }, "Headshots"), h("option", { value: "champion" }, "Champions / agents")));
+    const el = h("div", { class: "field caster-field", "data-page": page },
+      h("label", {}, "Player pictures", h("span", { class: "kind" }, page === "player" ? "player stats" : "team stats")),
       h("div", { class: "row-gap" }, pick("left"), pick("right")),
-      h("div", { class: "resolved" }, "Headshots come from the Teams tab; champions from the game (League). Team stats and Player stats both follow this."));
+      h("div", { class: "resolved" }, "Headshots come from the Teams tab; champions (League) and agents (VALORANT) from the game. Only " + (page === "player" ? "Player stats" : "Team stats") + " follows this."));
     markSize(el, s);
     return el;
   }
@@ -477,12 +493,13 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     }
     for (const side of ["left", "right"]) {
       const sel = el.querySelector(`[data-k=pic-${side}]`);
-      if (sel && document.activeElement !== sel) sel.value = ((s.global.pictures || {})[side]) || "headshot";
+      const page = (el.querySelector("[data-page]") || el).dataset.page || "team";
+      if (sel && document.activeElement !== sel) sel.value = (((s.global.pictures || {})[page] || {})[side]) || "headshot";
     }
     const mv = el.querySelector("[data-k=mvp]");
     if (mv) {
       const st = Object.fromEntries((s.data.tables.Stats || []).slice(1));
-      const title = (st["Stat 1 title"] || "KILLS").toLowerCase();
+      const t1 = st["Stat 1 title"] || "KILLS", title = t1.length <= 3 || t1.includes("/") ? t1 : t1.toLowerCase();   // (ACS, K/D/A stay as they are)
       const opts = [["auto", `Top player (most ${title})`]];
       for (const side of ["Left", "Right"]) {
         for (let n = 1; n <= 10 && (`${side} player ${n}` in st); n++) {

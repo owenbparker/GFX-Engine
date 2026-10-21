@@ -227,6 +227,15 @@
       return el("div", "gfx-media", { backgroundImage: `url("${url(encodeURI(value))}")`, backgroundSize: "auto 300%",
         backgroundPosition: "center top", backgroundRepeat: "no-repeat" });
     }
+    // A page of a game HUD (its agent select, its overlay...), live.
+    if (t === "web") {
+      if (!value) return el("div");
+      const f = el("iframe", "gfx-media", { border: "0", background: "transparent", pointerEvents: "none" });
+      f.setAttribute("allowtransparency", "true");
+      f.setAttribute("scrolling", "no");
+      f.src = url(value);
+      return f;
+    }
     if (t === "image") {
       if (!value) return el("div");
       const img = el("img", "gfx-media", { objectFit: fitOf(layer.fit), objectPosition: POSITIONS[layer.position] || "" });

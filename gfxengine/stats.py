@@ -27,9 +27,9 @@ SIDES = ("left", "right")
 # kills per death.
 BASE = {"lol": ("kills", "deaths", "assists"), "valorant": ("kills", "deaths", "assists"), "rl": ("goals", "saves", "score")}
 LAYOUT = {"lol": {"cols": ("kda", "cs", "dmg"), "rows": ("kda", "cs", "dmg", "gold")},
-          "valorant": {"cols": ("kills", "deaths", "assists"), "rows": ("kills", "deaths", "kd", "assists")},
+          "valorant": {"cols": ("acs", "kills", "deaths"), "rows": ("acs", "kills", "deaths", "assists")},
           "rl": {"cols": ("goals", "saves", "score"), "rows": ("goals", "saves", "assists", "score")}}
-NAMES = {"kda": "K/D/A", "kd": "K/D", "cs": "CS", "vision": "VISION", "gold": "GOLD", "dmg": "DMG"}
+NAMES = {"acs": "ACS", "kda": "K/D/A", "kd": "K/D", "cs": "CS", "vision": "VISION", "gold": "GOLD", "dmg": "DMG"}
 TITLES = {g: tuple(k.upper() for k in keys) for g, keys in BASE.items()}
 GAMES = {"lol": "League of Legends", "valorant": "VALORANT", "rl": "Rocket League", "cod": "Call of Duty"}
 LIVE_FOR = 10   # seconds without news before the stats are FINAL
@@ -60,13 +60,35 @@ def _lol(f):
     return teams
 
 
+# VALORANT agents with an icon in web/agents (named as the VALORANT HUD names them).
+AGENTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web", "agents")
+
+
+def _agent_icon(agent):
+    agent = str(agent or "").strip()
+    return f"agents/{agent}.png" if agent and os.path.isfile(os.path.join(AGENTS_DIR, agent + ".png")) else ""
+
+
+def acs_estimate(k, a, rounds):
+    """Average combat score, estimated: the spectator screen the HUD reads has
+    no damage or ACS, so a kill counts ~200 (its damage and kill bonus) and an
+    assist 25, over the rounds played."""
+    return round((200 * k + 25 * a) / rounds) if rounds else 0
+
+
 def _valorant(f):
     teams = {}
+    rounds = _int(f.get("SCORE LEFT")) + _int(f.get("SCORE RIGHT"))
     for side in SIDES:
         S = side.upper()
-        players = [{"name": f.get(f"{S} P{n} NAME") or "", "character": f.get(f"{S} P{n} AGENT") or "",
-                    "stats": [_int(f.get(f"{S} P{n} {x}")) for x in ("K", "D", "A")],
-                    "extra": f.get(f"{S} P{n} CREDITS", "")} for n in range(1, 6)]
+        players = []
+        for n in range(1, 6):
+            k, d, a = (_int(f.get(f"{S} P{n} {x}")) for x in ("K", "D", "A"))
+            acs = f.get(f"{S} P{n} ACS")   # (the HUD's own, if it ever reads it)
+            players.append({"name": f.get(f"{S} P{n} NAME") or "", "character": f.get(f"{S} P{n} AGENT") or "",
+                            "icon": _agent_icon(f.get(f"{S} P{n} AGENT")), "stats": [k, d, a],
+                            "extra": f.get(f"{S} P{n} CREDITS", ""),
+                            "values": {"acs": _int(acs) if str(acs or "") != "" else acs_estimate(k, a, rounds)}})
         teams[side] = {"score": _int(f.get(f"SCORE {S}")), "players": players}
     return teams
 
@@ -156,10 +178,14 @@ def rows(stats, live, names=None, pick="auto", lookup=None, pictures=None):
     player the Player stats page shows) is the one with the most of the first
     stat (kills, goals), or the one picked ("left 3"). lookup(side, in-game
     name) -> that player in the team's roster (for their name, flag and
-    headshot), or None. pictures: {"left": "headshot" or "champion", "right": ...},
-    what the stats pages show for each team's players."""
+    headshot), or None. pictures: {"team": {"left": "headshot" or "champion",
+    "right": ...}, "player": {...}}, what Team stats and Player stats show for
+    each team's players."""
     names = names or {}
     pictures = pictures or {}
+    if "left" in pictures or "right" in pictures:   # (one setting for both pages)
+        pictures = {"team": pictures, "player": pictures}
+    team_pics, player_pics = pictures.get("team") or {}, pictures.get("player") or {}
     out = [["Field", "Value"]]
     if not stats:
         out += [["Status", ""], ["Game", ""]] + [[f"Stat {i} title", t] for i, t in enumerate(("KILLS", "DEATHS", "ASSISTS"), 1)]
@@ -178,9 +204,11 @@ def rows(stats, live, names=None, pick="auto", lookup=None, pictures=None):
         S = side.title()
         team = stats[side]
         players = team["players"]
+        kills = sum(p["stats"][0] for p in players)
         out += [[f"{S} name", names.get(side, "")], [f"{S} score", str(team["score"])],
-                # (the first stat: kills, goals)
-                [f"{S} kills", str(sum(p["stats"][0] for p in players))]]
+                # The big number by the team on Team stats: rounds won (VALORANT), else
+                # the first stat (kills, goals). "Total kills" is always the kills.
+                [f"{S} kills", str(team["score"] if game == "valorant" else kills)], [f"{S} total kills", str(kills)]]
         out += [[f"{S} stat {i + 1}", _total(k, players, game)] for i, k in enumerate(lay["cols"])]
         for n, p in enumerate(players, 1):
             k = f"{S} player {n}"
@@ -191,10 +219,12 @@ def rows(stats, live, names=None, pick="auto", lookup=None, pictures=None):
             out += [[f"{k} stat {i + 1}", _show(c, v.get(c, "")) if p["name"] else ""] for i, c in enumerate(lay["cols"])]
             out.append([f"{k} K/D", v["kd"] if p["name"] else ""])
             # Their picture: their headshot (from the roster) or their champion, as Control says.
-            champ = pictures.get(side) == "champion"
+            champ = team_pics.get(side) == "champion"
             out += [[f"{k} headshot", "" if champ else r.get("photo", "")], [f"{k} champion", p.get("icon", "") if champ and p["name"] else ""]]
             # Best: most of stat 1 (kills, goals), then stat 3, then fewest stat 2.
-            rank = (p["stats"][0], p["stats"][2], -p["stats"][1])
+            # (the first Player stats row when it's a number, like ACS)
+            first = v.get(lay["rows"][0])
+            rank = ((first if isinstance(first, int) else p["stats"][0]), p["stats"][0], p["stats"][2], -p["stats"][1])
             if p["name"] and (best is None or rank > best[0]):
                 best = (rank, side, p)
             if p["name"] and pick == f"{side} {n}":
@@ -204,14 +234,14 @@ def rows(stats, live, names=None, pick="auto", lookup=None, pictures=None):
         _, side, p = best
         r = (lookup(side, p["name"]) if lookup else None) or {}
         v = _values(game, p)
-        champ = champion_art(p.get("icon", "")) if pictures.get(side) == "champion" else ""
+        champ = (champion_art(p.get("icon", "")) or p.get("icon", "")) if player_pics.get(side) == "champion" else ""
         out += [["MVP", p["name"]], ["MVP team", names.get(side, side.title())], ["MVP character", p["character"]],
                 ["MVP picked", "manual" if picked else "auto"], ["MVP side", side],
                 ["MVP name", r.get("name") or r.get("ign") or p["name"]], ["MVP ID", r.get("ign") or p["name"]],
                 ["MVP country", r.get("country", "")], ["MVP flag", f"flags/{r['country']}.svg" if r.get("country") else ""],
-                ["MVP headshot", "" if pictures.get(side) == "champion" else r.get("photo", "")], ["MVP champion", champ],
+                ["MVP headshot", "" if player_pics.get(side) == "champion" else r.get("photo", "")], ["MVP champion", champ],
                 # (a player not in the roster: no one else's photo or flag)
-                ["MVP headshot shown", "1" if r.get("photo") and pictures.get(side) != "champion" else ""], ["MVP flag shown", "1" if r.get("country") else ""]]
+                ["MVP headshot shown", "1" if r.get("photo") and player_pics.get(side) != "champion" else ""], ["MVP flag shown", "1" if r.get("country") else ""]]
         out += [[f"MVP stat {i + 1}", _show(c, v.get(c, ""))] for i, c in enumerate(lay["cols"])]
         out += [[f"MVP row {i + 1}", _show(c, v.get(c, ""))] for i, c in enumerate(lay["rows"])]
         out.append(["MVP K/D", v["kd"]])

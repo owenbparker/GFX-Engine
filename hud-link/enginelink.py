@@ -9,7 +9,11 @@ original, in hud-link/). A HUD makes one EngineLink with:
                   table of its fields has this name)
     game          "lol", "valorant", "cod" or "rl"
     snapshot()    -> {"fields": {name: value}, "series": {"left": {"name",
-                  "short", "score", "color"}, "right": {...}, "best_of": n}}
+                  "short", "score", "color"}, "right": {...}, "best_of": n},
+                  and optionally "hud": {"port", "network" (other PCs can
+                  read the HUD), "graphics": [{"id", "name", "path", "kind"
+                  ("board" / "overlay")}]}: its own pages, which the engine
+                  adds to its graphics (e.g. VALORANT's agent select)}
     apply_global(g, fetch) -> a short summary of what changed: takes the
                   engine's global configuration (g["left"]["name"], "short",
                   "logo_url", "color"..., g["sponsors"]: [{"logo_url", "secs",
@@ -273,7 +277,7 @@ class EngineLink:
                 self.error = f"Couldn't read the HUD: {e!r}"
                 continue
             body = {"source": self.source, "game": self.game, "fields": snap.get("fields") or {},
-                    "series": snap.get("series") or {}}
+                    "series": snap.get("series") or {}, "hud": snap.get("hud")}
             if body == self._last_body and time.time() - self.sent_at < 4:
                 continue
             try:

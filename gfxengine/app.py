@@ -173,11 +173,14 @@ class Engine:
                                                [stats_names.get(f"{side.title()} player {i}", "") for i in range(1, 6)])
         for name, feed in self.feeds.items():
             snap["tables"][name] = feed["rows"]
+        snap["tables"]["HUDs"] = self.hud_rows()
         snap["rev"] = f"{snap['rev']}.{self.ws.rev}.{self.feeds_rev}.{int(self.stats.live())}.{self.teams.rev}"
         snap["now"] = time.time()   # (the outputs line their clocks up with it: the sponsors change together)
         snap["stats"] = {"live": self.stats.live(), "kept": bool(self.stats.data),
                          "from": (self.stats.data or {}).get("source", ""), "at": (self.stats.data or {}).get("at", 0)}
-        snap["feeds"] = {name: {"from": f["from"], "game": f["game"], "age": round(time.time() - f["at"], 1)}
+        snap["feeds"] = {name: {"from": f["from"], "game": f["game"], "age": round(time.time() - f["at"], 1),
+                                # (a HUD on another PC must let other PCs read it for its pages to show here)
+                                "unreachable": bool(f.get("hud") and f["hud"]["remote"] and not f["hud"]["network"])}
                          for name, f in self.feeds.items()}
         return snap
 
@@ -215,7 +218,11 @@ class Engine:
         old = self.global_config()
         g = json.loads(json.dumps(old))
         for k, v in (changes or {}).items():
-            if k in ("left", "right", "bgloop", "caster", "pictures") and isinstance(v, dict):
+            if k == "pictures" and isinstance(v, dict) and not ({"left", "right"} & set(v)):
+                for page, sides in v.items():   # ({"team": {"left": "champion"}}: just that one)
+                    if isinstance(sides, dict):
+                        g[k].setdefault(page, {}).update(sides)
+            elif k in ("left", "right", "bgloop", "caster", "pictures") and isinstance(v, dict):
                 g[k].update(v)
             else:
                 g[k] = v
@@ -321,7 +328,11 @@ class Engine:
         rows = [["Field", "Value"]] + [[str(k)[:80], "" if v is None else str(v)[:500]] for k, v in fields.items()]
         old = self.feeds.get(name)
         was_live = self.stats.live()
-        self.feeds[name] = {"rows": rows, "from": client, "game": str(body.get("game") or ""), "at": time.time()}
+        self.feeds[name] = {"rows": rows, "from": client, "game": str(body.get("game") or ""), "at": time.time(),
+                            "hud": self._hud_pages(name, body.get("hud"), client)}
+        if self.feeds[name]["hud"] != (old or {}).get("hud"):
+            self.feeds_rev += 1
+            self._add_hud_graphics(name, self.feeds[name]["hud"])
         if not old or old["rows"] != rows:
             self.feeds_rev += 1
             if not old:
@@ -355,6 +366,50 @@ class Engine:
             if changes:
                 self.set_global(changes)
         self.changed()
+
+    # --- a game HUD's own graphics (VALORANT's agent select...) -------------------
+
+    def _hud_pages(self, name, hud, client):
+        """What a HUD says it can show ({"port", "network", "graphics": [{"id",
+        "name", "path", "kind"}]}) -> its pages' addresses, as outputs reach them:
+        a HUD on this PC at localhost, one on another PC at its address."""
+        if not isinstance(hud, dict) or not hud.get("port"):
+            return None
+        host = "localhost" if _is_local(client) else client
+        pages = []
+        for g in hud.get("graphics") or []:
+            if isinstance(g, dict) and g.get("id") and g.get("path"):
+                pages.append({"id": re.sub(r"[^\w-]", "", str(g["id"]))[:30], "name": str(g.get("name") or g["id"])[:40],
+                              "kind": g.get("kind") if g.get("kind") in ("board", "lower third", "overlay") else "overlay",
+                              "url": f"http://{host}:{int(hud['port'])}/{str(g['path']).lstrip('/')}"})
+        return {"pages": pages, "remote": not _is_local(client), "network": bool(hud.get("network"))}
+
+    def _add_hud_graphics(self, name, hud):
+        """Adds a graphic for each of a HUD's pages the first time the HUD
+        offers it (deleting one keeps it gone)."""
+        if not hud:
+            return
+        with self.ws.lock:
+            added = self.ws.data.setdefault("hud_graphics", [])
+            for p in hud["pages"]:
+                key = f"{name}/{p['id']}"
+                if key in added:
+                    continue
+                added.append(key)
+                comp = blank_comp(f"{p['name']} ({name})")
+                comp.update(kind=p["kind"], hud=key)
+                comp["layers"] = [blank_layer("web", name=p["name"], x=0, y=0, w=1920, h=1080,
+                                              src=f"{{{{HUDs!{name} {p['name']}}}}}")]
+                self.ws.add_comp(comp)
+                log(f"Added the {name}'s {p['name']} to the graphics")
+
+    def hud_rows(self):
+        """The "HUDs" data table: each connected HUD's pages' addresses."""
+        out = [["Field", "Value"]]
+        for name, f in self.feeds.items():
+            for p in (f.get("hud") or {}).get("pages") or []:
+                out.append([f"{name} {p['name']}", p["url"]])
+        return out
 
     # --- workspaces ------------------------------------------------------
 
