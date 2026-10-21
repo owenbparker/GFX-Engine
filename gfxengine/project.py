@@ -7,6 +7,7 @@ sources, and the asset files they use.
 A composition is a 1920x1080 graphic made of layers, bottom to top:
 
     {"id", "name", "layer": 0 (stacking on the output: higher is in front),
+     "kind": "board" | "lower third" | "overlay" (one board and one lower third on air at a time),
      "layers": [{"id", "name", "type": "image" | "video" | "text" | "rect" | "lottie",
                  "x", "y", "w", "h", "opacity", "rotation", "visible", "blend",
                  "field": "" (the name it's edited by in Control; "" = fixed),
@@ -91,6 +92,14 @@ class Workspace:
     def get(self):
         with self.lock:
             return copy.deepcopy(self.data)
+
+    def snapshot(self):
+        """Like get(), but the same copy until the project changes: read it,
+        never change it (the outputs' state is made from it many times a second)."""
+        with self.lock:
+            if getattr(self, "_snap_rev", None) != self.rev:
+                self._snap, self._snap_rev = copy.deepcopy(self.data), self.rev
+            return self._snap
 
     def comp(self, cid):
         with self.lock:

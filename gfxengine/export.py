@@ -29,7 +29,7 @@ def _walk_assets(value, found):
     elif isinstance(value, list):
         for v in value:
             _walk_assets(v, found)
-    elif isinstance(value, str) and value.startswith(("assets/", "library/")):
+    elif isinstance(value, str) and value.startswith(("assets/", "library/", "loops/")):
         found.add(value)
 
 
@@ -60,7 +60,8 @@ def build(workspace, assets, comp_ids, values=None, tables=None):
         for name in os.listdir(os.path.join(WEB_DIR, "fonts")):
             z.write(os.path.join(WEB_DIR, "fonts", name), "fonts/" + name)
         for rel in sorted(used):
-            path = assets.path_of(rel)
+            # (the background loop that comes with the engine)
+            path = os.path.join(WEB_DIR, rel) if rel.startswith("loops/") else assets.path_of(rel)
             if not path or not os.path.isfile(path):
                 continue
             if rel.endswith(".json") and rel.startswith("assets/"):

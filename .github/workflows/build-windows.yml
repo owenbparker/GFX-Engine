@@ -2,7 +2,8 @@
 # a GitHub release (v1.0.<run number>) with GFXEngine-windows.zip. The app
 # checks the latest release on launch and offers to update itself. Each
 # release also gets SCC-GFX-Engine-Setup.exe, an installer that downloads the
-# latest release from GitHub when it runs.
+# latest release from GitHub when it runs, and SCC-GFX-Companion-module.tgz (the
+# Bitfocus Companion module, imported on Companion's Modules page).
 #
 # A commit with [no release] in its message builds and tests without publishing.
 #
@@ -55,7 +56,9 @@ jobs:
           if ($p.ExitCode -ne 0) { throw "Smoke test failed (exit code $($p.ExitCode))" }
           # Leave no test leftovers in the download.
           Remove-Item "$app\smoke-test.txt", "$app\settings.json" -ErrorAction SilentlyContinue
-          Remove-Item "$app\workspace" -Recurse -ErrorAction SilentlyContinue
+          Remove-Item "$app\workspace", "$app\workspaces", "$app\library" -Recurse -ErrorAction SilentlyContinue
+          # (a workspace in the download would replace the user's graphics, schedule and settings on every update)
+          foreach ($d in "workspace", "workspaces", "library", "settings.json") { if (Test-Path "$app\$d") { throw "$d left in the download" } }
           Remove-Item "$app\_update" -Recurse -ErrorAction SilentlyContinue
 
       - name: Add readme and version.txt
@@ -69,6 +72,23 @@ jobs:
         with:
           name: GFXEngine-windows
           path: dist/GFXEngine
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build the Companion module (SCC-GFX-Companion-module.tgz)
+        shell: pwsh
+        working-directory: companion-module
+        run: |
+          npm ci --no-audit --no-fund
+          if ($LASTEXITCODE) { exit 1 }
+          npm version --no-git-tag-version --allow-same-version $env:VERSION.TrimStart('v')
+          npm run check
+          if ($LASTEXITCODE) { exit 1 }
+          npx companion-module-build
+          if ($LASTEXITCODE) { exit 1 }
+          Move-Item scc-gfx-engine-*.tgz ..\SCC-GFX-Companion-module.tgz
 
       - name: Build the installer
         if: "!contains(github.event.head_commit.message, '[no release]')"
@@ -88,7 +108,7 @@ jobs:
           Compress-Archive -Path dist\GFXEngine\* -DestinationPath GFXEngine-windows.zip
           $notes = git log -1 --format=%B | Where-Object { $_ -notmatch '^(Co-Authored-By|Claude-Session):' }
           $notes = ($notes -join "`n").Trim()
-          gh release create "$env:VERSION" GFXEngine-windows.zip dist\SCC-GFX-Engine-Setup.exe --target "${{ github.sha }}" --title "SCC GFX Engine $env:VERSION" --notes "$notes"
+          gh release create "$env:VERSION" GFXEngine-windows.zip dist\SCC-GFX-Engine-Setup.exe SCC-GFX-Companion-module.tgz --target "${{ github.sha }}" --title "SCC GFX Engine $env:VERSION" --notes "$notes"
         env:
           GH_TOKEN: ${{ github.token }}
 

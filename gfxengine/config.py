@@ -33,6 +33,9 @@ DEFAULTS = {
     # Other PCs can open the outputs and the control panel, and find this
     # engine (it announces itself on the network).
     "allow_network": True,
+    # The one network other PCs reach it on (this PC's address on it, e.g. the
+    # NDI VLAN's), or "" for every network.
+    "network_address": "",
     # This engine's name on the network.
     "name": "",
     # The workspace open (its folder in workspaces/).

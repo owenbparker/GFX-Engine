@@ -77,6 +77,8 @@ class Beacon:
             try:
                 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
                     s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+                    if info.get("address"):   # (only on the network chosen)
+                        s.bind((info["address"], 0))
                     s.sendto(msg, ("255.255.255.255", DISCOVERY_PORT))
             except OSError:
                 pass
@@ -113,11 +115,12 @@ def _open(ip, port, timeout):
         return False
 
 
-def scan(port, timeout=0.35):
-    """Engines answering on port on this PC's networks (each /24)."""
+def scan(port, timeout=0.35, only=""):
+    """Engines answering on port on this PC's networks (each /24), or on the
+    one network only (this PC's address on it)."""
     mine = set(own_addresses())
     candidates = []
-    for a in sorted(mine):
+    for a in sorted({only} if only else mine):
         net = ipaddress.IPv4Network(a + "/24", strict=False)
         candidates += [str(h) for h in net.hosts() if str(h) not in mine]
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))

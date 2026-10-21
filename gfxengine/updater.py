@@ -177,7 +177,7 @@ rem version (settings and the workspace are left alone), then restarts it.
 :wait
 tasklist /FI "PID eq {os.getpid()}" 2>nul | find "{os.getpid()}" >nul && (ping -n 2 127.0.0.1 >nul & goto wait)
 robocopy "{new_dir}\\_internal" "{app_dir}\\_internal" /MIR /R:3 /W:1 /NFL /NDL /NJH /NJS /NP >nul
-robocopy "{new_dir}" "{app_dir}" /XD _internal /R:3 /W:1 /NFL /NDL /NJH /NJS /NP >nul
+robocopy "{new_dir}" "{app_dir}" /XD _internal workspace workspaces library _update /XF settings.json /R:3 /W:1 /NFL /NDL /NJH /NJS /NP >nul
 start "" "{app_dir}\\GFXEngine.exe"
 """)
         return script

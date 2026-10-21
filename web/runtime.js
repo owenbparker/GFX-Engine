@@ -64,7 +64,11 @@
 
   // --- data and fields -----------------------------------------------------------
   const ctx = { tables: {} };
-  GFX.setData = function (tables) { ctx.tables = tables || {}; GFX.retext(); };
+  GFX.setData = function (tables) { ctx.tables = tables || {}; GFX.retext(); tickRotators(); redrawBrackets(); reshow(); };
+  // The engine's clock (seconds), so every output changes sponsor at the same moment.
+  let clockOffset = 0;
+  GFX.setClock = function (engineNow) { if (engineNow) clockOffset = engineNow * 1000 - Date.now(); };
+  GFX.now = () => Date.now() + clockOffset;
 
   const colIndex = s => [...s.toUpperCase()].reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0) - 1;
   GFX.lookup = function (rows, ref) {
@@ -86,6 +90,13 @@
     if (low === "time") { const h = now.getHours() % 12 || 12; return `${pad(h)}:${pad(now.getMinutes())} ${now.getHours() < 12 ? "AM" : "PM"}`; }
     if (low === "time24") return `${pad(now.getHours())}:${pad(now.getMinutes())}`;
     if (low === "date") return now.toLocaleDateString(undefined, { weekday: "short", month: "numeric", day: "numeric" }).toUpperCase();
+    if (low === "clock") {
+      // Global's clock: the time of day, or the countdown for Starting Soon / Be Right Back.
+      const g = k => GFX.lookup(ctx.tables.Global || [], k);
+      const mode = g("Clock mode"), until = g("Clock until");
+      if (mode === "soon" || mode === "brb") return until ? token("countdown:" + until) : "00:00";
+      return token("time") + (g("Clock zone") ? " " + g("Clock zone") : "");
+    }
     let m = /^countdown:\s*(\d{1,2}):(\d{2})$/i.exec(t);
     if (m) {
       // To a time of day (today, or tomorrow if it's gone).
@@ -104,7 +115,7 @@
   }
   GFX.resolve = s => String(s == null ? "" : s).replace(/\{\{\s*([^{}]+?)\s*\}\}/g, (_, t) => token(t));
   const hasTokens = s => /\{\{[^{}]+\}\}/.test(String(s || ""));
-  const ticking = s => /\{\{\s*(time|time24|date|countdown:[^}]*)\s*\}\}/i.test(String(s || ""));
+  const ticking = s => /\{\{\s*(time|time24|date|clock|countdown:[^}]*)\s*\}\}/i.test(String(s || ""));
 
   // What a layer shows: its field's value if set, else its own.
   GFX.content = function (layer, values) {
@@ -112,8 +123,80 @@
     if (layer.type === "text") return v != null ? String(v) : layer.text || "";
     // (a picture or colour can come from the data too: {{Global!Left logo}})
     const own = v != null ? String(v) : (layer.type === "rect" ? layer.fill : layer.src) || "";
-    return hasTokens(own) ? GFX.resolve(own).trim() : own;
+    if (SPONSORS.test(own)) return "{{Sponsors}}";
+    // (every sponsor in a row: the list is part of the value, so a new list redraws it)
+    if (STRIP.test(own)) return "{{Sponsors all}}" + GFX.sponsors().map(x => "|" + (x.white ? "w:" : "c:") + x.logo).join("");
+    const out = hasTokens(own) ? GFX.resolve(own).trim() : own;
+    // A picture linked to Global with nothing there yet shows the design's own.
+    return !out && layer.placeholder ? layer.placeholder : out;
   };
+
+  // --- the sponsors: one after another, each for its own seconds ---------------
+  // A picture layer whose file is {{Sponsors}} shows Global's sponsors in turn.
+  const SPONSORS = /^\s*\{\{\s*sponsors\s*\}\}\s*$/i;
+  const STRIP = /^\s*\{\{\s*sponsors all\s*\}\}\s*$/i;
+  GFX.sponsors = function () {
+    return (ctx.tables.Sponsors || []).slice(1).filter(r => r[0])
+      .map(r => ({ logo: r[0], secs: Math.max(1, +r[1] || 10), epoch: +r[2] || 0, white: r[3] == null || r[3] === "1" }));
+  };
+  // {index, left (s), secs, list} of the sponsor on now.
+  GFX.sponsorNow = function (list) {
+    list = list || GFX.sponsors();
+    if (!list.length) return { index: -1, left: 0, secs: 0, list };
+    const total = list.reduce((n, s) => n + s.secs, 0);
+    let t = ((GFX.now() / 1000 - list[0].epoch) % total + total) % total;
+    for (let i = 0; i < list.length; i++) {
+      if (t < list[i].secs) return { index: i, left: list[i].secs - t, secs: list[i].secs, list };
+      t -= list[i].secs;
+    }
+    return { index: list.length - 1, left: 0, secs: list[list.length - 1].secs, list };
+  };
+  const rotators = new Set();
+  // A picture layer whose file is {{Sponsors all}}: every sponsor side by side,
+  // centred, as tall as the box; each white like the design's unless the sponsor
+  // is set to keep its colours (or the layer's "mono" is off).
+  function sponsorStrip(layer, logos) {
+    const box = el("div", "gfx-media gfx-strip", { gap: Math.round(layer.h * 0.7) + "px" });
+    for (const item of logos) {
+      const white = item.startsWith("w:") && layer.mono !== false, logo = item.slice(2);
+      const img = el("img", "", { height: "100%", maxWidth: Math.round(layer.h * 3.2) + "px", objectFit: "contain",
+        filter: white ? "brightness(0) invert(1)" : "" });
+      img.src = url(encodeURI(logo));
+      box.appendChild(img);
+    }
+    return box;
+  }
+  function sponsorBox(layer, opts) {
+    const box = el("div", "gfx-media gfx-rot");
+    box._layer = layer;
+    box._opts = opts;
+    if (layer.timer) box.appendChild(el("div", "gfx-rot-bar"));
+    rotators.add(box);
+    turn(box, true);
+    return box;
+  }
+  function turn(box, first) {
+    const layer = box._layer, now = GFX.sponsorNow();
+    const logo = now.index >= 0 ? now.list[now.index].logo : layer.placeholder || "";
+    const key = now.index + "|" + logo;
+    const bar = box.querySelector(".gfx-rot-bar");
+    if (bar) bar.style.transform = `scaleX(${now.secs ? Math.max(0, now.left / now.secs) : 0})`;
+    if (box._key === key) return;
+    box._key = key;
+    const img = el("img", "gfx-rot-img", { objectFit: fitOf(layer.fit) });
+    img.draggable = false;
+    if (logo) img.src = url(encodeURI(logo));
+    const old = [...box.querySelectorAll(".gfx-rot-img")];
+    box.insertBefore(img, bar || null);
+    if (first || box._opts.still || !old.length) { old.forEach(o => o.remove()); return; }
+    // The old one lifts away, the new one rises into place.
+    for (const o of old) o.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateY(-35%) scale(.92)", filter: "blur(4px)" }],
+      { duration: 450, easing: EASE_OUT, fill: "forwards" }).finished.then(() => o.remove(), () => o.remove());
+    img.animate([{ opacity: 0, transform: "translateY(35%) scale(.92)", filter: "blur(4px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
+      { duration: 650, delay: 200, easing: EASE, fill: "backwards" });
+  }
+  function tickRotators() { for (const b of rotators) { if (!b.isConnected && b._seen) rotators.delete(b); else { if (b.isConnected) b._seen = true; turn(b); } } }
+  setInterval(tickRotators, 100);
 
   // --- building graphics -----------------------------------------------------------
   const live = new Set();   // text elements that change with time or data
@@ -127,11 +210,39 @@
 
   function buildContent(layer, value, opts) {
     const t = layer.type;
+    if (t === "image" && value === "{{Sponsors}}") return sponsorBox(layer, opts);
+    if (t === "image" && value.startsWith("{{Sponsors all}}")) return sponsorStrip(layer, value.split("|").slice(1));
+    if (t === "video" && layer.tint) return tintedVideo(layer, value, opts);
+    if (t === "bracket") return bracketBox(layer);
+    if (t === "image" && layer.recolor && value) {
+      // A one-colour shape in another colour (from Global): the picture as a mask.
+      const m = el("div", "gfx-media gfx-recolor");
+      const src = `url("${url(encodeURI(value))}")`, size = { fill: "100% 100%", cover: "cover" }[layer.fit] || "contain";
+      Object.assign(m.style, { webkitMaskImage: src, maskImage: src, webkitMaskSize: size, maskSize: size,
+        webkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", webkitMaskPosition: "center", maskPosition: "center" });
+      return m;
+    }
+    if (t === "image" && layer.topThird && value) {
+      // Only the top third of the picture (a headshot's face), across the box.
+      return el("div", "gfx-media", { backgroundImage: `url("${url(encodeURI(value))}")`, backgroundSize: "auto 300%",
+        backgroundPosition: "center top", backgroundRepeat: "no-repeat" });
+    }
+    // A page of a game HUD (its agent select, its overlay...), live.
+    if (t === "web") {
+      if (!value) return el("div");
+      const f = el("iframe", "gfx-media", { border: "0", background: "transparent", pointerEvents: "none" });
+      f.setAttribute("allowtransparency", "true");
+      f.setAttribute("scrolling", "no");
+      f.src = url(value);
+      return f;
+    }
     if (t === "image") {
       if (!value) return el("div");
-      const img = el("img", "gfx-media", { objectFit: fitOf(layer.fit) });
+      const img = el("img", "gfx-media", { objectFit: fitOf(layer.fit), objectPosition: POSITIONS[layer.position] || "" });
       img.draggable = false;
-      img.src = url(encodeURI(value));
+      const done = smoothed.get(smoothKey(value, layer));
+      img.src = done || url(encodeURI(value));
+      if (!done && layer.fit !== "fill" && !/\.(gif|svg)(\?|$)/i.test(value)) img.addEventListener("load", () => smooth(img, layer, value), { once: true });
       return img;
     }
     if (t === "video") {
@@ -146,6 +257,132 @@
       else { v.autoplay = true; v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }); }
       return v;
     }
+    return buildOther(layer, value, opts);
+  }
+
+  // A video in one colour (the background loop): the video in grey, the colour
+  // multiplied over it; the layer's blend (screen) lets the board show through
+  // its dark parts. Colour, brightness and speed can come from Global.
+  function tintedVideo(layer, value, opts) {
+    const box = el("div", "gfx-media gfx-tint");
+    if (!value) return box;
+    const v = el("video", "gfx-media", { objectFit: "cover",
+      filter: `grayscale(1) brightness(${+GFX.resolve(layer.brightness ?? 1.6) || 1.6})` });
+    v.src = url(encodeURI(value));
+    v.muted = true; v.loop = true; v.playsInline = true; v.preload = "auto";
+    const speed = Math.max(0.1, Math.min(4, +GFX.resolve(layer.speed ?? 1) || 1));
+    v.addEventListener("loadedmetadata", () => { v.playbackRate = speed; });
+    if (opts.still) v.addEventListener("loadeddata", () => { try { v.currentTime = 2; } catch (e) { /* */ } }, { once: true });
+    else { v.autoplay = true; v.play().catch(() => {}); }
+    // (the colour only once there's a picture to colour: on its own it would fill the box)
+    const tint = el("div", "gfx-media", { background: GFX.resolve(layer.tint) || "#ffffff", mixBlendMode: "multiply", visibility: "hidden" });
+    v.addEventListener("loadeddata", () => { tint.style.visibility = ""; });
+    v.addEventListener("error", () => { v.remove(); tint.remove(); });
+    box.append(v, tint);
+    return box;
+  }
+
+  // --- the knockout bracket: drawn from the "Tournament" data, for 8 or 16
+  // teams ({{Tournament!Top teams}}), in the layer's box. The first round's
+  // slots are gold, the later ones dark, the champion's outlined; a slot shows
+  // the team's logo, name and score, and the team that lost is dimmed.
+  const brackets = new Set();
+  function bracketBox(layer) {
+    const box = el("div", "gfx-media gfx-bracket");
+    box._layer = layer;
+    brackets.add(box);
+    drawBracket(box);
+    return box;
+  }
+  function redrawBrackets() {
+    for (const b of brackets) { if (!b.isConnected && b._seen) brackets.delete(b); else { if (b.isConnected) b._seen = true; drawBracket(b); } }
+  }
+  function drawBracket(box) {
+    const layer = box._layer;
+    const rows = (ctx.tables.Tournament || []).filter(r => /^Top /.test(r[0] || ""));
+    const size = +GFX.lookup(rows, "Top teams") === 16 ? 16 : 8;
+    const key = JSON.stringify([rows, layer.w, layer.h, layer.font, layer.color, layer.gold, layer.line]);
+    if (box._key === key) return;
+    box._key = key;
+    box.textContent = "";
+    const get = k => GFX.lookup(rows, k);
+    const Wd = layer.w, Ht = layer.h, rounds = Math.log2(size);
+    const sw = Wd * (size === 16 ? 0.17 : 0.196), cw = Wd * (size === 16 ? 0.25 : 0.278);
+    const gap = (Wd - rounds * sw - cw) / rounds;
+    const unit = Ht / (size / 2);
+    const sh = Math.min(Ht * 0.08, unit * 0.34), g = sh / 6;
+    const gold = layer.gold || "#b28a1d", dark = layer.dark || "#000b05", line = layer.line || gold;
+    const [family, weight] = GFX.fontFor(layer);
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("width", Wd); svg.setAttribute("height", Ht);
+    Object.assign(svg.style, { position: "absolute", left: 0, top: 0, overflow: "visible" });
+    box.appendChild(svg);
+    const path = d => { const p = document.createElementNS(svgNS, "path"); p.setAttribute("d", d); p.setAttribute("fill", "none");
+      p.setAttribute("stroke", line); p.setAttribute("stroke-width", Math.max(2, sh / 18)); svg.appendChild(p); };
+    function slot(x, y, w, hgt, team, score, fill, lost, big) {
+      const s = el("div", "gfx-bk-slot", { left: x + "px", top: y + "px", width: w + "px", height: hgt + "px", background: fill,
+        opacity: lost ? 0.5 : 1, fontFamily: family, fontWeight: weight, color: layer.color || "#ffffff" });
+      const name = get(team), logo = get(team + " logo");
+      const sq = big ? 0 : hgt * 0.67;
+      if (logo) {
+        const img = el("img", "gfx-bk-logo", { width: hgt * 0.8 + "px", height: hgt * 0.8 + "px", left: hgt * 0.12 + "px", top: hgt * 0.1 + "px" });
+        img.src = url(encodeURI(logo));
+        s.appendChild(img);
+      }
+      const left = logo ? hgt * 1.05 : hgt * 0.25;
+      const nameBox = el("div", "gfx-bk-name", { left: left + "px", right: sq + hgt * 0.2 + "px", fontSize: hgt * (big ? 0.42 : 0.6) + "px",
+        justifyContent: big ? "center" : "flex-start" });
+      nameBox.textContent = name;
+      s.appendChild(nameBox);
+      if (!big) {
+        const sc = el("div", "gfx-bk-score", { width: sq + "px", fontSize: hgt * 0.6 + "px" });
+        sc.textContent = get(score);
+        s.appendChild(sc);
+      }
+      box.appendChild(s);
+      // (too long: narrower)
+      requestAnimationFrame(() => { const k = nameBox.clientWidth / (nameBox.scrollWidth || 1); if (k < 1) nameBox.style.fontSize = parseFloat(nameBox.style.fontSize) * Math.max(0.5, k) + "px"; });
+    }
+    let centres = [];
+    for (let r = 0; r < rounds; r++) {
+      const n = size >> (r + 1), x = r * (sw + gap), next = [];
+      for (let m = 0; m < n; m++) {
+        const cy = r === 0 ? unit * (m + 0.5) : (centres[2 * m] + centres[2 * m + 1]) / 2;
+        next.push(cy);
+        const k = `Top R${r + 1} M${m + 1}`;
+        const winner = get(r + 1 < rounds ? `Top R${r + 2} M${(m >> 1) + 1} team ${(m & 1) + 1}` : "Top champion");
+        for (let t = 0; t < 2; t++) {
+          const team = `${k} team ${t + 1}`;
+          const lost = !!winner && !!get(team) && get(team) !== winner;
+          slot(x, t ? cy + g / 2 : cy - g / 2 - sh, sw, sh, team, team + " score", r === 0 ? gold : dark, lost);
+        }
+        if (r + 1 === rounds) path(`M${x + sw + 4} ${cy}H${x + sw + gap - 4}`);   // (on to the champion)
+      }
+      if (r + 1 < rounds) {
+        // The line on to where the winner goes: the next round's matches sit
+        // between the two that feed them.
+        for (let m = 0; m < n; m++) {
+          const cy = next[m], pair = m >> 1, side = m & 1;
+          const ny = (next[2 * pair] + next[2 * pair + 1]) / 2;
+          const ty = side ? ny + g / 2 + sh / 2 : ny - g / 2 - sh / 2;
+          const x1 = x + sw + 4, x2 = x + sw + gap - 4, xm = (x1 + x2) / 2;
+          path(`M${x1} ${cy}H${xm}V${ty}H${x2}`);
+        }
+      }
+      centres = next;
+    }
+    // The champion.
+    const cx = rounds * (sw + gap), ch = sh * 2.4, cy = centres[0];
+    const frame = el("div", "gfx-bk-champ", { left: cx + "px", top: cy - ch / 2 + "px", width: cw + "px", height: ch + "px",
+      borderColor: layer.champ || "#ffc52a", borderWidth: Math.max(2, sh / 14) + "px" });
+    box.appendChild(frame);
+    const pad = ch * 0.1;
+    slot(cx + pad, cy - ch / 2 + pad, cw - 2 * pad, ch - 2 * pad, "Top champion", "", dark, false, true);
+  }
+
+  function buildOther(layer, value, opts) {
+    const t = layer.type;
     if (t === "lottie") {
       const box = el("div", "gfx-media");
       if (value && window.lottie) {
@@ -173,6 +410,7 @@
         justifyContent: { left: "flex-start", center: "center", right: "flex-end" }[layer.align || "left"],
         alignItems: { top: "flex-start", middle: "center", bottom: "flex-end" }[layer.valign || "top"],
         textShadow: layer.shadow ? "0 2px 8px rgba(0,0,0,.6)" : "none",
+        fontVariant: layer.smallCaps ? "small-caps" : "normal",
       });
       const span = el("span", "gfx-t");
       box.appendChild(span);
@@ -180,24 +418,120 @@
       box._raw = value;
       setText(box, opts);
       if (!opts.still && (hasTokens(value))) live.add(box);
+      // Fitted (and put on its baseline) once it's on the page with its real
+      // size, and again whenever it's shown after being hidden.
+      if (sized) sized.observe(box);
       return box;
     }
     return el("div");
   }
   const fitOf = f => ({ fill: "fill", contain: "contain", cover: "cover" }[f] || "contain");
+  // Where a picture sits in its box when it doesn't fill it (a headshot stands on the bottom).
+  const POSITIONS = { top: "50% 0%", bottom: "50% 100%", left: "0% 50%", right: "100% 50%" };
+
+  // A big picture in a small box (a team's logo, say) is scaled down by the
+  // browser in one step, which looks jagged: it's resampled once, smoothly, to
+  // twice the size it's shown at.
+  // (each picture is resampled once, then kept: the next take has it at once)
+  const smoothed = new Map();
+  const smoothKey = (value, layer) => [value, layer.w, layer.h, layer.fit].join("|");
+  function smooth(img, layer, value) {
+    const nw = img.naturalWidth, nh = img.naturalHeight;
+    const k = layer.fit === "cover" ? Math.max(layer.w / nw, layer.h / nh) : Math.min(layer.w / nw, layer.h / nh);
+    if (!nw || !nh || k * 2 >= 0.75 || !window.createImageBitmap) return;
+    const w = Math.max(1, Math.round(nw * k * 2)), h = Math.max(1, Math.round(nh * k * 2));
+    const key = smoothKey(value, layer);
+    createImageBitmap(img, { resizeWidth: w, resizeHeight: h, resizeQuality: "high" }).then(bmp => {
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      c.getContext("2d").drawImage(bmp, 0, 0);
+      bmp.close && bmp.close();
+      c.toBlob(b => {
+        if (!b) return;
+        const u = URL.createObjectURL(b);
+        // (swapped in once it's decoded: no blank frame)
+        const next = new Image();
+        next.src = u;
+        (next.decode ? next.decode() : Promise.resolve()).catch(() => {}).then(() => {
+          if (smoothed.size > 400) { for (const old of smoothed.values()) URL.revokeObjectURL(old); smoothed.clear(); }
+          smoothed.set(key, u);
+          warm.set(u, next);
+          if (img.isConnected || !img.complete) img.src = u;
+        });
+      }, "image/png");
+    }).catch(() => {});
+  }
+
+  // --- pictures kept ready ----------------------------------------------------------
+  // Every picture the graphics show is loaded and decoded ahead, and kept in
+  // memory, so a graphic taken to air has all of them on its first frame.
+  const warm = new Map();      // address -> decoded <img>
+  const warmVideos = new Map(); // address -> <video> kept loading
+  GFX.warm = function (comps, valuesOf) {
+    const want = new Set(), videos = new Set();
+    const add = v => { if (v && !/\{\{/.test(v)) want.add(url(encodeURI(v))); };
+    for (const s of GFX.sponsors()) add(s.logo);
+    for (const comp of comps || []) {
+      const values = valuesOf(comp.id) || {};
+      for (const layer of comp.layers || []) {
+        if (layer.visible === false) continue;
+        if (layer.type !== "image" && layer.type !== "video") continue;
+        const v = GFX.content(layer, values);
+        if (layer.type === "video") { if (v && !/\{\{/.test(v)) videos.add(url(encodeURI(v))); continue; }
+        if (v.startsWith("{{Sponsors")) continue;
+        add(v);
+        const done = smoothed.get(smoothKey(v, layer));
+        if (done) want.add(done);
+      }
+    }
+    for (const u of want) {
+      if (warm.has(u)) continue;
+      const img = new Image();
+      img.decoding = "async";
+      img.src = u;
+      img._ready = (img.decode ? img.decode() : new Promise(r => { img.onload = img.onerror = r; })).catch(() => {});
+      warm.set(u, img);
+    }
+    for (const u of [...warm.keys()]) if (!want.has(u)) warm.delete(u);
+    // (the few videos, the background loop say, are kept loaded too)
+    for (const u of [...videos].slice(0, 8)) {
+      if (warmVideos.has(u)) continue;
+      const v = document.createElement("video");
+      v.muted = true; v.preload = "auto"; v.src = u;
+      warmVideos.set(u, v);
+    }
+    for (const [u, v] of [...warmVideos]) if (!videos.has(u)) { v.removeAttribute("src"); v.load(); warmVideos.delete(u); }
+  };
+  // Resolves once a graphic's pictures are ready to show (or after `ms`, whatever comes first).
+  GFX.ready = function (root, ms) {
+    const waits = [];
+    root.querySelectorAll("img").forEach(img => {
+      if (!img.src) return;
+      const kept = warm.get(img.src);
+      if (kept) waits.push(kept._ready);
+      else if (!img.complete) waits.push(new Promise(r => { img.addEventListener("load", r, { once: true }); img.addEventListener("error", r, { once: true }); }));
+      else if (img.decode) waits.push(img.decode().catch(() => {}));
+    });
+    // (a game HUD's page: loaded before it's shown, a little longer allowed)
+    const pages = root.querySelectorAll("iframe");
+    pages.forEach(f => waits.push(new Promise(r => { f.addEventListener("load", r, { once: true }); f.addEventListener("error", r, { once: true }); })));
+    if (!waits.length) return Promise.resolve();
+    return Promise.race([Promise.all(waits), new Promise(r => setTimeout(r, pages.length ? 1500 : ms || 400))]);
+  };
 
   function setText(box, opts) {
     const layer = box._layer;
     const text = GFX.resolve(box._raw);
-    if (box._shown === text && !opts) return;
-    box._shown = text;
+    // A picture before the text (a player's flag), sized to the letters.
+    const icon = layer.icon ? GFX.resolve(layer.icon).trim() : "";
+    if (box._shown === text + "\u0000" + icon && !opts) return;
+    box._shown = text + "\u0000" + icon;
     const span = box.firstChild;
     if (layer.scroll > 0) {
       // A ticker: the text twice in a row, sliding along forever.
       box.classList.add("gfx-scroll");
       span.textContent = "";
-      const a = el("span", "gfx-tick"); a.textContent = text;
-      const b = el("span", "gfx-tick"); b.textContent = text;
+      const a = tickerRun(layer, text), b = tickerRun(layer, text);
       span.append(a, b);
       requestAnimationFrame(() => {
         const w = a.offsetWidth || 1;
@@ -208,11 +542,71 @@
       return;
     }
     span.textContent = text;
+    if (icon && text) {
+      const img = el("img", "gfx-icon");
+      img.src = url(encodeURI(icon));
+      img.onload = () => fit(box);
+      span.insertBefore(img, span.firstChild);
+    }
     fit(box);
+  }
+
+  // One run of a ticker's text. With a divider, the "|" between its lines is
+  // drawn as a bar in the divider's colour.
+  function tickerRun(layer, text) {
+    const run = el("span", "gfx-tick");
+    if (!layer.divider) { run.textContent = text; return run; }
+    const w = layer.dividerWidth || 6, gap = layer.dividerGap ?? Math.round(layer.size * 1.4);
+    text.split(/\s*\|\s*/).forEach((part, i, all) => {
+      if (part) run.appendChild(document.createTextNode(part));
+      if (i < all.length - 1) run.appendChild(el("i", "gfx-div", { width: w + "px", background: layer.divider, margin: `0 ${gap}px` }));
+    });
+    return run;
+  }
+
+  // A layer shown only while its "show" value has something in it (and isn't 0):
+  // the Schedule's matches beyond how many it shows, say.
+  const showing = layer => { const v = GFX.resolve(layer.show).trim(); return !!v && v !== "0" && v.toLowerCase() !== "false"; };
+  function reshow() {
+    document.querySelectorAll(".gfx-L").forEach(L => {
+      if (L._layer && L._layer.show) L.style.display = showing(L._layer) ? "" : "none";
+      if (L._layer) restyle(L);
+    });
+  }
+  // What a layer's look takes from the data as it changes: its colour
+  // ({{Global!Caster primary}}) and where it's moved to ("dx dy scale", around
+  // layer.origin on the canvas: the caster boxes, spaced out by how many there are).
+  function restyle(L) {
+    const layer = L._layer;
+    if (layer.move) {
+      const [dx, dy, sc] = GFX.resolve(layer.move).trim().split(/\s+/).map(Number);
+      const o = layer.origin || [layer.x, layer.y];
+      L.style.transformOrigin = `${o[0] - layer.x}px ${o[1] - layer.y}px`;
+      L.style.transform = `translate(${dx || 0}px, ${dy || 0}px) scale(${sc || 1})` + (layer.rotation ? ` rotate(${layer.rotation}deg)` : "");
+    }
+    if (layer.recolor) { const m = L.querySelector(".gfx-recolor"); if (m) m.style.background = GFX.resolve(layer.recolor) || "#ffffff"; }
+    if (layer.type === "text" && hasTokens(layer.color)) { const b = L.querySelector(".gfx-text"); if (b) b.style.color = GFX.resolve(layer.color); }
+  }
+
+  // Text from a Photoshop file sits on its baseline where Photoshop put it,
+  // whatever the font's own spacing above the letters.
+  function baseline(box) {
+    const layer = box._layer, span = box.firstChild;
+    if (!layer || !span || layer.baseline == null || layer.scroll > 0 || (layer.valign || "top") !== "top") return;
+    span.style.marginTop = "";
+    let mark = span.querySelector(":scope > .gfx-bl");
+    if (!mark) { mark = el("i", "gfx-bl"); }
+    span.insertBefore(mark, span.firstChild);
+    if (!box.isConnected || !box.offsetHeight) return;
+    span.style.marginTop = (layer.baseline - mark.offsetTop) + "px";
   }
 
   // Text that doesn't fit its box: made smaller ("shrink") or narrower ("squeeze").
   function fit(box) {
+    fitSize(box);
+    baseline(box);
+  }
+  function fitSize(box) {
     const layer = box._layer, span = box.firstChild;
     if (!layer || !span || layer.scroll > 0) return;
     span.style.transform = "";
@@ -232,8 +626,16 @@
     if (k < 1) box.style.fontSize = Math.max(layer.size * 0.25, layer.size * k * 0.99) + "px";
   }
   GFX.refit = () => document.querySelectorAll(".gfx-text").forEach(fit);
-  GFX.retext = () => document.querySelectorAll(".gfx-text").forEach(b => { if (hasTokens(b._raw)) setText(b); });
+  const sized = window.ResizeObserver ? new ResizeObserver(entries => {
+    for (const e of entries) if (e.contentRect.width && e.target.isConnected) fit(e.target);
+  }) : null;
+  // A font that finishes loading after the text was fitted: fitted again.
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", () => GFX.refit());
+  GFX.retext = () => document.querySelectorAll(".gfx-text").forEach(b => { if (hasTokens(b._raw) || hasTokens(b._layer && b._layer.icon)) setText(b); });
   setInterval(() => { for (const b of live) { if (!b.isConnected) live.delete(b); else if (ticking(b._raw)) setText(b); } }, 1000);
+
+  // What else a layer's look takes from the data (a tinted loop's colour...).
+  const extraOf = layer => layer.tint ? [layer.tint, layer.brightness, layer.speed].map(v => GFX.resolve(v ?? "")).join("|") : "";
 
   function buildLayer(layer, values, opts) {
     const value = GFX.content(layer, values);
@@ -244,12 +646,15 @@
       mixBlendMode: layer.blend && layer.blend !== "normal" ? layer.blend : "",
     });
     outer.dataset.id = layer.id;
+    if (layer.show && !opts.showHidden && !showing(layer)) outer.style.display = "none";
     const inner = el("div", "gfx-A");
     inner.appendChild(buildContent(layer, value, opts));
     outer.appendChild(inner);
     outer._value = value;
+    outer._extra = extraOf(layer);
     outer._layer = layer;
     outer._sig = JSON.stringify(layer);
+    if (layer.move || layer.recolor || hasTokens(layer.color)) restyle(outer);
     return outer;
   }
 
@@ -282,7 +687,7 @@
     for (const layer of wanted) {
       let L = existing.get(layer.id);
       const value = GFX.content(layer, values);
-      if (!L || L._sig !== JSON.stringify(layer) || L._value !== value) {
+      if (!L || L._sig !== JSON.stringify(layer) || L._value !== value || L._extra !== extraOf(layer)) {
         const fresh = buildLayer(layer, values, opts);
         if (layer.visible === false) fresh.style.visibility = "hidden";
         if (L) { destroy(L); L.replaceWith(fresh); } else root.insertBefore(fresh, prev ? prev.nextSibling : root.firstChild);
@@ -357,6 +762,7 @@
   //
   // opts: {bus: "program" | "preview", comp: one graphic only, monitor: muted,
   //        stingers: play stinger videos (default: yes, except one-graphic outputs)}
+  const KIND_RANK = { board: 0, overlay: 1, "lower third": 2 };
   GFX.Bus = class Bus {
     constructor(stage, opts) {
       this.stage = stage;
@@ -370,17 +776,32 @@
       this.cleanup = [];
     }
 
+    // A graphic's own output that's switched on (Outputs) always shows it,
+    // with what it shows on Program (or else on Preview); switched off, nothing.
+    always(state) {
+      return !!this.opts.comp && ((state.global || {}).outputs_on || []).includes(this.opts.comp);
+    }
+
     wanted(state) {
       const bus = state.live[this.opts.bus] || { on: [], values: {} };
       let on = bus.on || [];
-      if (this.opts.comp) on = on.filter(id => id === this.opts.comp);
       const comps = new Map(state.project.compositions.map(c => [c.id, c]));
+      if (this.opts.comp) {
+        const id = this.opts.comp, pg = state.live.program || {}, pv = state.live.preview || {};
+        const values = (pg.values || {})[id] || (pv.values || {})[id] || {};
+        return { ids: this.always(state) && comps.has(id) ? [id] : [], comps, values: { [id]: values } };
+      }
       return { ids: on.filter(id => comps.has(id)), comps, values: bus.values || {} };
     }
 
     apply(state) {
+      // (nothing it shows changed: nothing to do)
+      const sig = [state.project, state.live, state.global, state.data, state.fonts];
+      if (this.sig && sig.every((v, i) => v === this.sig[i])) return;
+      this.sig = sig;
       GFX.loadFonts(state.fonts);
       this.preload(state.project.transitions || []);
+      this.warmUp(state);
       const want = this.wanted(state);
       const bus = state.live[this.opts.bus] || {};
       const take = (state.live.take || {}).seq || 0;
@@ -389,13 +810,8 @@
       const t = (state.live.take || {}).transition || { type: "cut" };
       this.seen = { rev: state.rev, take, seq: bus.seq };
       if (tookNow) {
-        if (this.opts.comp) {
-          // One graphic's own output: only its own coming and going matters.
-          const was = this.shown.has(this.opts.comp), now = want.ids.length > 0;
-          if (was === now) return this.sync(want, "update");
-          if (t.type === "stinger" && !this.opts.stingers) return this.transition(want, { type: "delay", ms: +t.cut || 0 });
-        }
-        return this.transition(want, t);
+        // (one graphic's own output doesn't follow takes: it's on while switched on)
+        if (!this.opts.comp) return this.transition(want, t);
       }
       return this.sync(want, first ? "cut" : this.opts.bus === "preview" ? "cut" : "update");
     }
@@ -418,12 +834,20 @@
         const root = GFX.buildComp(want.comps.get(id), want.values[id] || {}, { muted: this.opts.monitor });
         this.scene.appendChild(root);
         this.shown.set(id, root);
-        this.in(root, mode, t);
+        // Played in once its pictures are decoded, so it never comes in half drawn.
+        root.style.visibility = "hidden";
+        GFX.ready(root, 400).then(() => {
+          if (this.shown.get(id) !== root) return;
+          root.style.visibility = "";
+          this.in(root, mode, t);
+        });
       }
-      // Stacking: the graphic's "layer" setting, then its place in the list.
+      // Stacking: the graphic's "layer" setting, then its kind (full-page
+      // boards at the back, overlays over them, lower thirds in front), then
+      // its place in the list.
       want.ids.forEach((id, i) => {
-        const root = this.shown.get(id);
-        if (root) root.style.zIndex = 10 + (want.comps.get(id).layer || 0) * 1000 + i;
+        const root = this.shown.get(id), comp = want.comps.get(id);
+        if (root) root.style.zIndex = 10 + (comp.layer || 0) * 1000 + (KIND_RANK[comp.kind] ?? 1) * 300 + i;
       });
     }
 
@@ -518,6 +942,20 @@
       return v;
     }
 
+    // The pictures of every graphic that could go on air, ready before the take
+    // (on Program; a graphic's own output: its pictures).
+    warmUp(state) {
+      if (this.opts.bus !== "program" || this.warmed === state.project && this.warmedData === state.data && this.warmedLive === state.live) return;
+      this.warmed = state.project; this.warmedData = state.data; this.warmedLive = state.live;
+      const live = state.live || {}, pg = live.program || {}, pv = live.preview || {};
+      const comps = state.project.compositions.filter(c => !this.opts.comp || c.id === this.opts.comp);
+      const go = () => { this.warmTimer = null; this.warmAt = performance.now(); GFX.warm(comps, id => Object.assign({}, (pv.values || {})[id], (pg.values || {})[id])); };
+      // (the game's data changes many times a second: looked at again every few seconds at most)
+      if (this.warmTimer) clearTimeout(this.warmTimer);
+      const wait = this.warmAt == null ? 0 : Math.max(250, 3000 - (performance.now() - this.warmAt));
+      this.warmTimer = setTimeout(() => (window.requestIdleCallback || setTimeout)(go, { timeout: 1000 }), wait);
+    }
+
     // Stinger videos load before they're needed, so they start on the button.
     preload(transitions) {
       if (this.opts.bus !== "program" || (this.opts.comp && !this.opts.stingers)) return;
@@ -544,7 +982,22 @@
     .gfx-t{display:inline-block;max-width:none}
     .gfx-scroll{overflow:hidden}
     .gfx-scroll .gfx-t{display:flex;white-space:pre}
+    .gfx-tick{display:inline-flex;align-items:center}
+    .gfx-media.gfx-strip{display:flex;align-items:center;justify-content:center}
+    .gfx-strip img{min-width:0;flex:0 1 auto}
+    .gfx-icon{display:inline-block;height:.72em;width:auto;margin-right:.32em;vertical-align:baseline;border-radius:.06em}
+    .gfx-div{display:inline-block;height:1.05em;flex:0 0 auto}
     .gfx-tick{padding-right:1.5em}
+    .gfx-bl{display:inline-block;width:0;height:0;vertical-align:baseline}
+    .gfx-rot{overflow:visible}
+    .gfx-rot-img{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .gfx-rot-bar{position:absolute;left:0;right:0;bottom:-8px;height:3px;background:currentColor;color:#f5c518;transform-origin:0 50%;opacity:.85}
+    .gfx-bracket{overflow:visible}
+    .gfx-bk-slot{position:absolute;box-sizing:border-box;overflow:hidden;transition:opacity .4s}
+    .gfx-bk-logo{position:absolute;object-fit:contain}
+    .gfx-bk-name{position:absolute;top:0;bottom:0;display:flex;align-items:center;white-space:nowrap;text-transform:uppercase;letter-spacing:-.01em;overflow:hidden}
+    .gfx-bk-score{position:absolute;right:0;top:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center}
+    .gfx-bk-champ{position:absolute;box-sizing:border-box;border-style:solid}
     .gfx-cover{position:absolute;inset:0;z-index:9000}
     .gfx-stinger{position:absolute;inset:0;width:100%;height:100%;z-index:9500;visibility:hidden;object-fit:cover;pointer-events:none}
   `;

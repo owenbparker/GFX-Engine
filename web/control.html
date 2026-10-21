@@ -16,10 +16,18 @@
     <button data-tab="control">Control</button>
     <button data-tab="composer">Composer</button>
     <button data-tab="global">Global</button>
-    <button data-tab="assets">Assets</button>
-    <button data-tab="data">Data</button>
-    <button data-tab="transitions">Transitions</button>
-    <button data-tab="outputs">Outputs</button>
+    <button data-tab="teams">Teams</button>
+    <button data-tab="tournament">Tournament</button>
+    <button data-tab="schedule">Upcoming Schedule</button>
+    <div class="extras" id="extras">
+      <button class="extras-btn" id="extras-btn" aria-haspopup="true" aria-expanded="false">Extras <span class="caret">▾</span></button>
+      <div class="extras-menu" id="extras-menu" hidden>
+        <button data-tab="assets">Assets</button>
+        <button data-tab="data">Data</button>
+        <button data-tab="transitions">Transitions</button>
+        <button data-tab="outputs">Outputs</button>
+      </div>
+    </div>
   </nav>
   <div class="top-right">
     <span id="net" class="pill" title="Other PCs reach this engine at"></span>
@@ -66,6 +74,46 @@
       </div>
     </section>
     <section class="panel team-card" data-side="right"></section>
+    <section class="panel g-brand">
+      <div class="panel-head"><h3>Tournament logo</h3></div>
+      <div class="pad">
+        <div id="g-tourney" class="logo-drop wide" title="Click or drop the tournament's logo">Click or drop the tournament's logo</div>
+        <div class="row-gap" style="justify-content:center"><button class="ghost small" id="g-tourney-clear" hidden>Remove logo</button></div>
+        <p class="muted small">Every tournament logo spot in the graphics shows it.</p>
+      </div>
+    </section>
+    <section class="panel g-sponsors">
+      <div class="panel-head"><h3>Sponsors</h3><span class="muted small">Shown in turn in every sponsor spot</span></div>
+      <div class="pad">
+        <div id="g-sponsor-list" class="sponsor-list"></div>
+        <div id="g-sponsor-add" class="sponsor-add" title="Click or drop sponsor logos">+ Click or drop sponsor logos</div>
+      </div>
+    </section>
+    <section class="panel g-loop">
+      <div class="panel-head"><h3>Background loop</h3>
+        <label class="toggle"><input type="checkbox" id="g-loop-on"> On</label></div>
+      <div class="pad">
+        <div class="loop-preview" id="g-loop-preview"><div class="loop-layer"><video id="g-loop-video" muted loop autoplay playsinline></video><div id="g-loop-tint" class="tint"></div></div></div>
+        <div class="loop-row">
+          <label>Colour<input type="color" id="g-loop-color"></label>
+          <label>Brightness <span id="g-loop-bright-v" class="muted"></span><input type="range" id="g-loop-bright" min="0.2" max="3" step="0.1"></label>
+          <label>Speed <span id="g-loop-speed-v" class="muted"></span><input type="range" id="g-loop-speed" min="0.1" max="3" step="0.1"></label>
+        </div>
+        <div class="row-gap">
+          <button class="small" id="g-loop-file">Choose video…</button>
+          <button class="small ghost" id="g-loop-default" title="The SCC loop that comes with the engine">Use the SCC loop</button>
+          <input type="file" id="g-loop-input" accept="video/*,.mov,.webm,.mp4" hidden>
+        </div>
+        <p class="muted small">Plays behind the schedule and the other full-screen boards.</p>
+      </div>
+    </section>
+    <section class="panel g-ticker">
+      <div class="panel-head"><h3>Ticker</h3><span class="muted small">One line each, shown one after another</span></div>
+      <div class="pad">
+        <textarea id="g-ticker" rows="7" placeholder="WELCOME TO ST. CLAIR SAINTS ESPORTS&#10;FOLLOW @SCCSAINTS FOR HIGHLIGHTS"></textarea>
+        <p class="muted small">Every ticker in the graphics scrolls these ({{Global!Ticker}}).</p>
+      </div>
+    </section>
     <section class="panel g-custom">
       <div class="panel-head"><h3>More fields</h3><button class="small" id="g-custom-add">+ Add</button></div>
       <div id="g-custom" class="pad"></div>
@@ -80,8 +128,71 @@
     </section>
     <section class="panel g-feeds">
       <div class="panel-head"><h3>Game HUDs</h3><span class="muted small">In a HUD: Connect to GFX Engine</span></div>
+      <div class="pad stats-line"><span id="g-stats"></span><button class="ghost small" id="g-stats-clear" title="Forget the last game's stats">Clear stats</button></div>
       <div id="g-feeds" class="pad"></div>
     </section>
+  </div>
+</main>
+
+<!-- TEAMS: the team list every workspace shares -->
+<main id="page-teams" class="page" hidden>
+  <div class="page-head">
+    <h2>Teams</h2>
+    <span class="muted">Every workspace shares this list. Global's team dropdowns and the tournament pick from it.</span>
+    <div class="spacer"></div>
+    <button class="small" id="t-add">+ Add team</button>
+    <button class="small" id="t-import" title="Name, Short name, Logo, Colour columns">Import CSV…</button>
+    <a class="btn small" id="t-export" href="/library/teams.csv" download="teams.csv">Export CSV</a>
+    <input type="file" id="t-import-file" accept=".csv,text/csv" hidden>
+  </div>
+  <div class="teams-page">
+    <section class="panel teams-list">
+      <div class="panel-head"><input id="t-find" class="search" placeholder="Find a team…"><span class="muted small" id="t-count"></span></div>
+      <div class="pad t-filter"><select id="t-game"><option value="">All games</option></select></div>
+      <div id="t-list" class="team-list"></div>
+    </section>
+    <section class="panel team-edit" id="t-edit"></section>
+  </div>
+</main>
+
+<!-- TOURNAMENT: the brackets the bracket graphics show -->
+<main id="page-tournament" class="page" hidden>
+  <div class="page-head">
+    <h2>Tournament</h2>
+    <span class="muted">The bracket graphics show these. Enter the scores and the winners go through.</span>
+  </div>
+    <section class="g-tournament">
+      <div class="tourney">
+        <div class="tn-part panel pad">
+          <div class="tn-head"><h4>Knockout bracket</h4>
+            <div class="seg" id="tn-size"><button data-size="8">8 teams</button><button data-size="16">16 teams</button></div>
+            <div class="spacer"></div>
+            <button class="small ghost" id="tn-top-scores" title="Keep the teams, clear every score">Clear scores</button></div>
+          <div id="tn-top" class="tn-rounds"></div>
+        </div>
+        <div class="tn-part panel pad">
+          <div class="tn-head"><h4>Groups</h4><div class="spacer"></div>
+            <button class="small ghost" id="tn-group-scores" title="Keep the teams, clear every score">Clear scores</button></div>
+          <div id="tn-groups" class="tn-groups"></div>
+        </div>
+        <datalist id="team-names"></datalist>
+      </div>
+    </section>
+</main>
+
+<!-- UPCOMING SCHEDULE: the matches the Schedule graphic lists -->
+<main id="page-schedule" class="page" hidden>
+  <div class="page-head">
+    <h2>Upcoming Schedule</h2>
+    <span class="muted">The Schedule graphic lists these, top to bottom.</span>
+    <div class="spacer"></div>
+    <label class="row-gap muted">Show <select id="s-count"><option value="1">1 match</option><option value="2">2 matches</option><option value="3">3 matches</option></select></label>
+    <button class="small" id="s-add">+ Add match</button>
+    <span class="muted small" id="s-saved"></span>
+    <button class="small primary" id="s-save">Save</button>
+  </div>
+  <div class="schedule-page">
+    <div id="s-list" class="s-list"></div>
   </div>
 </main>
 
@@ -134,6 +245,7 @@
         <button class="small" data-add="image" title="Add a picture">🖼</button>
         <button class="small" data-add="video" title="Add a video">▶</button>
         <button class="small" data-add="lottie" title="Add a Lottie (After Effects) animation">✦</button>
+        <select id="add-special" class="small" title="Special elements: the teams' logos, names and scores, the tournament logo, the sponsors… from Global"></select>
       </div></div>
     <div id="layer-list" class="layer-list"></div>
   </aside>
@@ -217,7 +329,13 @@
     <section class="panel">
       <div class="panel-head"><h3>Network</h3></div>
       <label class="toggle"><input type="checkbox" id="net-allow"> Let other PCs use this engine (outputs, control panel, finding it)</label>
+      <label>Other PCs reach it on<select id="net-address"></select></label>
+      <p class="muted small" id="net-address-note"></p>
       <label>This engine's name on the network<input id="net-name" placeholder="(this PC's name)"></label>
+      <div class="panel-head"><h3>Bitfocus Companion</h3></div>
+      <p class="muted small">Import <b>SCC-GFX-Companion-module.tgz</b> (from the engine's release on GitHub) on Companion's Modules page,
+        then add an <b>SCC GFX Engine</b> connection with:</p>
+      <div id="companion-info"></div>
       <div class="panel-head"><h3>Engines on the network</h3><button class="small" id="net-scan">Scan</button></div>
       <div id="engines" class="engines"></div>
     </section>
@@ -274,5 +392,7 @@
 <script src="composer.js"></script>
 <script src="pages.js"></script>
 <script src="home.js"></script>
+<script src="tournament.js"></script>
+<script src="schedule.js"></script>
 </body>
 </html>

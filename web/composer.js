@@ -14,7 +14,7 @@
   const undo = [], redo = [];
   try { compId = localStorage.getItem("gfx-edit"); } catch (e) { /* */ }
 
-  const TYPE_ICON = { text: "T", rect: "▭", image: "🖼", video: "▶", lottie: "✦" };
+  const TYPE_ICON = { text: "T", rect: "▭", image: "🖼", video: "▶", lottie: "✦", bracket: "⊏" };
 
   // --- saving ------------------------------------------------------------
   const saveSoon = debounce(save, 120);
@@ -137,6 +137,56 @@
     selected = layer.id;
     changed({ props: true });
   }));
+
+  // Special elements: layers that show what Global has (and change with it).
+  const pictureOf = (src, w, h) => ({ src, w, h, x: Math.round((GFX.W - w) / 2), y: Math.round((GFX.H - h) / 2), fit: "contain" });
+  const textOf = (text, extra) => Object.assign({ text, font: "Bebas Neue", weight: 400, size: 72, caps: true, w: 600, h: 90 }, extra);
+  const SPECIAL = [
+    ["Logos", [
+      ["Left team logo", "image", pictureOf("{{Global!Left logo}}", 240, 240)],
+      ["Right team logo", "image", pictureOf("{{Global!Right logo}}", 240, 240)],
+      ["Tournament logo", "image", pictureOf("{{Global!Tournament logo}}", 260, 260)],
+      ["Sponsors (in turn)", "image", Object.assign(pictureOf("{{Sponsors}}", 320, 120), { timer: false })]]],
+    ["Teams", [
+      ["Left team name", "text", textOf("{{Global!Left name}}")],
+      ["Right team name", "text", textOf("{{Global!Right name}}", { align: "right" })],
+      ["Left short name", "text", textOf("{{Global!Left short}}", { w: 220 })],
+      ["Right short name", "text", textOf("{{Global!Right short}}", { w: 220, align: "right" })],
+      ["Left score", "text", textOf("{{Global!Left score}}", { w: 140, size: 96, h: 120, align: "center" })],
+      ["Right score", "text", textOf("{{Global!Right score}}", { w: 140, size: 96, h: 120, align: "center" })],
+      ["Left team colour", "rect", { fill: "{{Global!Left color}}", w: 400, h: 12 }],
+      ["Right team colour", "rect", { fill: "{{Global!Right color}}", w: 400, h: 12 }]]],
+    ["Event", [
+      ["Event", "text", textOf("{{Global!Event}}", { size: 40, h: 54 })],
+      ["Stage", "text", textOf("{{Global!Stage}}", { size: 40, h: 54 })],
+      ["Game number", "text", textOf("GAME {{Global!Game}}", { size: 40, h: 54 })],
+      ["Ticker", "text", { text: "{{Global!Ticker}}", font: "Inter", weight: 600, size: 28, caps: true, scroll: 90, fit: "none", x: 0, y: 1030, w: 1920, h: 40 }],
+      ["Background loop", "video", { src: "{{Global!BG loop}}", x: 0, y: 0, w: 1920, h: 1080, fit: "cover", blend: "screen", audio: false,
+        tint: "{{Global!BG loop colour}}", brightness: "{{Global!BG loop brightness}}", speed: "{{Global!BG loop speed}}" }]]],
+    ["Tournament", [
+      ["Knockout bracket (8 or 16)", "bracket", { x: 144, y: 196, w: 1566, h: 748, font: "Bebas Neue", color: "#ffffff",
+        gold: "#b28a1d", dark: "#000b05", line: "#b28a1d", champ: "#ffc52a" }],
+      ["Champion", "text", textOf("{{Tournament!Top champion}}")],
+      ["Bracket size (8 / 16)", "text", textOf("{{Tournament!Top teams}} COMPETITOR BRACKET", { size: 48, h: 64 })]]],
+  ];
+  const special = $("#add-special");
+  special.replaceChildren(h("option", { value: "" }, "★"),
+    ...SPECIAL.map(([group, items], gi) => h("optgroup", { label: group }, ...items.map((it, i) => h("option", { value: gi + ":" + i }, it[0])))));
+  special.addEventListener("change", async () => {
+    const v = special.value;
+    special.value = "";
+    if (!v) return;
+    if (!comp) return toast("Make or pick a graphic first", true);
+    const [gi, i] = v.split(":").map(Number);
+    const [name, type, extra] = SPECIAL[gi][1][i];
+    const { layer } = await api("/api/layer/blank", { type });
+    snapshot();
+    Object.assign(layer, JSON.parse(JSON.stringify(extra)), { name });
+    if (layer.type === "image" && !layer.src.includes("Sponsors")) layer.placeholder = "";
+    comp.layers.push(layer);
+    selected = layer.id;
+    changed({ props: true });
+  });
 
   // --- the canvas --------------------------------------------------------------
   function fitStage() {
@@ -361,10 +411,16 @@
   function assetSelect(kind, value, onChange) {
     const kinds = kind === "video" ? ["video"] : [kind];
     const list = App.assets.filter(a => kinds.includes(a.kind));
+    // Pictures and the loop can follow the global configuration.
+    const linked = kind === "image" ? [["{{Global!Left logo}}", "Left team's logo"], ["{{Global!Right logo}}", "Right team's logo"],
+      ["{{Global!Tournament logo}}", "Tournament logo"], ["{{Sponsors}}", "Sponsors (in turn)"]]
+      : kind === "video" ? [["{{Global!BG loop}}", "Background loop"]] : [];
+    const known = list.some(a => a.path === value) || linked.some(([v]) => v === value);
     const sel = h("select", { onchange: e => onChange(e.target.value) },
       h("option", { value: "" }, "(none)"),
-      list.map(a => h("option", { value: a.path, selected: a.path === value }, a.path.replace(/^assets\//, ""))),
-      value && !list.some(a => a.path === value) ? h("option", { value, selected: true }, value + " (missing)") : null);
+      linked.length ? h("optgroup", { label: "Global configuration" }, linked.map(([v, t]) => h("option", { value: v, selected: v === value }, t))) : null,
+      h("optgroup", { label: "Files" }, list.map(a => h("option", { value: a.path, selected: a.path === value }, a.path.replace(/^assets\//, "")))),
+      value && !known ? h("option", { value, selected: true }, value + " (missing)") : null);
     const file = h("input", { type: "file", hidden: true, accept: kind === "image" ? "image/*" : kind === "video" ? "video/*,.mov,.webm,.zip" : ".json,.zip",
       onchange: async e => {
         const f = e.target.files[0];
@@ -456,7 +512,18 @@
           lab("Line height", bind(l, "lineHeight", "number", { step: 0.05, min: 0.5 })),
           lab("Scroll px/s", bind(l, "scroll", "number", { min: 0, step: 10 }))),
         h("div", { class: "row-gap" }, bind(l, "caps", "check", { label: "ALL CAPS" }), bind(l, "italic", "check", { label: "Italic" }),
-          bind(l, "shadow", "check", { label: "Shadow" }))));
+          bind(l, "shadow", "check", { label: "Shadow" })),
+        l.scroll > 0 ? h("div", { class: "grid2" }, bind(l, "divider", "color", { label: "Divider between lines" }),
+          lab("Divider width", bind(l, "dividerWidth", "number", { min: 0, step: 1 }))) : null,
+        lab("Picture before the text", bind(l, "icon", "text", { placeholder: "e.g. {{Roster!Player 1 flag}}" })),
+        l.show ? h("div", { class: "muted small" }, `Shown only while ${l.show} has something in it.`) : null));
+    } else if (l.type === "bracket") {
+      sections.push(h("div", { class: "sect" }, h("h3", {}, "Bracket"),
+        h("p", { class: "muted small" }, "The knockout bracket from Global > Tournament: 8 or 16 teams (Control has the choice), drawn to fit this box."),
+        lab("Font", h("select", { onchange: e => { snapshot(); l.font = e.target.value; changed({ props: true }); } }, fontOptions(l.font))),
+        h("div", { class: "grid2" }, bind(l, "color", "color", { label: "Text" }), bind(l, "gold", "color", { label: "First round" })),
+        h("div", { class: "grid2" }, bind(l, "dark", "color", { label: "Later rounds" }), bind(l, "line", "color", { label: "Lines" })),
+        bind(l, "champ", "color", { label: "Champion's frame" })));
     } else if (l.type === "rect") {
       sections.push(h("div", { class: "sect" }, h("h3", {}, "Shape"),
         h("div", { class: "grid2" }, bind(l, "fill", "color", { label: "Fill" }), lab("Corner radius", bind(l, "radius", "number", { min: 0 }))),
@@ -465,7 +532,12 @@
       sections.push(h("div", { class: "sect" }, h("h3", {}, "Source"),
         lab("File", assetSelect(l.type, l.src, v => { snapshot(); l.src = v; changed({ props: true }); })),
         l.type === "image" && l.src ? h("button", { class: "small", style: { marginTop: "6px" }, onclick: () => naturalSize(l) }, "Actual size") : null,
+        l.type === "image" ? lab("Sits at", bind(l, "position", "select", { options: [["", "Middle"], ["bottom", "Bottom"], ["top", "Top"], ["left", "Left"], ["right", "Right"]] })) : null,
         lab("Fit", bind(l, "fit", "select", { options: [["contain", "Fit inside"], ["cover", "Fill and crop"], ["fill", "Stretch"]] })),
+        /\{\{\s*sponsors\s*\}\}/i.test(l.src || "") ? bind(l, "timer", "check", { label: "Show a bar with the time it has left" }) : null,
+        l.type === "image" && /\{\{/.test(l.src || "") ? lab("When Global has none", assetSelect("image", l.placeholder || "", v => { snapshot(); l.placeholder = v; changed({ props: true }); })) : null,
+        l.type === "video" ? h("div", { class: "row-gap" },
+          bind(l, "tint", "text", { label: "Tint colour (e.g. {{Global!BG loop colour}})", placeholder: "(none)" })) : null,
         l.type !== "image" ? h("div", { class: "row-gap" }, bind(l, "loop", "check", { label: "Loop" }),
           l.type === "video" ? bind(l, "audio", "check", { label: "Sound (Program output)" }) : null) : null));
     }
@@ -505,6 +577,9 @@
     props.replaceChildren(
       h("div", { class: "sect" }, h("h3", {}, "Graphic"),
         lab("Name", h("input", { value: comp.name, onchange: e => { snapshot(); comp.name = e.target.value || "Graphic"; changed({ props: true }); renderComps(); } })),
+        lab("Kind", h("select", { onchange: e => { snapshot(); comp.kind = e.target.value; changed(); } },
+          [["board", "Full-page board"], ["lower third", "Lower third"], ["overlay", "Overlay (scorebug, ticker…)"]].map(([v, t]) => h("option", { value: v, selected: (comp.kind || "overlay") === v }, t)))),
+        h("p", { class: "muted small" }, "On air there's one board and one lower third at a time: taking another replaces it. Overlays stay."),
         lab("Stacking on the output", h("select", { onchange: e => { snapshot(); comp.layer = +e.target.value; changed(); } },
           [[-1, "Behind others"], [0, "Normal"], [1, "In front"], [2, "Always on top"]].map(([v, t]) => h("option", { value: v, selected: (comp.layer || 0) === v }, t)))),
         h("p", { class: "muted small" }, `${comp.layers.length} layers, ${fields.length} fields. Click a layer to change it.`)),

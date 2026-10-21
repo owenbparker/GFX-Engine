@@ -8,8 +8,11 @@ the web server for the control panel and the outputs.
 
 Game HUDs connect to it: they POST /api/ingest (their stats and the series
 score) and GET /api/global (the teams' names, short names and logos).
+Bitfocus Companion uses /api/companion (see companion.py).
 """
 
+import copy
+import ipaddress
 import json
 import mimetypes
 import os
@@ -25,7 +28,7 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
-from . import discover, export, globalcfg
+from . import companion, discover, export, globalcfg, pack
 from .assets import Assets
 from .config import WEB_DIR, Settings, safe_join
 from .data import Sources
@@ -33,6 +36,9 @@ from .live import Live
 from .log import log, since
 from .media import Jobs, ffmpeg_path, stinger_cut
 from .project import Workspace, blank_comp, blank_layer, new_id
+from .stats import GAMES, Stats, read as read_stats, rows as stats_rows
+from .teams import Teams, ign_key, player_named, roster_rows
+from . import schedule, tournament
 from .updater import Updater, clean_up_old_update
 from .workspaces import Workspaces
 
@@ -56,6 +62,7 @@ class Engine:
                                      config.STARTER_DIR if starter is None else starter,
                                      legacy=config.LEGACY_WORKSPACE_DIR if legacy_dir is None else legacy_dir)
         self.library_dir = library_dir or config.LIBRARY_DIR
+        self.teams = Teams(self.library_dir)
         self.jobs = Jobs()
         self.updater = Updater()
         self.server = None
@@ -64,8 +71,13 @@ class Engine:
         # Data sent by game HUDs ("League HUD" -> its fields), kept while the engine runs.
         self.feeds = {}
         self.feeds_rev = 0
-        self.ws = self.live = self.assets = self.sources = None
+        self.ws = self.live = self.assets = self.sources = self.stats = None
         self._cond = threading.Condition()
+        self._parts_lock = threading.Lock()
+        self._parts = None      # (version, made at, {key: JSON}): the state, made once for every output
+        self._fonts_cache = (None, 0, [])
+        self._ffmpeg_cache = (0, False)
+        threading.Thread(target=self._trim_photos, daemon=True).start()
         self._open_lock = threading.Lock()
         self.jobs.listeners.append(self.changed)
         self.jobs.listeners.append(self._job_changed)
@@ -75,6 +87,18 @@ class Engine:
             wid = listed[0]["id"] if listed else self.workspaces.create("SCC Broadcast", "scc")
         self.open(wid)
         self.beacon = discover.Beacon(self._beacon_info)
+        threading.Thread(target=self._watch_stats, daemon=True).start()
+
+    def _watch_stats(self):
+        """The stats go from LIVE to FINAL when the HUD stops sending: tell the pages."""
+        was = None
+        while True:
+            time.sleep(2)
+            now = self.stats.live() if self.stats else False
+            if was is not None and now != was:
+                self.feeds_rev += 1
+                self.changed()
+            was = now
 
     def open(self, wid):
         """Opens a workspace: its graphics go on the control panel and the outputs."""
@@ -84,12 +108,14 @@ class Engine:
         with self._open_lock:
             old = (self.ws, self.sources)
             ws = Workspace(folder, starter=None)
+            updated = pack.upgrade(ws, self.workspaces.starter)
             live = Live(ws)
             assets = Assets(ws, self.jobs, self.library_dir)
             sources = Sources(ws)
             for thing in (ws, live, sources):
                 thing.listeners.append(self.changed)
             self.ws, self.live, self.assets, self.sources = ws, live, assets, sources
+            self.stats = Stats(folder)
             if old[1]:
                 old[1].stop()
             if old[0]:
@@ -100,11 +126,14 @@ class Engine:
         self.assets_rev += 1
         threading.Thread(target=sources.refresh, daemon=True).start()
         log(f"Opened the workspace {ws.get()['name']}")
+        if updated:
+            log(f"Updated the SCC graphics: {', '.join(updated)}")
         self.changed()
 
     def _beacon_info(self):
         s = self.settings.get()
-        return {"name": self.name(), "port": s["http_port"], "network": s["allow_network"], "version": self.updater.current}
+        return {"name": self.name(), "port": s["http_port"], "network": s["allow_network"], "version": self.updater.current,
+                "address": s.get("network_address") or ""}
 
     def name(self):
         return self.settings.get().get("name") or socket.gethostname()
@@ -118,40 +147,107 @@ class Engine:
             self.version += 1
             self._cond.notify_all()
 
-    def wait(self, timeout):
+    def wait(self, timeout, version=None):
+        """Waits for a change (or, given the version last seen, returns at once if it's already changed)."""
         with self._cond:
-            self._cond.wait(timeout)
+            if version is None or self.version == version:
+                self._cond.wait(timeout)
 
     def global_config(self):
-        return globalcfg.clean(self.ws.get().get("global"))
+        return globalcfg.clean(copy.deepcopy(self.ws.snapshot().get("global")))
 
     def data_snapshot(self):
         """The tables graphics read: the data sources, "Global", and what game HUDs send."""
         snap = self.sources.snapshot()
         g = self.global_config()
         snap["tables"]["Global"] = globalcfg.rows(g)
+        snap["tables"]["Sponsors"] = globalcfg.sponsor_rows(g)
+        try:
+            snap["tables"]["Stats"] = self.stats.rows(
+                {side: g[side]["name"] for side in ("left", "right")}, g["player_stats"],
+                lambda side, name: player_named(self.teams.find(g[side]["name"], g[side]["game"]), name), g["pictures"])
+        except Exception as e:   # (the game's stats can't take the whole engine down)
+            if not getattr(self, "_stats_failed", False):
+                log(f"Couldn't read the game's stats: {e!r}")
+            self._stats_failed = True
+            snap["tables"]["Stats"] = stats_rows(None, False)
+        snap["tables"]["Tournament"] = tournament.rows(g["tournament"], self.teams.find)
+        snap["tables"]["Teams"] = self.teams.rows()
+        snap["tables"]["Schedule"] = schedule.rows(g["schedule"], self.teams.find)
+        side = g["roster"]
+        stats_names = dict(r[:2] for r in snap["tables"]["Stats"][1:] if len(r) >= 2)
+        snap["tables"]["Roster"] = roster_rows(self.teams.find(g[side]["name"], g[side]["game"]), side,
+                                               [stats_names.get(f"{side.title()} player {i}", "") for i in range(1, 6)])
         for name, feed in self.feeds.items():
             snap["tables"][name] = feed["rows"]
-        snap["rev"] = f"{snap['rev']}.{self.ws.rev}.{self.feeds_rev}"
-        snap["feeds"] = {name: {"from": f["from"], "game": f["game"], "age": round(time.time() - f["at"], 1)}
+        snap["tables"]["HUDs"] = self.hud_rows()
+        snap["rev"] = f"{snap['rev']}.{self.ws.rev}.{self.feeds_rev}.{int(self.stats.live())}.{self.teams.rev}"
+        snap["now"] = time.time()   # (the outputs line their clocks up with it: the sponsors change together)
+        snap["stats"] = {"live": self.stats.live(), "kept": bool(self.stats.data),
+                         "from": (self.stats.data or {}).get("source", ""), "at": (self.stats.data or {}).get("at", 0)}
+        snap["feeds"] = {name: {"from": f["from"], "game": f["game"], "age": round(time.time() - f["at"], 1),
+                                # (a HUD on another PC must let other PCs read it for its pages to show here)
+                                "unreachable": bool(f.get("hud") and f["hud"]["remote"] and not f["hud"]["network"])}
                          for name, f in self.feeds.items()}
         return snap
 
     def state(self):
         """Everything the pages show (the outputs only use project, live and data)."""
         s = self.settings.get()
-        project = self.ws.get()
+        project = self.ws.snapshot()
         return {
             "app": {"name": self.name(), "version": self.updater.current, "port": s["http_port"],
-                    "network": s["allow_network"], "addresses": discover.own_addresses(),
-                    "ffmpeg": bool(ffmpeg_path()), "platform": platform.system()},
+                    "network": s["allow_network"],
+                    # (where other PCs reach it: the one network chosen, or every one)
+                    "addresses": [s["network_address"]] if s.get("network_address") else discover.own_addresses(),
+                    "all_addresses": discover.own_addresses(), "network_address": s.get("network_address") or "",
+                    "ffmpeg": self._has_ffmpeg(), "platform": platform.system()},
             "workspace": {"id": self.workspace_id, "name": project.get("name", ""),
                           "picture": bool(project.get("picture"))},
             "rev": self.ws.rev, "assets_rev": self.assets_rev,
             "project": project, "live": self.live.get(), "data": self.data_snapshot(),
             "global": globalcfg.clean(project.get("global")),
-            "fonts": self.assets.fonts(), "jobs": self.jobs.list(), "update": self.updater.info(),
+            "teams": self.teams.list(),
+            "games": list(GAMES.values()),   # (the games there are HUDs for)
+            "fonts": self._fonts(), "jobs": self.jobs.list(), "update": self.updater.info(),
         }
+
+    def _fonts(self):
+        key = (id(self.ws), self.assets_rev)
+        if self._fonts_cache[0] != key or time.monotonic() - self._fonts_cache[1] > 5:
+            self._fonts_cache = (key, time.monotonic(), self.assets.fonts())
+        return self._fonts_cache[2]
+
+    def _has_ffmpeg(self):
+        if time.monotonic() - self._ffmpeg_cache[0] > 30:
+            self._ffmpeg_cache = (time.monotonic(), bool(ffmpeg_path()))
+        return self._ffmpeg_cache[1]
+
+    def state_parts(self):
+        """The state as {key: JSON text}, made once per change however many
+        pages follow it (the outputs, the monitors, the control panel); the
+        data's "now" is left out (state_json puts it back)."""
+        with self._parts_lock:
+            version = self.version
+            p = self._parts
+            if not p or p[0] != version or time.monotonic() - p[1] > 1:
+                state = self.state()
+                data = dict(state["data"])
+                data.pop("now", None)
+                state["data"] = data
+                p = self._parts = (version, time.monotonic(), {k: json.dumps(v) for k, v in state.items()})
+            return p[2]
+
+    def state_json(self, parts=None, keys=None):
+        """The state (or just `keys` of it) as JSON text."""
+        parts = parts or self.state_parts()
+        out = []
+        for k in (parts if keys is None else keys):
+            v = parts[k]
+            if k == "data":
+                v = v[:-1] + ',"now":%r}' % time.time()
+            out.append(json.dumps(k) + ":" + v)
+        return "{" + ",".join(out) + "}"
 
     def stop(self):
         self.sources.stop()
@@ -163,28 +259,108 @@ class Engine:
     # --- global configuration, and the game HUDs ----------------------------
 
     def set_global(self, changes):
-        g = self.global_config()
+        old = self.global_config()
+        g = json.loads(json.dumps(old))
         for k, v in (changes or {}).items():
-            if k in ("left", "right") and isinstance(v, dict):
+            if k == "pictures" and isinstance(v, dict) and not ({"left", "right"} & set(v)):
+                for page, sides in v.items():   # ({"team": {"left": "champion"}}: just that one)
+                    if isinstance(sides, dict):
+                        g[k].setdefault(page, {}).update(sides)
+            elif k in ("left", "right", "bgloop", "caster", "pictures") and isinstance(v, dict):
                 g[k].update(v)
             else:
                 g[k] = v
-        g = globalcfg.clean(g)
+        g = globalcfg.sponsors_changed(old, globalcfg.clean(g))
         self.ws.set_global(g)
         return g
 
     def save_global_logo(self, side, filename, blob):
-        if side not in ("left", "right"):
-            raise ValueError("left or right")
+        """A picture for Global: a team's logo ("left", "right"), the tournament's
+        logo ("tournament"), one more sponsor ("sponsor") or the background loop
+        ("bgloop", a video)."""
+        if side not in ("left", "right", "tournament", "sponsor", "bgloop"):
+            raise ValueError("left, right, tournament, sponsor or bgloop")
         ext = os.path.splitext(filename or "")[1].lower()
-        if ext not in (".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif"):
+        if side == "bgloop":
+            if ext not in (".mp4", ".webm", ".mov", ".m4v"):
+                raise ValueError("The loop must be an MP4, WEBM or MOV video")
+        elif ext not in (".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif"):
             raise ValueError("The logo must be a PNG, JPG, WEBP, SVG or GIF")
         base = re.sub(r"[^\w\- ]+", "_", os.path.splitext(os.path.basename(filename))[0]) or side
-        rel, path = self.ws.unique_asset(base + ext, "logos")
+        rel, path = self.ws.unique_asset(base + ext, {"sponsor": "sponsors", "bgloop": "loops"}.get(side, "logos"))
         with open(path, "wb") as f:
             f.write(blob)
         self.assets_rev += 1
+        if side == "tournament":
+            return self.set_global({"tournament_logo": rel})
+        if side == "sponsor":
+            g = self.global_config()
+            secs = g["sponsors"][-1]["secs"] if g["sponsors"] else 10
+            return self.set_global({"sponsors": g["sponsors"] + [{"logo": rel, "secs": secs}]})
+        if side == "bgloop":
+            return self.set_global({"bgloop": {"src": rel, "on": True}})
         return self.set_global({side: {"logo": rel}})
+
+    def save_teams(self, teams):
+        out = self.teams.save(teams)
+        self.changed()
+        return out
+
+    def import_teams(self, text):
+        n = self.teams.import_csv(text)
+        self.assets_rev += 1
+        self.changed()
+        return n
+
+    def roster_links(self, game=None, fields=None):
+        """For a HUD's "Save IGN to player": each side's team (from Global), its
+        roster, and the game's players, each with the roster player it's linked
+        to by in-game ID (or None). The players are the HUD's own fields when it
+        sends them, else the last stats the engine got."""
+        g = self.global_config()
+        st = read_stats(game, fields) if fields else self.stats.data
+        out = {}
+        for side in ("left", "right"):
+            team = self.teams.find(g[side]["name"], g[side]["game"])
+            members = (team or {}).get("players") or []
+            keys = [ign_key(m["ign"]) for m in members]
+            players = []
+            for p in ((st or {}).get(side) or {}).get("players") or []:
+                if p["name"]:
+                    k = ign_key(p["name"])
+                    players.append({"ign": p["name"], "linked": keys.index(k) if k in keys else None})
+            out[side] = {"team": (team or {}).get("name") or g[side]["name"], "found": bool(team),
+                         "members": [{"index": i, "name": m["name"], "ign": m["ign"]} for i, m in enumerate(members)],
+                         "players": players}
+        return {"sides": out}
+
+    def link_player(self, side, index, ign):
+        """Saves a game's in-game name to a roster player of a side's team."""
+        g = self.global_config()
+        if side not in ("left", "right"):
+            raise ValueError("Unknown side")
+        team = self.teams.link(g[side]["name"], g[side]["game"], int(index), ign)
+        self.changed()
+        return team
+
+    def _trim_photos(self):
+        """Headshots kept before they were trimmed on upload: trimmed now."""
+        n = self.teams.trim_photos()
+        if n:
+            log(f"Trimmed the empty space around {n} headshot(s), so they line up on the player graphics")
+            self.assets_rev += 1
+            self.changed()
+
+    def save_team_photo(self, name, filename, blob):
+        photo = self.teams.save_photo(name, filename, blob)
+        self.assets_rev += 1
+        return photo
+
+    def save_team_logo(self, name, filename, blob, game=""):
+        logo = self.teams.save_logo(name, filename, blob, game)
+        self.assets_rev += 1
+        self.changed()
+        return logo
 
     def ingest(self, body, client):
         """A game HUD's data: its fields (a table named after the HUD) and the
@@ -195,11 +371,18 @@ class Engine:
             raise ValueError("fields must be an object")
         rows = [["Field", "Value"]] + [[str(k)[:80], "" if v is None else str(v)[:500]] for k, v in fields.items()]
         old = self.feeds.get(name)
-        self.feeds[name] = {"rows": rows, "from": client, "game": str(body.get("game") or ""), "at": time.time()}
+        was_live = self.stats.live()
+        self.feeds[name] = {"rows": rows, "from": client, "game": str(body.get("game") or ""), "at": time.time(),
+                            "hud": self._hud_pages(name, body.get("hud"), client)}
+        if self.feeds[name]["hud"] != (old or {}).get("hud"):
+            self.feeds_rev += 1
+            self._add_hud_graphics(name, self.feeds[name]["hud"])
         if not old or old["rows"] != rows:
             self.feeds_rev += 1
             if not old:
                 log(f"{name} connected from {client}")
+        if self.stats.update(name, str(body.get("game") or ""), fields) or was_live != self.stats.live():
+            self.feeds_rev += 1
         # The series into Global: a value the HUD changed (or its first, for the
         # score, unless 0), and names only where Global has none - so connecting a HUD
         # doesn't undo what was set here.
@@ -227,6 +410,73 @@ class Engine:
             if changes:
                 self.set_global(changes)
         self.changed()
+
+    # --- a game HUD's own graphics (VALORANT's agent select...) -------------------
+
+    def _hud_pages(self, name, hud, client):
+        """What a HUD says it can show ({"port", "network", "graphics": [{"id",
+        "name", "path", "kind"}]}) -> its pages' addresses, as outputs reach them:
+        a HUD on this PC at localhost, one on another PC at its address."""
+        if not isinstance(hud, dict) or not hud.get("port"):
+            return None
+        host = "localhost" if _is_local(client) else client
+        pages = []
+        for g in hud.get("graphics") or []:
+            if isinstance(g, dict) and g.get("id") and g.get("path"):
+                pages.append({"id": re.sub(r"[^\w-]", "", str(g["id"]))[:30], "name": str(g.get("name") or g["id"])[:40],
+                              "kind": g.get("kind") if g.get("kind") in ("board", "lower third", "overlay") else "overlay",
+                              "url": f"http://{host}:{int(hud['port'])}/{str(g['path']).lstrip('/')}",
+                              "backdrop": bool(g.get("backdrop"))})
+        return {"pages": pages, "remote": not _is_local(client), "network": bool(hud.get("network"))}
+
+    def _add_hud_graphics(self, name, hud):
+        """Adds a graphic for each of a HUD's pages the first time the HUD
+        offers it (deleting one keeps it gone)."""
+        if not hud:
+            return
+        with self.ws.lock:
+            added = self.ws.data.setdefault("hud_graphics", [])
+            for p in hud["pages"]:
+                key = f"{name}/{p['id']}"
+                if key in added:
+                    # (one added before the HUD asked for the boards' backdrop: given it now)
+                    comp = next((c for c in self.ws.data["compositions"] if c.get("hud") == key), None)
+                    if comp and p.get("backdrop") and not any(l.get("name") == "Background loop" for l in comp["layers"]):
+                        comp["layers"][0:0] = self._board_backdrop()
+                        self.ws.changed()
+                    continue
+                added.append(key)
+                comp = blank_comp(f"{p['name']} ({name})")
+                comp.update(kind=p["kind"], hud=key)
+                comp["layers"] = (self._board_backdrop() if p.get("backdrop") else []) + [
+                    blank_layer("web", name=p["name"], x=0, y=0, w=1920, h=1080, src=f"{{{{HUDs!{name} {p['name']}}}}}")]
+                self.ws.add_comp(comp)
+                log(f"Added the {name}'s {p['name']} to the graphics")
+
+    def _board_backdrop(self):
+        """The boards' backdrop and background loop (as on Team stats), for a
+        HUD's full-screen page that goes over them (VALORANT's map bans)."""
+        out = []
+        for cname in ("Team stats", "Player stats", "Schedule"):
+            comp = next((c for c in self.ws.data["compositions"] if c["name"] == cname), None)
+            layers = {l.get("name"): l for l in (comp or {}).get("layers") or []}
+            if "Background loop" in layers:
+                out = [layers[n] for n in ("Layer 1", "Background loop") if n in layers]
+                break
+        out = [dict(copy.deepcopy(l), id=new_id("l")) for l in out]
+        if not any(l["name"] == "Background loop" for l in out):
+            out.append(blank_layer("video", name="Background loop", x=0, y=0, w=1920, h=1080, blend="screen", fit="cover",
+                                   audio=False, src="{{Global!BG loop}}", tint="{{Global!BG loop colour}}",
+                                   brightness="{{Global!BG loop brightness}}", speed="{{Global!BG loop speed}}"))
+        return out
+
+    def hud_rows(self):
+        """The "HUDs" data table: each connected HUD's pages' addresses."""
+        out = [["Field", "Value"]]
+        for name, f in self.feeds.items():
+            for p in (f.get("hud") or {}).get("pages") or []:
+                out.append([f"{name} {p['name']}", p["url"]])
+        return out
 
     # --- workspaces ------------------------------------------------------
 
@@ -294,6 +544,11 @@ class Engine:
         return [c["name"] for c in comps]
 
     # --- changes that touch several parts ----------------------------------
+
+    def clear_stats(self):
+        self.stats.clear()
+        self.feeds_rev += 1
+        self.changed()
 
     def delete_comp(self, cid):
         self.ws.delete_comp(cid)
@@ -440,11 +695,12 @@ def make_handler(engine):
             self.send_header("Connection", "close")
             self.end_headers()
             self.close_connection = True
-            last, sent = None, 0.0
+            last, sent, had = None, 0.0, {}
             try:
                 self.wfile.write(b"retry: 1000\n\n")
                 while True:
-                    engine.wait(1.0)
+                    if last is not None:
+                        engine.wait(1.0, last)
                     now = time.monotonic()
                     if engine.version == last:
                         if now - sent > 10:   # keep the connection alive
@@ -455,7 +711,12 @@ def make_handler(engine):
                     if now - sent < 1 / 30:
                         time.sleep(1 / 30 - (now - sent))
                     last, sent = engine.version, time.monotonic()
-                    self.wfile.write(b"data: " + json.dumps(engine.state()).encode() + b"\n\n")
+                    # Only what changed since the last message (a take is a few hundred
+                    # bytes, not the whole project): the pages keep the rest.
+                    parts = engine.state_parts()
+                    keys = [k for k, v in parts.items() if had.get(k) != v]
+                    had = dict(parts)
+                    self.wfile.write(b"data: " + engine.state_json(parts, keys).encode() + b"\n\n")
                     self.wfile.flush()
             except (ConnectionError, OSError):
                 pass
@@ -488,9 +749,11 @@ def make_handler(engine):
                 return self._json({"app": discover.APP, "name": engine.name(), "version": engine.updater.current,
                                    "port": engine.settings.get()["http_port"]})
             if path == "/api/state":
-                return self._json(engine.state())
+                return self._send(engine.state_json())
             if path == "/api/stream":
                 return self._stream()
+            if path == "/api/companion":
+                return self._json(companion.state(engine))
             if path == "/api/assets":
                 return self._json({"assets": engine.assets.list(), "rev": engine.assets_rev})
             if path == "/api/log":
@@ -499,7 +762,7 @@ def make_handler(engine):
                 return self._json({"engines": engine.beacon.engines()})
             if path == "/api/scan":
                 port = engine.settings.get()["http_port"]
-                found = discover.scan(port)
+                found = discover.scan(port, only=engine.settings.get().get("network_address") or "")
                 for e in found:
                     engine.beacon.add(e["ip"], e["port"], e.get("name", e["ip"]), e.get("version", ""))
                 return self._json({"engines": engine.beacon.engines()})
@@ -508,6 +771,8 @@ def make_handler(engine):
             if path.startswith("/api/workspace-picture/"):
                 full = engine.workspaces.picture(unquote(path.rsplit("/", 1)[1]))
                 return self._file(full) if full else self._json({"error": "not found"}, 404)
+            if path == "/api/roster/links":
+                return self._json(engine.roster_links())
             if path == "/api/global":
                 # For game HUDs ("Use Global Information"): logos as addresses on this engine.
                 g = engine.global_config()
@@ -516,6 +781,8 @@ def make_handler(engine):
                     logo = g[side]["logo"]
                     g[side]["logo_url"] = (f"http://{host}/{quote(logo)}" if logo and not re.match(r"https?://", logo)
                                            else logo)
+                for sp in g["sponsors"]:
+                    sp["logo_url"] = sp["logo"] if re.match(r"https?://", sp["logo"]) else f"http://{host}/{quote(sp['logo'])}"
                 return self._json({"global": g, "workspace": engine.ws.get()["name"], "engine": engine.name()})
             if path == "/api/pack":
                 return self._json({"graphics": engine.pack()})
@@ -564,11 +831,24 @@ def make_handler(engine):
                     name = unquote(self.headers.get("X-Filename") or (q.get("name") or [""])[0])
                     fps = float((q.get("fps") or ["0"])[0]) or None
                     return self._json(engine.upload(name, self.rfile, length, fps))
+                if path in ("/api/teams/import", "/api/teams/logo", "/api/teams/photo"):
+                    if length > 30 << 20:
+                        raise ValueError("That file is too big (30 MB at most)")
+                    blob = self.rfile.read(length)
+                    if path == "/api/teams/import":
+                        n = engine.import_teams(blob.decode("utf-8-sig", "replace"))
+                        return self._json({"added": n, "teams": engine.teams.list()})
+                    name = unquote(self.headers.get("X-Filename") or (q.get("name") or [""])[0])
+                    if path == "/api/teams/photo":
+                        return self._json({"photo": engine.save_team_photo((q.get("player") or [""])[0], name, blob)})
+                    logo = engine.save_team_logo((q.get("team") or [""])[0], name, blob, (q.get("game") or [""])[0])
+                    return self._json({"logo": logo, "teams": engine.teams.list()})
                 if path in ("/api/workspaces/picture", "/api/global/logo"):
                     # (the picture's bytes are the body)
                     name = unquote(self.headers.get("X-Filename") or (q.get("name") or [""])[0])
-                    if length > 30 << 20:
-                        raise ValueError("That picture is too big (30 MB at most)")
+                    video = path == "/api/global/logo" and (q.get("side") or [""])[0] == "bgloop"
+                    if length > (400 << 20 if video else 30 << 20):
+                        raise ValueError("That file is too big (" + ("400" if video else "30") + " MB at most)")
                     blob = self.rfile.read(length)
                     if path == "/api/global/logo":
                         return self._json({"global": engine.save_global_logo((q.get("side") or [""])[0], name, blob)})
@@ -607,10 +887,21 @@ def make_handler(engine):
                 # --- global configuration, game HUDs ---
                 elif path == "/api/global":
                     result = {"global": engine.set_global(body.get("global") or {})}
+                elif path == "/api/teams":
+                    result = {"teams": engine.save_teams(body.get("teams") or [])}
+                elif path == "/api/roster/links":
+                    result = engine.roster_links(body.get("game"), body.get("fields"))
+                elif path == "/api/roster/link":
+                    engine.link_player(body.get("side"), body.get("player", -1), body.get("ign", ""))
+                    result = engine.roster_links(body.get("game"), body.get("fields"))
+                elif path == "/api/stats/clear":
+                    engine.clear_stats()
                 elif path == "/api/ingest":
                     engine.ingest(body, self.client_address[0])
                     result = {"ok": True, "global": engine.global_config()}
                 # --- on air ---
+                elif path == "/api/companion":
+                    result = companion.act(engine, body)
                 elif path == "/api/cue":
                     live.cue(body["id"], bool(body.get("on", True)))
                 elif path == "/api/values":
@@ -644,7 +935,11 @@ def make_handler(engine):
                 elif path == "/api/settings":
                     if not local:
                         raise ValueError("Settings can only be changed on the engine's own PC")
+                    if body.get("network_address"):
+                        ipaddress.IPv4Address(str(body["network_address"]))   # (ValueError: not an address)
                     engine.settings.update(body)
+                    if "network_address" in body and engine.server:
+                        engine.server.rebind(engine.settings.get()["network_address"] or "")
                     engine.changed()
                 elif path == "/api/update/check":
                     engine.updater.check()
@@ -665,23 +960,76 @@ def make_handler(engine):
 
 
 class Server:
-    def __init__(self, engine, port):
+    """The web server: on every network card, or on this PC (127.0.0.1) and one
+    network only (settings "network_address"). Other PCs are turned away unless
+    allowed, so allowing them needs no restart; changing the network rebinds."""
+
+    def __init__(self, engine, port, address=""):
+        self.engine = engine
         self.port = port
-        # Always on every network card: other PCs are turned away unless allowed,
-        # so allowing them needs no restart.
-        self.httpd = ThreadingHTTPServer(("0.0.0.0", port), make_handler(engine))
-        self.httpd.daemon_threads = True
-        threading.Thread(target=self.httpd.serve_forever, daemon=True).start()
+        self.lock = threading.Lock()
+        self.httpds = {}      # host -> server
+        self.address = None
+        self._bind(address, first=True)
+
+    def _serve(self, host):
+        httpd = ThreadingHTTPServer((host, self.port), make_handler(self.engine))
+        httpd.daemon_threads = True
+        threading.Thread(target=httpd.serve_forever, daemon=True).start()
+        self.httpds[host] = httpd
+
+    def _close(self):
+        for httpd in self.httpds.values():
+            httpd.shutdown()
+            httpd.server_close()
+        self.httpds = {}
+
+    def _bind(self, address, first=False):
+        with self.lock:
+            self._close()
+            self.address = address
+            if not address:
+                self._serve("0.0.0.0")
+                return
+            self._serve("127.0.0.1")
+            try:
+                self._serve(address)
+                if not first:
+                    log(f"Other PCs now reach this engine on {address} only")
+            except OSError:
+                log(f"This PC isn't on {address} right now: only this PC can use the engine until it is", "warn")
+                threading.Thread(target=self._retry, args=(address,), daemon=True).start()
+
+    def _retry(self, address):
+        """Binds the chosen network once this PC is on it (the cable's back in, the VLAN's up)."""
+        while True:
+            time.sleep(10)
+            with self.lock:
+                if self.address != address or address in self.httpds:
+                    return
+                try:
+                    self._serve(address)
+                    log(f"On {address} now: other PCs can reach this engine there")
+                    return
+                except OSError:
+                    pass
+
+    def rebind(self, address):
+        if address != self.address:
+            # (a moment later: the request that asked for it gets its answer first)
+            threading.Timer(0.3, self._bind, args=(address,)).start()
 
     def stop(self):
-        self.httpd.shutdown()
-        self.httpd.server_close()
+        with self.lock:
+            self.address = None
+            self._close()
 
 
 def start(engine):
     """Starts the web server (raises OSError if the port is taken)."""
-    port = engine.settings.get()["http_port"]
-    engine.server = Server(engine, port)
+    s = engine.settings.get()
+    port = s["http_port"]
+    engine.server = Server(engine, port, s.get("network_address") or "")
     clean_up_old_update()
     engine.updater.check_in_background()
     threading.Thread(target=engine.sources.refresh, daemon=True).start()

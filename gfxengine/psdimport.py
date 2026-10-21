@@ -102,6 +102,17 @@ def _leaves(group, opacity=1.0, visible=True):
             yield layer, op, vis
 
 
+def guess_kind(layers):
+    """A full-page board (something covers the screen), a lower third (all in
+    the bottom part) or an overlay."""
+    shown = [l for l in layers if l.get("visible", True)]
+    if any(l["w"] * l["h"] >= 1920 * 1080 * 0.8 for l in shown):
+        return "board"
+    if shown and min(l["y"] for l in shown) >= 1080 * 0.55 and max(l["x"] + l["w"] for l in shown) - min(l["x"] for l in shown) < 1920 * 0.8:
+        return "lower third"
+    return "overlay"
+
+
 def import_psd(path, workspace, name=None):
     """Makes a composition from a PSD (and PNGs for its layers in
     assets/<name>/). Returns (composition, [fonts it uses])."""
@@ -168,6 +179,7 @@ def import_psd(path, workspace, name=None):
                 "opacity": 1, "rotation": 0, "visible": True, "blend": "normal", "field": "",
                 "anim": {"in": dict(ANIM_NONE), "out": dict(ANIM_NONE)}, "src": f"assets/{sub}/Image.png", "fit": "fill", "loop": True})
     auto_animate(comp["layers"], width, height)
+    comp["kind"] = guess_kind(comp["layers"])
     log(f"Imported {name}: {len(comp['layers'])} layers")
     return comp, sorted(fonts)
 

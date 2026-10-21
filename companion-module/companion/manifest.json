@@ -1,0 +1,34 @@
+{
+	"$schema": "../node_modules/@companion-module/base/assets/manifest.schema.json",
+	"id": "scc-gfx-engine",
+	"name": "scc-gfx-engine",
+	"shortname": "scc-gfx",
+	"description": "St. Clair Saints GFX Engine: graphics to Preview and Program, Take, Clear, and quick functions (score, clock, background loop)",
+	"version": "0.0.0",
+	"license": "MIT",
+	"repository": "git+https://github.com/owenbparker/GFX-Engine.git",
+	"bugs": "https://github.com/owenbparker/GFX-Engine/issues",
+	"maintainers": [
+		{
+			"name": "St. Clair Saints"
+		}
+	],
+	"runtime": {
+		"type": "node22",
+		"api": "nodejs-ipc",
+		"apiVersion": "0.0.0",
+		"entrypoint": "../src/main.js"
+	},
+	"legacyIds": [],
+	"manufacturer": "St. Clair Saints",
+	"products": [
+		"GFX Engine"
+	],
+	"keywords": [
+		"graphics",
+		"broadcast",
+		"esports",
+		"preview",
+		"program"
+	]
+}

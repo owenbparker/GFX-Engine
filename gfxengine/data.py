@@ -152,7 +152,7 @@ class Sources:
 
     def snapshot(self):
         """{source name: rows} for the outputs, plus each table's status."""
-        sources = self.ws.get()["sources"]
+        sources = self.ws.snapshot()["sources"]
         with self.lock:
             return {"rev": self.rev,
                     "tables": {s["name"]: self.tables.get(s["id"], {}).get("rows", []) for s in sources},
