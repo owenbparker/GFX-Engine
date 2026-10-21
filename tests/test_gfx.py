@@ -736,3 +736,30 @@ class ServerTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class HudBoardTests(unittest.TestCase):
+    def test_hud_board_gets_the_backdrop_and_loop(self):
+        from gfxengine.app import Engine
+        tmp = tempfile.mkdtemp()
+        try:
+            engine = Engine(Settings(os.path.join(tmp, "settings.json")), os.path.join(tmp, "workspaces"),
+                            starter=os.path.join(ROOT, "starter"), library_dir=os.path.join(tmp, "library"),
+                            legacy_dir=os.path.join(tmp, "none"))
+            if not engine.ws:
+                engine.create_workspace("Test")
+            hud = lambda bd: {"port": 8778, "graphics": [
+                {"id": "agent-select", "name": "Agent select", "path": "/agent-select", "kind": "board"},
+                {"id": "map-bans-bo3", "name": "Map bans Bo3", "path": "/map-bans?bo=3", "kind": "board", "backdrop": bd}]}
+            engine.ingest({"source": "VALORANT HUD", "game": "valorant", "hud": hud(False)}, "127.0.0.1")
+            comps = {c.get("hud"): c for c in engine.ws.data["compositions"] if c.get("hud")}
+            self.assertEqual([l["type"] for l in comps["VALORANT HUD/map-bans-bo3"]["layers"]], ["web"])
+            # A HUD that asks for the backdrop later: added to the graphic it made before.
+            engine.ingest({"source": "VALORANT HUD", "game": "valorant", "hud": hud(True)}, "127.0.0.1")
+            comps = {c.get("hud"): c for c in engine.ws.data["compositions"] if c.get("hud")}
+            names = [l["name"] for l in comps["VALORANT HUD/map-bans-bo3"]["layers"]]
+            self.assertEqual(names, ["Layer 1", "Background loop", "Map bans Bo3"])
+            self.assertEqual(comps["VALORANT HUD/map-bans-bo3"]["layers"][1]["src"], "{{Global!BG loop}}")
+            self.assertEqual([l["type"] for l in comps["VALORANT HUD/agent-select"]["layers"]], ["web"])
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)

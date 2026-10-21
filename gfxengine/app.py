@@ -11,6 +11,7 @@ score) and GET /api/global (the teams' names, short names and logos).
 Bitfocus Companion uses /api/companion (see companion.py).
 """
 
+import copy
 import ipaddress
 import json
 import mimetypes
@@ -381,7 +382,8 @@ class Engine:
             if isinstance(g, dict) and g.get("id") and g.get("path"):
                 pages.append({"id": re.sub(r"[^\w-]", "", str(g["id"]))[:30], "name": str(g.get("name") or g["id"])[:40],
                               "kind": g.get("kind") if g.get("kind") in ("board", "lower third", "overlay") else "overlay",
-                              "url": f"http://{host}:{int(hud['port'])}/{str(g['path']).lstrip('/')}"})
+                              "url": f"http://{host}:{int(hud['port'])}/{str(g['path']).lstrip('/')}",
+                              "backdrop": bool(g.get("backdrop"))})
         return {"pages": pages, "remote": not _is_local(client), "network": bool(hud.get("network"))}
 
     def _add_hud_graphics(self, name, hud):
@@ -394,14 +396,36 @@ class Engine:
             for p in hud["pages"]:
                 key = f"{name}/{p['id']}"
                 if key in added:
+                    # (one added before the HUD asked for the boards' backdrop: given it now)
+                    comp = next((c for c in self.ws.data["compositions"] if c.get("hud") == key), None)
+                    if comp and p.get("backdrop") and not any(l.get("name") == "Background loop" for l in comp["layers"]):
+                        comp["layers"][0:0] = self._board_backdrop()
+                        self.ws.changed()
                     continue
                 added.append(key)
                 comp = blank_comp(f"{p['name']} ({name})")
                 comp.update(kind=p["kind"], hud=key)
-                comp["layers"] = [blank_layer("web", name=p["name"], x=0, y=0, w=1920, h=1080,
-                                              src=f"{{{{HUDs!{name} {p['name']}}}}}")]
+                comp["layers"] = (self._board_backdrop() if p.get("backdrop") else []) + [
+                    blank_layer("web", name=p["name"], x=0, y=0, w=1920, h=1080, src=f"{{{{HUDs!{name} {p['name']}}}}}")]
                 self.ws.add_comp(comp)
                 log(f"Added the {name}'s {p['name']} to the graphics")
+
+    def _board_backdrop(self):
+        """The boards' backdrop and background loop (as on Team stats), for a
+        HUD's full-screen page that goes over them (VALORANT's map bans)."""
+        out = []
+        for cname in ("Team stats", "Player stats", "Schedule"):
+            comp = next((c for c in self.ws.data["compositions"] if c["name"] == cname), None)
+            layers = {l.get("name"): l for l in (comp or {}).get("layers") or []}
+            if "Background loop" in layers:
+                out = [layers[n] for n in ("Layer 1", "Background loop") if n in layers]
+                break
+        out = [dict(copy.deepcopy(l), id=new_id("l")) for l in out]
+        if not any(l["name"] == "Background loop" for l in out):
+            out.append(blank_layer("video", name="Background loop", x=0, y=0, w=1920, h=1080, blend="screen", fit="cover",
+                                   audio=False, src="{{Global!BG loop}}", tint="{{Global!BG loop colour}}",
+                                   brightness="{{Global!BG loop brightness}}", speed="{{Global!BG loop speed}}"))
+        return out
 
     def hud_rows(self):
         """The "HUDs" data table: each connected HUD's pages' addresses."""
