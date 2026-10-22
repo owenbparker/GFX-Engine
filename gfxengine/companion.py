@@ -14,7 +14,7 @@ A graphic is its id or its name (so a button still works in another
 workspace that has the same graphics).
 """
 
-from .globalcfg import CASTER_SCALE, CLOCK_LABELS
+from .globalcfg import CASTER_SCALE, CLOCK_LABELS, timer_now, timer_running
 from .log import log
 
 # Quick functions: id -> name. Each has a state (lit on the button) where it makes sense.
@@ -27,6 +27,8 @@ QUICK = {
     "clock_time": "Clock: local time",
     "clock_soon": "Clock: Starting Soon countdown",
     "clock_brb": "Clock: Be Right Back countdown",
+    "timer_toggle": "Timer: start / pause",
+    "timer_reset": "Timer: reset",
     "bgloop": "Background loop: on / off",
     "roster_left": "Player graphics: left team",
     "roster_right": "Player graphics: right team",
@@ -70,7 +72,7 @@ def state(engine):
     on = {
         "preview_any": bool(pvw), "program_any": bool(pgm),
         "clock_time": g["clock"]["mode"] == "time", "clock_soon": g["clock"]["mode"] == "soon",
-        "clock_brb": g["clock"]["mode"] == "brb", "bgloop": g["bgloop"]["on"],
+        "clock_brb": g["clock"]["mode"] == "brb", "timer_toggle": timer_running(g["timer"]), "bgloop": g["bgloop"]["on"],
         "roster_left": g["roster"] == "left", "roster_right": g["roster"] == "right",
         **{f"caster_{n}": g["caster"]["count"] == n for n in CASTER_SCALE},
     }
@@ -81,6 +83,7 @@ def state(engine):
         "program": ", ".join(names.get(i, "") for i in pgm),
         "default_transition": default,
         "clock": CLOCK_LABELS.get(g["clock"]["mode"], ""),
+        "timer": "%02d:%02d" % divmod(int(timer_now(g["timer"]) + (0.999 if g["timer"]["down"] else 0)), 60),
         "best_of": str(g["best_of"]),
         "casters": str(g["caster"]["count"]),
     }
@@ -101,6 +104,8 @@ def _run(engine, key):
             engine.set_global({side: {"score": max(0, g[side]["score"] + (1 if way == "up" else -1))}})
     elif key.startswith("clock_"):
         engine.set_global({"clock": dict(g["clock"], mode=key.split("_", 1)[1])})
+    elif key.startswith("timer_"):
+        engine.timer(key.split("_", 1)[1])
     elif key == "bgloop":
         engine.set_global({"bgloop": {"on": not g["bgloop"]["on"]}})
     elif key.startswith("roster_"):

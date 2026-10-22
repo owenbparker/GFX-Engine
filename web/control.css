@@ -430,6 +430,11 @@ table.sheet td.c:hover { background: #1d3b5e; }
 .clock-field .row-gap { display: flex; gap: 6px; }
 .clock-field select { flex: 1; }
 .clock-field input[type=time] { flex: 0 0 130px; width: 130px; }
+.timer-field .row-gap + .row-gap { margin-top: 6px; }
+.timer-field .timer-now { flex: 1; font: 700 22px/1 ui-monospace, Consolas, monospace; letter-spacing: 1px; }
+.timer-field button.on { background: var(--pgm); border-color: var(--pgm); }
+.field.timer-field .row-gap > input[type=text] { flex: 0 0 90px; width: 90px; }
+.timer-field select { flex: 1; }
 
 /* TEAMS: the roster editor */
 .teams-page { grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); }

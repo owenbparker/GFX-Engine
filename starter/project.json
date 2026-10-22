@@ -19535,6 +19535,125 @@
    "width": 1920,
    "height": 1080,
    "kind": "overlay"
+  },
+  {
+   "id": "cc259d2ac",
+   "name": "Timer bug",
+   "layer": 0,
+   "width": 1920,
+   "height": 1080,
+   "kind": "overlay",
+   "layers": [
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lf2d9cfc2",
+     "name": "Bug",
+     "type": "image",
+     "x": 0,
+     "y": 201,
+     "w": 586,
+     "h": 152,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "wipe-right",
+       "dur": 500,
+       "delay": 0
+      },
+      "out": {
+       "type": "wipe-right",
+       "dur": 400,
+       "delay": 0
+      }
+     },
+     "src": "assets/Timer bug/BUG.png",
+     "fit": "fill",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "type": "text",
+     "font": "VTFRedzone-Classic",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "squeeze",
+     "italic": false,
+     "scroll": 0,
+     "id": "l8bff2bce",
+     "name": "Title",
+     "x": 23,
+     "y": 206,
+     "w": 524,
+     "h": 60,
+     "field": "Title",
+     "anim": {
+      "in": {
+       "type": "wipe-right",
+       "dur": 500,
+       "delay": 0
+      },
+      "out": {
+       "type": "wipe-right",
+       "dur": 400,
+       "delay": 0
+      }
+     },
+     "text": "HIGHLIGHTS",
+     "size": 72,
+     "color": "#ffffff",
+     "weight": 400,
+     "baseline": 61.9
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "type": "text",
+     "font": "VTFRedzone-Classic",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "squeeze",
+     "italic": false,
+     "scroll": 0,
+     "id": "la9223cbb",
+     "name": "Timer",
+     "x": 23,
+     "y": 272,
+     "w": 507,
+     "h": 60,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "wipe-right",
+       "dur": 500,
+       "delay": 0
+      },
+      "out": {
+       "type": "wipe-right",
+       "dur": 400,
+       "delay": 0
+      }
+     },
+     "text": "{{timer}}",
+     "size": 60,
+     "color": "#bf9000",
+     "weight": 700,
+     "baseline": 51.6
+    }
+   ]
   }
  ],
  "transitions": [
@@ -19835,6 +19954,9 @@
   "Sponsor footer": [
    "7bf16bdaabfc4d94",
    "af5245b0ab49159c"
+  ],
+  "Timer bug": [
+   "ef2aaaa3e43b116f"
   ]
  },
  "pack_removed": [
@@ -19842,5 +19964,8 @@
   "Starting soon",
   "Team graphic",
   "Title screen"
+ ],
+ "pack_new": [
+  "Timer bug"
  ]
 }

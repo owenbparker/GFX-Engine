@@ -274,6 +274,15 @@ class Engine:
         self.ws.set_global(g)
         return g
 
+    def timer(self, action, secs=None, down=None):
+        """Starts, stops, resets or sets the timer ({{timer}}); secs can be "m:ss"."""
+        if secs is not None and secs != "":
+            secs = globalcfg.parse_secs(secs)
+        else:
+            secs = None
+        t = globalcfg.timer_action(self.global_config()["timer"], action, secs, down)
+        return self.set_global({"timer": t})
+
     def save_global_logo(self, side, filename, blob):
         """A picture for Global: a team's logo ("left", "right"), the tournament's
         logo ("tournament"), one more sponsor ("sponsor") or the background loop
@@ -887,6 +896,8 @@ def make_handler(engine):
                 # --- global configuration, game HUDs ---
                 elif path == "/api/global":
                     result = {"global": engine.set_global(body.get("global") or {})}
+                elif path == "/api/timer":
+                    result = {"global": engine.timer(body.get("action") or "", body.get("secs"), body.get("down"))}
                 elif path == "/api/teams":
                     result = {"teams": engine.save_teams(body.get("teams") or [])}
                 elif path == "/api/roster/links":

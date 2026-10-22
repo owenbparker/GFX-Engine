@@ -8,7 +8,10 @@ that was changed is left alone; Outputs > Workspace can still add the SCC
 graphics a workspace doesn't have.
 
 starter/project.json keeps, for each graphic, the signatures of the
-versions shipped before ("pack_history": {name: [signature, ...]}).
+versions shipped before ("pack_history": {name: [signature, ...]}), and
+the graphics added to the pack since the first ("pack_new"): a workspace
+made from the pack gets each of those once (if it was deleted, it stays
+deleted).
 """
 
 import copy
@@ -20,6 +23,7 @@ import time
 
 from . import export
 from .log import log
+from .project import new_id
 
 
 def signature(comp):
@@ -58,6 +62,22 @@ def upgrade(ws, starter):
     done = []
     with ws.lock:
         comps = ws.data["compositions"]
+        seen = list(ws.data.get("pack_seen") or [])
+        # (only for workspaces made from the pack: an empty one stays empty)
+        from_pack = any(c.get("name") in latest for c in comps)
+        for name in project.get("pack_new") or []:
+            if name in seen or name not in latest:
+                continue
+            seen.append(name)
+            if from_pack and not any(c.get("name") == name for c in comps):
+                fresh = copy.deepcopy(latest[name])
+                fresh["id"] = new_id("c")
+                copy_files(fresh, starter, ws)
+                comps.append(fresh)
+                done.append(name)
+        if seen != list(ws.data.get("pack_seen") or []):
+            ws.data["pack_seen"] = seen
+            ws.changed()
         for i, comp in enumerate(comps):
             new = latest.get(comp.get("name"))
             if not new or signature(comp) not in history.get(comp["name"], []):

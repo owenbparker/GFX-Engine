@@ -351,6 +351,28 @@ class GlobalTests(unittest.TestCase):
         self.assertEqual(dict(globalcfg.rows(dict(new, bgloop={"on": False}))[1:])["BG loop"], "")
 
 
+class TimerTests(unittest.TestCase):
+    def test_start_pause_reset_and_count_down(self):
+        from gfxengine import globalcfg as gc
+        t = gc.clean({})["timer"]
+        t = gc.timer_action(t, "start", now=100)
+        self.assertEqual(gc.timer_now(t, 165), 65)
+        t = gc.timer_action(t, "toggle", now=165)                          # pause
+        self.assertEqual((t["started"], gc.timer_now(t, 999)), (0, 65))
+        t = gc.timer_action(t, "reset", now=170)
+        self.assertEqual(t["secs"], 0)
+        t = gc.timer_action(t, "set", secs=gc.parse_secs("5:00"), down=True, now=200)
+        t = gc.timer_action(t, "start", now=200)
+        self.assertEqual(gc.timer_now(t, 230), 270)
+        self.assertEqual(gc.timer_now(t, 900), 0)                          # stops at 0
+        self.assertFalse(gc.timer_running(t, 900))
+        t = gc.timer_action(t, "toggle", now=900)                           # ran out: starts again from 5:00
+        self.assertEqual(gc.timer_now(t, 910), 290)
+        self.assertEqual(gc.parse_secs("1:02:03"), 3723)
+        rows = dict(gc.rows({"timer": t})[1:])
+        self.assertEqual((rows["Timer down"], float(rows["Timer secs"])), ("1", 300))
+
+
 class PackTests(unittest.TestCase):
     def test_untouched_graphics_are_brought_up_to_date(self):
         from gfxengine import pack
@@ -410,6 +432,10 @@ class PackTests(unittest.TestCase):
         self.assertTrue(all(l.get("divider") for l in sch if l.get("scroll")))
         self.assertEqual(len(data["global"]["schedule"]["matches"]), 3)
         self.assertEqual([l["text"] for l in sch if l["name"].startswith("Clock")], ["{{clock}}", "{{Global!Clock label}}"])
+        bug = comps["Timer bug"]
+        self.assertEqual([l.get("text") for l in bug["layers"]], [None, "HIGHLIGHTS", "{{timer}}"])
+        self.assertTrue(os.path.isfile(os.path.join(ROOT, "starter", bug["layers"][0]["src"])))
+        self.assertIn("Timer bug", data["pack_new"])
 
 
 class PackUpgradeTests(unittest.TestCase):
@@ -440,6 +466,17 @@ class PackUpgradeTests(unittest.TestCase):
             ws.data["global"]["sponsors"] = [{"logo": "assets/sponsors/Mine.png", "secs": 5}]
             pack.upgrade(ws, starter)
             self.assertEqual(ws.data["global"]["sponsors"][0]["logo"], "assets/sponsors/Mine.png")
+            # A graphic new to the pack: added once, and stays deleted if deleted.
+            with open(os.path.join(starter, "project.json")) as f:
+                project = json.load(f)
+            project["compositions"].append(dict(blank_comp("Timer bug"), id="c9"))
+            project["pack_new"] = ["Timer bug"]
+            with open(os.path.join(starter, "project.json"), "w") as f:
+                json.dump(project, f)
+            self.assertEqual(pack.upgrade(ws, starter), ["Timer bug"])
+            ws.data["compositions"] = [c for c in ws.data["compositions"] if c["name"] != "Timer bug"]
+            self.assertEqual(pack.upgrade(ws, starter), [])
+            self.assertNotIn("Timer bug", [c["name"] for c in ws.data["compositions"]])
             ws.close()
         finally:
             shutil.rmtree(tmp, ignore_errors=True)

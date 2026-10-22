@@ -31,7 +31,7 @@ LOOP_BOARDS = ("Schedule", "Team stats", "Player stats", "Group bracket", "Top 8
                *(f"Player graphic ({n})" for n in range(1, 6)))
 # What each graphic is: one board and one lower third can be on air at a time.
 KINDS = {"lower third": ("Caster lower third",),
-         "overlay": ("Scorebug & footer", "Replay overlay")}
+         "overlay": ("Scorebug & footer", "Replay overlay", "Timer bug")}
 TICKER = ["WELCOME TO ST. CLAIR SAINTS ESPORTS", "FOLLOW @SCCSAINTS FOR HIGHLIGHTS", "THANKS FOR WATCHING!"]
 # The upcoming matches a new workspace starts with (the design's own).
 SCHEDULE = {"count": 3, "matches": [
@@ -440,6 +440,12 @@ def link(data, starter=STARTER):
     for comp in data["compositions"]:
         strip(comp)
 
+    # Graphics rebuilt from vMix titles (their pictures are in tools/vmix/).
+    if "Timer bug" not in comps:
+        data["compositions"].append(timer_bug(starter))
+    # (graphics new to the pack: workspaces made before get them too, once)
+    data["pack_new"] = sorted(set(data.get("pack_new") or []) | {"Timer bug"})
+
     # Graphics no longer in the pack, and the files only they used.
     gone = [c for c in data["compositions"] if c["name"] in REMOVED]
     if gone:
@@ -459,6 +465,26 @@ def link(data, starter=STARTER):
                 if os.path.isdir(folder) and not os.listdir(folder):
                     os.rmdir(folder)
     return data
+
+
+def timer_bug(starter=STARTER):
+    """The Timer bug (vMix "Timer Bug.gtzip"): HIGHLIGHTS over Global's timer
+    ({{timer}}, run from Control), revealed left to right."""
+    rel = "assets/Timer bug/BUG.png"
+    os.makedirs(os.path.join(starter, os.path.dirname(rel)), exist_ok=True)
+    shutil.copy2(os.path.join(ROOT, "tools", "vmix", "Timer bug", "BUG.png"), os.path.join(starter, rel))
+    reveal = {"in": {"type": "wipe-right", "dur": 500, "delay": 0}, "out": {"type": "wipe-right", "dur": 400, "delay": 0}}
+    base = {"opacity": 1, "rotation": 0, "visible": True, "blend": "normal"}
+    text = dict(base, type="text", font="VTFRedzone-Classic", align="center", valign="middle", tracking=0, caps=False,
+                lineHeight=1, fit="squeeze", italic=False, scroll=0)
+    return {"id": new_id("c"), "name": "Timer bug", "layer": 0, "width": 1920, "height": 1080, "kind": "overlay", "layers": [
+        dict(base, id=new_id("l"), name="Bug", type="image", x=0, y=201, w=586, h=152, field="", anim=reveal,
+             src=rel, fit="fill", loop=True),
+        dict(text, id=new_id("l"), name="Title", x=23, y=206, w=524, h=60, field="Title", anim=reveal,
+             text="HIGHLIGHTS", size=72, color="#ffffff", weight=400),
+        dict(text, id=new_id("l"), name="Timer", x=23, y=272, w=507, h=60, field="", anim=reveal,
+             text="{{timer}}", size=60, color="#bf9000", weight=700),
+    ]}
 
 
 def strip(comp):

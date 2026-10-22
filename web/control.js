@@ -314,14 +314,15 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const bracket = comp.layers.some(l => l.type === "bracket");
     const sched = comp.layers.some(l => /\{\{\s*Schedule!/i.test(l.show || ""));
     const clock = comp.layers.some(l => /\{\{\s*clock\s*\}\}/i.test(l.text || ""));
+    const timer = comp.layers.some(l => /\{\{\s*timer\s*\}\}/i.test(l.text || ""));
     const roster = comp.layers.some(l => /\{\{\s*Roster!/i.test((l.text || "") + (l.src || "")));
     const mvp = comp.layers.some(l => /\{\{\s*Stats!MVP/i.test((l.text || "") + (l.src || "")));
     const caster = comp.layers.some(l => /Global!Caster/i.test(l.move || ""));
     const pics = comp.layers.some(l => /\{\{\s*Stats!.*(headshot|champion)\}\}/i.test(l.src || ""));
     // (Player stats has its own setting: its picture is the MVP's)
     const picsPage = comp.layers.some(l => /\{\{\s*Stats!MVP (headshot|champion)\}\}/i.test(l.src || "")) ? "player" : "team";
-    const extras = () => [comp.hud ? hudField(s, comp) : null, caster ? casterField(s) : null, roster ? rosterField(s) : null, mvp ? mvpField(s) : null, pics ? picturesField(s, picsPage) : null, clock ? clockField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
-    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, clock, roster, mvp, caster, pics, picsPage,
+    const extras = () => [comp.hud ? hudField(s, comp) : null, caster ? casterField(s) : null, roster ? rosterField(s) : null, mvp ? mvpField(s) : null, pics ? picturesField(s, picsPage) : null, clock ? clockField(s) : null, timer ? timerField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
+    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, clock, timer, roster, mvp, caster, pics, picsPage,
       Object.keys(s.data.feeds || {}), (s.data.tables.Global || []).map(r => r[0]),
       comp.hud ? JSON.stringify(s.data.feeds[comp.hud.split("/")[0]] && s.data.feeds[comp.hud.split("/")[0]].unreachable) : ""]);
     if (!force && box.dataset.sig === sig) {
@@ -342,7 +343,7 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     }
     box.dataset.sig = sig;
     if (!fields.length) {
-      box.replaceChildren(...(bracket || sched || clock || roster || mvp || caster || pics || comp.hud ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
+      box.replaceChildren(...(bracket || sched || clock || timer || roster || mvp || caster || pics || comp.hud ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
       return;
     }
     box.replaceChildren(...fields.map(l => {
@@ -478,6 +479,34 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     markSize(el, s);
     return el;
   }
+  // The timer ({{timer}}): Global's, so it runs on Preview and Program alike.
+  function timerField(s) {
+    const act = body => api("/api/timer", body);
+    const el = h("div", { class: "field timer-field" },
+      h("label", {}, "Timer", h("span", { class: "kind" }, "global")),
+      h("div", { class: "row-gap" },
+        h("span", { class: "timer-now", "data-k": "timer-now" }, GFX.timerText()),
+        h("button", { "data-k": "timer-go", onclick: () => act({ action: "toggle" }) }, "Start"),
+        h("button", { class: "ghost", onclick: () => act({ action: "reset" }) }, "Reset")),
+      h("div", { class: "row-gap" },
+        h("input", { type: "text", "data-k": "timer-from", placeholder: "0:00", title: "Starts from this time (m:ss)",
+          onchange: e => act({ action: "set", secs: e.target.value }) }),
+        h("select", { "data-k": "timer-down", onchange: e => act({ action: "set", down: e.target.value === "down" }) },
+          h("option", { value: "up" }, "Counts up"), h("option", { value: "down" }, "Counts down"))),
+      h("div", { class: "resolved" }, "Type the time it starts from (m:ss). Reset goes back to it. It runs on air too."));
+    markSize(el, s);
+    return el;
+  }
+  const mss = secs => { const t = Math.round(secs); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; };
+  setInterval(() => document.querySelectorAll(".timer-field").forEach(el => {
+    const tm = App.state.global.timer || {};
+    // (a countdown that reached 0 has stopped)
+    const running = !!tm.started && !(tm.down && GFX.timerSecs() <= 0);
+    const go = el.querySelector("[data-k=timer-go]");
+    el.querySelector("[data-k=timer-now]").textContent = GFX.timerText();
+    go.textContent = running ? "Pause" : "Start";
+    go.classList.toggle("on", running);
+  }), 250);
   function markSize(el, s) {
     const ro = el.querySelector("[data-k=roster]");
     if (ro) {
@@ -527,6 +556,12 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
       if (document.activeElement !== until) until.value = c.until || "";
       el.querySelector("[data-k=clock-note]").textContent = c.mode === "time" ? `Shows the time of day, with LOCAL TIME under it.`
         : `Counts down to ${c.until || "(pick a time)"}, with ${c.mode === "soon" ? "STARTING SOON" : "BE RIGHT BACK"} under it.`;
+    }
+    const tm = s.global.timer || { secs: 0, from: 0, down: false, started: 0 };
+    if (el.querySelector("[data-k=timer-go]")) {
+      const from = el.querySelector("[data-k=timer-from]"), dn = el.querySelector("[data-k=timer-down]");
+      if (document.activeElement !== from) from.value = mss(tm.from);
+      if (document.activeElement !== dn) dn.value = tm.down ? "down" : "up";
     }
     const size = ((s.global.tournament || {}).top || {}).size || 8;
     const sel = el.querySelector("[data-k=size]");

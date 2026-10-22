@@ -68,6 +68,7 @@ reference, and use it in a field or text layer:
 - `{{Match!Team#3}}`: the "Team" column, 3rd row under the headers
 - `{{Match!Score}}`: the cell next to "Score" in column A
 - `{{time}}`, `{{time24}}`, `{{date}}`, `{{countdown:19:30}}`: the clock, and a countdown to 7:30 PM
+- `{{timer}}`: the timer, run from Control (Start / Pause, Reset, the time it starts from, up or down)
 
 **Transitions**: what TAKE can use. Cut, Fade, Dip (to a colour), Wipe,
 Animate (each graphic's own In / Out) and **Stingers**: a video that plays
@@ -176,6 +177,12 @@ Starting Soon or Be Right Back (a countdown to the time picked, with STARTING
 SOON or BE RIGHT BACK under it). The scorebug's clock is the same one, so
 changing it in either graphic's fields changes both. In graphics: `{{clock}}` and
 `{{Global!Clock label}}`.
+
+The **Timer bug** (rebuilt from the vMix Timer Bug title) shows HIGHLIGHTS
+(its Title field) over the timer. Its Control fields start and pause the
+timer, reset it, set the time it starts from (m:ss) and whether it counts up
+or down (a countdown stops at 00:00). It's one timer for every graphic with
+`{{timer}}`, on air too; Companion has Timer start / pause and Timer reset.
 
 The SCC graphics in a workspace are brought up to date when the engine has
 newer versions of them, unless you've changed them in Composer.

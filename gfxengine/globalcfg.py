@@ -38,6 +38,10 @@ DEFAULT = {
     # The clock graphics show ({{clock}} and {{Global!Clock label}}): the time of
     # day, or a countdown to "until" for Starting Soon or Be Right Back.
     "clock": {"mode": "time", "until": "", "zone": "EST"},
+    # The timer ({{timer}}): "secs" when stopped (or when it was started), counting
+    # from "started" (the engine's time.time(), 0 = stopped), up or "down" to 0.
+    # Reset goes back to "from".
+    "timer": {"secs": 0, "from": 0, "down": False, "started": 0},
     "roster": "left",    # whose players the player graphics show
     # who the Player stats page shows: the top player ("auto") or one picked ("left 3")
     "player_stats": "auto",
@@ -137,7 +141,63 @@ def clean(g):
     out["clock"] = {"mode": clock.get("mode") if clock.get("mode") in CLOCK_LABELS else "time",
                     "until": until if re.match(r"^\d{1,2}:\d{2}$", until) else "",
                     "zone": str(clock.get("zone") or "")[:12]}
+    timer = dict(DEFAULT["timer"], **(g.get("timer") or {}))
+    out["timer"] = {"secs": _num(timer.get("secs"), 0, 359999, 0), "from": _num(timer.get("from"), 0, 359999, 0),
+                    "down": bool(timer.get("down")), "started": _num(timer.get("started"), 0, 1e11, 0)}
     return out
+
+
+def timer_now(t, now=None):
+    """The timer's seconds at a moment."""
+    if not t["started"]:
+        return t["secs"]
+    run = (now or time.time()) - t["started"]
+    return max(0.0, t["secs"] - run) if t["down"] else t["secs"] + run
+
+
+def timer_running(t, now=None):
+    """Running (a countdown that reached 0 has stopped)."""
+    return bool(t["started"]) and not (t["down"] and timer_now(t, now) <= 0)
+
+
+def timer_action(t, action, secs=None, down=None, now=None):
+    """The timer after start / stop / toggle / reset / set (secs, and down: up or down)."""
+    now = now or time.time()
+    running = timer_running(t, now)
+    t = dict(t, secs=round(timer_now(t, now), 3))
+    if action == "toggle":
+        action = "stop" if running else "start"
+    if action == "start":
+        if t["down"] and t["secs"] <= 0:
+            t["secs"] = t["from"]   # (a countdown that ran out starts again)
+        t["started"] = round(now, 3)
+    elif action == "stop":
+        t["started"] = 0
+    elif action == "reset":
+        t["secs"] = t["from"]
+        t["started"] = round(now, 3) if running else 0
+    elif action == "set":
+        if down is not None:
+            t["down"] = bool(down)
+        if secs is not None:
+            t["secs"] = t["from"] = _num(secs, 0, 359999, 0)
+            t["started"] = round(now, 3) if running else 0
+    else:
+        raise ValueError("start, stop, toggle, reset or set")
+    return t
+
+
+def parse_secs(v):
+    """Seconds from "m:ss", "h:mm:ss" or a number."""
+    parts = str(v or "0").strip().split(":")
+    try:
+        n = [float(x or 0) for x in parts][-3:]
+    except ValueError:
+        raise ValueError("A time like 5:00 or 1:30:00")
+    total = 0.0
+    for x in n:
+        total = total * 60 + x
+    return total
 
 
 def sponsors_changed(old, new):
@@ -183,7 +243,9 @@ def rows(g):
             ["BG loop brightness", str(loop["brightness"])], ["BG loop speed", str(loop["speed"])],
             ["Ticker", TICKER_GAP.join(g["ticker"]) + (TICKER_GAP if g["ticker"] else "")],
             ["Clock mode", g["clock"]["mode"]], ["Clock until", g["clock"]["until"]], ["Clock zone", g["clock"]["zone"]],
-            ["Clock label", CLOCK_LABELS[g["clock"]["mode"]]]]
+            ["Clock label", CLOCK_LABELS[g["clock"]["mode"]]],
+            ["Timer secs", str(g["timer"]["secs"])], ["Timer started", str(g["timer"]["started"])],
+            ["Timer down", "1" if g["timer"]["down"] else ""]]
     c = g["caster"]
     moves = caster_moves(c["count"])
     out += [["Caster boxes", str(c["count"])], ["Caster primary", c["primary"]], ["Caster secondary", c["secondary"]]]

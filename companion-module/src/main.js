@@ -313,6 +313,8 @@ class GfxEngineInstance extends InstanceBase {
 			clock_time: 'CLOCK\nTime',
 			clock_soon: 'CLOCK\nSoon',
 			clock_brb: 'CLOCK\nBRB',
+			timer_toggle: `TIMER\n${v('timer')}`,
+			timer_reset: 'TIMER\nreset',
 			bgloop: 'BG\nloop',
 			roster_left: `PLAYERS\n${v('left_short')}`,
 			roster_right: `PLAYERS\n${v('right_short')}`,

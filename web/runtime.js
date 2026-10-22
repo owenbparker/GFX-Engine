@@ -97,6 +97,7 @@
       if (mode === "soon" || mode === "brb") return until ? token("countdown:" + until) : "00:00";
       return token("time") + (g("Clock zone") ? " " + g("Clock zone") : "");
     }
+    if (low === "timer") return GFX.timerText();
     let m = /^countdown:\s*(\d{1,2}):(\d{2})$/i.exec(t);
     if (m) {
       // To a time of day (today, or tomorrow if it's gone).
@@ -113,9 +114,23 @@
     }
     return "{{" + t + "}}";
   }
+  // Global's timer: started, paused, reset and set from Control (or Companion).
+  GFX.timerSecs = function () {
+    const g = k => GFX.lookup(ctx.tables.Global || [], k);
+    const secs = +g("Timer secs") || 0, started = +g("Timer started") || 0, down = !!g("Timer down");
+    if (!started) return secs;
+    const run = GFX.now() / 1000 - started;
+    return down ? Math.max(0, secs - run) : secs + run;
+  };
+  GFX.timerText = function () {
+    // (counting down, 0:04.2 shows 00:05, so 00:00 is when it runs out)
+    const v = GFX.timerSecs(), s = GFX.lookup(ctx.tables.Global || [], "Timer down") ? Math.ceil(v - 0.001) : Math.floor(v);
+    const h = Math.floor(s / 3600);
+    return (h ? `${h}:${pad(Math.floor(s / 60) % 60)}` : pad(Math.floor(s / 60))) + `:${pad(s % 60)}`;
+  };
   GFX.resolve = s => String(s == null ? "" : s).replace(/\{\{\s*([^{}]+?)\s*\}\}/g, (_, t) => token(t));
   const hasTokens = s => /\{\{[^{}]+\}\}/.test(String(s || ""));
-  const ticking = s => /\{\{\s*(time|time24|date|clock|countdown:[^}]*)\s*\}\}/i.test(String(s || ""));
+  const ticking = s => /\{\{\s*(time|time24|date|clock|timer|countdown:[^}]*)\s*\}\}/i.test(String(s || ""));
 
   // What a layer shows: its field's value if set, else its own.
   GFX.content = function (layer, values) {
@@ -632,7 +647,7 @@
   // A font that finishes loading after the text was fitted: fitted again.
   if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", () => GFX.refit());
   GFX.retext = () => document.querySelectorAll(".gfx-text").forEach(b => { if (hasTokens(b._raw) || hasTokens(b._layer && b._layer.icon)) setText(b); });
-  setInterval(() => { for (const b of live) { if (!b.isConnected) live.delete(b); else if (ticking(b._raw)) setText(b); } }, 1000);
+  setInterval(() => { for (const b of live) { if (!b.isConnected) live.delete(b); else if (ticking(b._raw)) setText(b); } }, 250);   // (often enough that the timer changes on the second)
 
   // What else a layer's look takes from the data (a tinted loop's colour...).
   const extraOf = layer => layer.tint ? [layer.tint, layer.brightness, layer.speed].map(v => GFX.resolve(v ?? "")).join("|") : "";

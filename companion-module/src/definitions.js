@@ -10,6 +10,8 @@ const QUICK = {
 	clock_time: 'Clock: local time',
 	clock_soon: 'Clock: Starting Soon countdown',
 	clock_brb: 'Clock: Be Right Back countdown',
+	timer_toggle: 'Timer: start / pause',
+	timer_reset: 'Timer: reset',
 	bgloop: 'Background loop: on / off',
 	roster_left: 'Player graphics: left team',
 	roster_right: 'Player graphics: right team',
@@ -26,7 +28,7 @@ const STATES = {
 }
 
 // Quick functions that light their button while they're what's set.
-const LIT = ['clock_time', 'clock_soon', 'clock_brb', 'bgloop', 'roster_left', 'roster_right', 'caster_1', 'caster_2', 'caster_3', 'caster_4']
+const LIT = ['clock_time', 'clock_soon', 'clock_brb', 'timer_toggle', 'bgloop', 'roster_left', 'roster_right', 'caster_1', 'caster_2', 'caster_3', 'caster_4']
 
 const VARIABLES = {
 	workspace: 'Workspace open',
@@ -34,6 +36,7 @@ const VARIABLES = {
 	program: 'Graphics on Program',
 	default_transition: 'Default transition (Take)',
 	clock: 'Clock mode',
+	timer: 'Timer (m:ss)',
 	best_of: 'Best of',
 	casters: 'Caster boxes',
 	left_name: 'Left team name',
