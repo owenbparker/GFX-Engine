@@ -790,6 +790,9 @@ def make_handler(engine):
                     logo = g[side]["logo"]
                     g[side]["logo_url"] = (f"http://{host}/{quote(logo)}" if logo and not re.match(r"https?://", logo)
                                            else logo)
+                logo = g["tournament_logo"]
+                g["tournament_logo_url"] = (f"http://{host}/{quote(logo)}" if logo and not re.match(r"https?://", logo)
+                                            else logo)
                 for sp in g["sponsors"]:
                     sp["logo_url"] = sp["logo"] if re.match(r"https?://", sp["logo"]) else f"http://{host}/{quote(sp['logo'])}"
                 return self._json({"global": g, "workspace": engine.ws.get()["name"], "engine": engine.name()})

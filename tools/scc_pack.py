@@ -530,8 +530,9 @@ def smash_scoreboard(starter=STARTER):
         text("Right player", "{{Smash HUD!right_player}}", "Right player", 1060, 470, 66.2, 61, "BrickRegular", "#ffffff", "right"),
         text("Match", "{{Global!Stage}}", "Match", 677, 200, 35.8, 122, "Anton-Regular", "#000000", "right"),
         text("Best of", "Best of {{Global!Best of}}", "", 1044, 200, 35.8, 122, "Anton-Regular", "#000000", "left"),
+        # (the tournament logo, from Global; the Smash Class logo while there's none)
         dict(base, id=new_id("l"), name="Logo", type="image", x=880, y=1, w=162, h=127, field="", anim=drop,
-             src=pics["Logo"], fit="fill", loop=True),
+             src="{{Global!Tournament logo}}", placeholder=pics["Logo"], fit="contain", loop=True),
         box("Sponsor box", 792, 903, 336, 125, "#000000", "{{Global!Sponsors}}", fade),
         dict(base, id=new_id("l"), name="Sponsor", type="image", x=812, y=918, w=296, h=95, field="", anim=fade,
              src="{{Sponsors}}", fit="contain", loop=True),
