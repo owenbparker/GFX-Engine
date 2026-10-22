@@ -19,15 +19,19 @@
   const BUILTIN = [
     ["Inter", "fonts/Inter.ttf", "100 900"],
     ["Bebas Neue", "fonts/BebasNeue.ttf", "400"],
+    ["Anton", "fonts/Anton-Regular.ttf", "400"],
+    // (stands in for Brick, the Smash scoreboard's names, at Brick's size)
+    ["Permanent Marker", "fonts/PermanentMarker-Regular.ttf", "400", "size-adjust:80%"],
     ...[400, 500, 700, 800, 900].map(w => ["Montserrat", `fonts/Montserrat-${w}.woff2`, String(w)]),
     ...[500, 600, 700].map(w => ["Barlow Condensed", `fonts/BarlowCondensed-${w}.woff2`, String(w)]),
   ];
-  GFX.builtinFonts = ["Inter", "Montserrat", "Barlow Condensed", "Bebas Neue"];
+  GFX.builtinFonts = ["Inter", "Montserrat", "Barlow Condensed", "Bebas Neue", "Anton", "Permanent Marker"];
   const STANDINS = [
     [/gotham.*(black|ultra)/i, "Montserrat", 900], [/gotham.*bold/i, "Montserrat", 700],
     [/gotham.*medium/i, "Montserrat", 500], [/gotham/i, "Montserrat", 400],
     [/(trade.?gothic|tradegothic).*(cond|cn|20)/i, "Barlow Condensed", 700], [/trade.?gothic/i, "Barlow Condensed", 600],
-    [/redzone|carbon|bebas|impact|anton|oswald/i, "Bebas Neue", 400],
+    [/anton/i, "Anton", 400], [/brick/i, "Permanent Marker", 400],
+    [/redzone|carbon|bebas|impact|oswald/i, "Bebas Neue", 400],
     [/(helvetica|arial|roboto|sf.?pro|segoe).*(black|heavy)/i, "Inter", 900],
     [/(helvetica|arial|roboto|sf.?pro|segoe).*bold/i, "Inter", 700],
   ];
@@ -43,8 +47,8 @@
     for (const f of fonts) if (f.postscript && !named.has(f.postscript.toLowerCase())) named.set(f.postscript.toLowerCase(), [f.postscript, f]);
     for (const f of fonts) for (const a of f.aliases || []) if (a && !named.has(a.toLowerCase())) named.set(a.toLowerCase(), [a, f]);
     assetFonts = new Set([...named.keys()]);
-    const css = BUILTIN.map(([fam, file, weight]) =>
-      `@font-face{font-family:"${fam}";src:url("${url(file)}");font-weight:${weight};font-display:block}`);
+    const css = BUILTIN.map(([fam, file, weight, extra]) =>
+      `@font-face{font-family:"${fam}";src:url("${url(file)}");font-weight:${weight};font-display:block${extra ? ";" + extra : ""}}`);
     for (const [name, f] of named.values()) css.push(`@font-face{font-family:"${cssq(name)}";src:url("${url(encodeURI(f.path))}");font-display:block}`);
     if (!fontStyle) { fontStyle = document.createElement("style"); document.head.appendChild(fontStyle); }
     fontStyle.dataset.key = key;

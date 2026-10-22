@@ -412,7 +412,7 @@ App.on(s => {
     const names = Object.keys(feeds);
     if (!names.length) {
       box.replaceChildren(h("div", { class: "muted small" },
-        "No game HUD is connected. In the League, VALORANT, CoD or Rocket League HUD, open GFX Engine, pick this engine and connect: its stats come in here as a data table, and its series score updates the one above."));
+        "No game HUD is connected. In the League, VALORANT, CoD, Rocket League or Smash HUD, open GFX Engine, pick this engine and connect: its stats come in here as a data table, and its series score updates the one above."));
       return;
     }
     box.replaceChildren(...names.map(n => {

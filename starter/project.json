@@ -19654,6 +19654,746 @@
      "baseline": 51.6
     }
    ]
+  },
+  {
+   "id": "c91b5f8cd",
+   "name": "Smash crews scoreboard",
+   "layer": 0,
+   "width": 1920,
+   "height": 1080,
+   "kind": "overlay",
+   "layers": [
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lc3d346f6",
+     "name": "Background",
+     "type": "image",
+     "x": 286,
+     "y": 0,
+     "w": 1350,
+     "h": 127,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "src": "assets/Smash crews scoreboard/BG.png",
+     "fit": "fill",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l14257900",
+     "name": "Left game 1",
+     "type": "rect",
+     "x": 600,
+     "y": 89,
+     "w": 31,
+     "h": 31,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "fill": "#000000",
+     "radius": 0,
+     "stroke": "#000000",
+     "strokeWidth": 0,
+     "show": "{{Global!Game box 1}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lf719ffb6",
+     "name": "Left game 1 won",
+     "type": "rect",
+     "x": 600,
+     "y": 89,
+     "w": 31,
+     "h": 31,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "fill": "#7200ff",
+     "radius": 0,
+     "stroke": "#000000",
+     "strokeWidth": 0,
+     "show": "{{Global!Left won 1}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l656deddb",
+     "name": "Right game 1",
+     "type": "rect",
+     "x": 1289,
+     "y": 89,
+     "w": 31,
+     "h": 31,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "fill": "#000000",
+     "radius": 0,
+     "stroke": "#000000",
+     "strokeWidth": 0,
+     "show": "{{Global!Game box 1}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l3bd86339",
+     "name": "Right game 1 won",
+     "type": "rect",
+     "x": 1289,
+     "y": 89,
+     "w": 31,
+     "h": 31,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "fill": "#7200ff",
+     "radius": 0,
+     "stroke": "#000000",
+     "strokeWidth": 0,
+     "show": "{{Global!Right won 1}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l1037b198",
+     "name": "Left game 2",
+     "type": "rect",
+     "x": 638,
+     "y": 89,
+     "w": 31,
+     "h": 31,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "fill": "#000000",
+     "radius": 0,
+     "stroke": "#000000",
+     "strokeWidth": 0,
+     "show": "{{Global!Game box 2}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "laa48f8ed",
+     "name": "Left game 2 won",
+     "type": "rect",
+     "x": 638,
+     "y": 89,
+     "w": 31,
+     "h": 31,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "fill": "#7200ff",
+     "radius": 0,
+     "stroke": "#000000",
+     "strokeWidth": 0,
+     "show": "{{Global!Left won 2}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l01d10467",
+     "name": "Right game 2",
+     "type": "rect",
+     "x": 1251,
+     "y": 89,
+     "w": 31,
+     "h": 31,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "fill": "#000000",
+     "radius": 0,
+     "stroke": "#000000",
+     "strokeWidth": 0,
+     "show": "{{Global!Game box 2}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l23f2b4fa",
+     "name": "Right game 2 won",
+     "type": "rect",
+     "x": 1251,
+     "y": 89,
+     "w": 31,
+     "h": 31,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "fill": "#7200ff",
+     "radius": 0,
+     "stroke": "#000000",
+     "strokeWidth": 0,
+     "show": "{{Global!Right won 2}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l84073950",
+     "name": "Left game 3",
+     "type": "rect",
+     "x": 676,
+     "y": 89,
+     "w": 31,
+     "h": 31,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "fill": "#000000",
+     "radius": 0,
+     "stroke": "#000000",
+     "strokeWidth": 0,
+     "show": "{{Global!Game box 3}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l17fda988",
+     "name": "Left game 3 won",
+     "type": "rect",
+     "x": 676,
+     "y": 89,
+     "w": 31,
+     "h": 31,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "fill": "#7200ff",
+     "radius": 0,
+     "stroke": "#000000",
+     "strokeWidth": 0,
+     "show": "{{Global!Left won 3}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l790c9aa2",
+     "name": "Right game 3",
+     "type": "rect",
+     "x": 1213,
+     "y": 89,
+     "w": 31,
+     "h": 31,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "fill": "#000000",
+     "radius": 0,
+     "stroke": "#000000",
+     "strokeWidth": 0,
+     "show": "{{Global!Game box 3}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l860d615e",
+     "name": "Right game 3 won",
+     "type": "rect",
+     "x": 1213,
+     "y": 89,
+     "w": 31,
+     "h": 31,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "fill": "#7200ff",
+     "radius": 0,
+     "stroke": "#000000",
+     "strokeWidth": 0,
+     "show": "{{Global!Right won 3}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lc160a176",
+     "name": "Left stocks",
+     "type": "text",
+     "x": 286,
+     "y": 10,
+     "w": 88,
+     "h": 88,
+     "field": "Left stocks",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "text": "{{Smash HUD!left_stocks}}",
+     "font": "Anton-Regular",
+     "size": 62.5,
+     "color": "#000000",
+     "align": "center",
+     "valign": "top",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1.15,
+     "fit": "shrink",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 53.8
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lfeb32fc7",
+     "name": "Right stocks",
+     "type": "text",
+     "x": 1548,
+     "y": 10,
+     "w": 88,
+     "h": 88,
+     "field": "Right stocks",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "text": "{{Smash HUD!right_stocks}}",
+     "font": "Anton-Regular",
+     "size": 62.5,
+     "color": "#000000",
+     "align": "center",
+     "valign": "top",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1.15,
+     "fit": "shrink",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 53.8
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l4d1623f2",
+     "name": "Left player",
+     "type": "text",
+     "x": 391,
+     "y": 3,
+     "w": 470,
+     "h": 93,
+     "field": "Left player",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "text": "{{Smash HUD!left_player}}",
+     "font": "BrickRegular",
+     "size": 66.2,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "top",
+     "tracking": 10,
+     "caps": false,
+     "lineHeight": 1.15,
+     "fit": "shrink",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 56.9
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l1c634ee1",
+     "name": "Right player",
+     "type": "text",
+     "x": 1060,
+     "y": 4,
+     "w": 470,
+     "h": 93,
+     "field": "Right player",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "text": "{{Smash HUD!right_player}}",
+     "font": "BrickRegular",
+     "size": 66.2,
+     "color": "#ffffff",
+     "align": "right",
+     "valign": "top",
+     "tracking": 10,
+     "caps": false,
+     "lineHeight": 1.15,
+     "fit": "shrink",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 56.9
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lb7475eaf",
+     "name": "Match",
+     "type": "text",
+     "x": 677,
+     "y": 91,
+     "w": 200,
+     "h": 50,
+     "field": "Match",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "text": "{{Global!Stage}}",
+     "font": "Anton-Regular",
+     "size": 35.8,
+     "color": "#000000",
+     "align": "right",
+     "valign": "top",
+     "tracking": 10,
+     "caps": false,
+     "lineHeight": 1.15,
+     "fit": "shrink",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 30.8
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lef9a6cfd",
+     "name": "Best of",
+     "type": "text",
+     "x": 1044,
+     "y": 91,
+     "w": 200,
+     "h": 50,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "text": "Best of {{Global!Best of}}",
+     "font": "Anton-Regular",
+     "size": 35.8,
+     "color": "#000000",
+     "align": "left",
+     "valign": "top",
+     "tracking": 10,
+     "caps": false,
+     "lineHeight": 1.15,
+     "fit": "shrink",
+     "weight": 400,
+     "italic": false,
+     "scroll": 0,
+     "baseline": 30.8
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lde82512f",
+     "name": "Logo",
+     "type": "image",
+     "x": 880,
+     "y": 1,
+     "w": 162,
+     "h": 127,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-down",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "slide-up",
+       "dur": 350,
+       "delay": 0
+      }
+     },
+     "src": "assets/Smash crews scoreboard/Logo.png",
+     "fit": "fill",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l9088a8d5",
+     "name": "Sponsor box",
+     "type": "rect",
+     "x": 792,
+     "y": 903,
+     "w": 336,
+     "h": 125,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 300,
+       "delay": 0
+      }
+     },
+     "fill": "#000000",
+     "radius": 0,
+     "stroke": "#000000",
+     "strokeWidth": 0,
+     "show": "{{Global!Sponsors}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "la008df63",
+     "name": "Sponsor",
+     "type": "image",
+     "x": 812,
+     "y": 918,
+     "w": 296,
+     "h": 95,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 400,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 300,
+       "delay": 0
+      }
+     },
+     "src": "{{Sponsors}}",
+     "fit": "contain",
+     "loop": true
+    }
+   ]
   }
  ],
  "transitions": [
@@ -19966,6 +20706,7 @@
   "Title screen"
  ],
  "pack_new": [
+  "Smash crews scoreboard",
   "Timer bug"
  ]
 }

@@ -135,7 +135,7 @@ the game's stats to the player. Their **Player name** is just how graphics
 show them (Team stats, Player stats, player graphics). A game HUD can fill
 in the in-game IDs: League HUD's Players & Teams > Players has **Save IGN to
 player** next to each player in the game, with "linked" or "unlinked". The game is picked from the games the engine
-has a HUD for (League of Legends, VALORANT, Rocket League, Call of Duty). One
+has a HUD for (League of Legends, VALORANT, Rocket League, Call of Duty, Super Smash Bros. Ultimate). One
 school can have a team in several games; the list filters by game. Pick a team to edit it, drop its logo or a
 player's headshot on it, or make it the left or right team. Import or export
 it as a CSV (Name, Short name, Logo, Colour, Game, Player 1, Player 1 ID,

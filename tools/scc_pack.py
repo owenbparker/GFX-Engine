@@ -31,7 +31,7 @@ LOOP_BOARDS = ("Schedule", "Team stats", "Player stats", "Group bracket", "Top 8
                *(f"Player graphic ({n})" for n in range(1, 6)))
 # What each graphic is: one board and one lower third can be on air at a time.
 KINDS = {"lower third": ("Caster lower third",),
-         "overlay": ("Scorebug & footer", "Replay overlay", "Timer bug")}
+         "overlay": ("Scorebug & footer", "Replay overlay", "Timer bug", "Smash crews scoreboard")}
 TICKER = ["WELCOME TO ST. CLAIR SAINTS ESPORTS", "FOLLOW @SCCSAINTS FOR HIGHLIGHTS", "THANKS FOR WATCHING!"]
 # The upcoming matches a new workspace starts with (the design's own).
 SCHEDULE = {"count": 3, "matches": [
@@ -443,8 +443,11 @@ def link(data, starter=STARTER):
     # Graphics rebuilt from vMix titles (their pictures are in tools/vmix/).
     if "Timer bug" not in comps:
         data["compositions"].append(timer_bug(starter))
+    # The Smash Ultimate crews scoreboard ("smash scoreboard.psd", pictures in tools/smash/).
+    if "Smash crews scoreboard" not in comps:
+        data["compositions"].append(smash_scoreboard(starter))
     # (graphics new to the pack: workspaces made before get them too, once)
-    data["pack_new"] = sorted(set(data.get("pack_new") or []) | {"Timer bug"})
+    data["pack_new"] = sorted(set(data.get("pack_new") or []) | {"Timer bug", "Smash crews scoreboard"})
 
     # Graphics no longer in the pack, and the files only they used.
     gone = [c for c in data["compositions"] if c["name"] in REMOVED]
@@ -485,6 +488,56 @@ def timer_bug(starter=STARTER):
         dict(text, id=new_id("l"), name="Timer", x=23, y=272, w=507, h=60, field="", anim=reveal,
              text="{{timer}}", size=60, color="#bf9000", weight=700),
     ]}
+
+
+def smash_scoreboard(starter=STARTER):
+    """The Smash Ultimate crews scoreboard ("smash scoreboard.psd"): each crew's
+    stocks left (the Smash HUD's, or typed in Control) in the white boxes, the
+    player on stage, the games won in the boxes beside the match (Global's
+    score: 2 a side for a best of 3, 3 for a best of 5), the match (Global's
+    stage) and the series, and Global's sponsors in the box at the bottom."""
+    pics = {}
+    for name in ("BG", "Logo"):
+        rel = f"assets/Smash crews scoreboard/{name}.png"
+        os.makedirs(os.path.join(starter, os.path.dirname(rel)), exist_ok=True)
+        shutil.copy2(os.path.join(ROOT, "tools", "smash", f"{name}.png"), os.path.join(starter, rel))
+        pics[name] = rel
+    drop = {"in": {"type": "slide-down", "dur": 450, "delay": 0}, "out": {"type": "slide-up", "dur": 350, "delay": 0}}
+    fade = {"in": {"type": "fade", "dur": 400, "delay": 150}, "out": {"type": "fade", "dur": 300, "delay": 0}}
+    base = {"opacity": 1, "rotation": 0, "visible": True, "blend": "normal"}
+
+    def text(name, value, field, x, w, size, base_y, font, color, align, tracking=10):
+        return dict(base, id=new_id("l"), name=name, type="text", x=x, y=round(base_y - size * 0.86), w=w,
+                    h=round(size * 1.4), field=field, anim=drop, text=value, font=font, size=size, color=color,
+                    align=align, valign="top", tracking=tracking, caps=False, lineHeight=1.15, fit="shrink", weight=400,
+                    italic=False, scroll=0, baseline=round(size * 0.86, 1))
+
+    def box(name, x, y, w, h, fill, show, anim=drop):
+        return dict(base, id=new_id("l"), name=name, type="rect", x=x, y=y, w=w, h=h, field="", anim=anim,
+                    fill=fill, radius=0, stroke="#000000", strokeWidth=0, show=show)
+
+    layers = [dict(base, id=new_id("l"), name="Background", type="image", x=286, y=0, w=1350, h=127, field="",
+                   anim=drop, src=pics["BG"], fit="fill", loop=True)]
+    for n in range(1, 4):
+        # (the left crew's first win fills the outermost box; a third box a side for a best of 5)
+        for side, x in (("Left", 600 + 38 * (n - 1)), ("Right", 1289 - 38 * (n - 1))):
+            layers.append(box(f"{side} game {n}", x, 89, 31, 31, "#000000", f"{{{{Global!Game box {n}}}}}"))
+            layers.append(box(f"{side} game {n} won", x, 89, 31, 31, "#7200ff", f"{{{{Global!{side} won {n}}}}}"))
+    layers += [
+        text("Left stocks", "{{Smash HUD!left_stocks}}", "Left stocks", 286, 88, 62.5, 64, "Anton-Regular", "#000000", "center", 0),
+        text("Right stocks", "{{Smash HUD!right_stocks}}", "Right stocks", 1548, 88, 62.5, 64, "Anton-Regular", "#000000", "center", 0),
+        text("Left player", "{{Smash HUD!left_player}}", "Left player", 391, 470, 66.2, 60, "BrickRegular", "#ffffff", "left"),
+        text("Right player", "{{Smash HUD!right_player}}", "Right player", 1060, 470, 66.2, 61, "BrickRegular", "#ffffff", "right"),
+        text("Match", "{{Global!Stage}}", "Match", 677, 200, 35.8, 122, "Anton-Regular", "#000000", "right"),
+        text("Best of", "Best of {{Global!Best of}}", "", 1044, 200, 35.8, 122, "Anton-Regular", "#000000", "left"),
+        dict(base, id=new_id("l"), name="Logo", type="image", x=880, y=1, w=162, h=127, field="", anim=drop,
+             src=pics["Logo"], fit="fill", loop=True),
+        box("Sponsor box", 792, 903, 336, 125, "#000000", "{{Global!Sponsors}}", fade),
+        dict(base, id=new_id("l"), name="Sponsor", type="image", x=812, y=918, w=296, h=95, field="", anim=fade,
+             src="{{Sponsors}}", fit="contain", loop=True),
+    ]
+    return {"id": new_id("c"), "name": "Smash crews scoreboard", "layer": 0, "width": 1920, "height": 1080,
+            "kind": "overlay", "layers": layers}
 
 
 def strip(comp):

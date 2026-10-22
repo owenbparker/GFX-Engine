@@ -235,6 +235,10 @@ def rows(g):
         S = side.title()
         out += [[f"{S} name", t["name"]], [f"{S} short", t["short"]], [f"{S} logo", t["logo"]],
                 [f"{S} color", t["color"]], [f"{S} score", str(t["score"])], [f"{S} game", t["game"]]]
+        # (the boxes for games won: "1" once the team has won n games)
+        out += [[f"{S} won {n}", "1" if int(t["score"]) >= n else ""] for n in range(1, 5)]
+    # (how many of those boxes a side shows: the games to win the series)
+    out += [[f"Game box {n}", "1" if n <= (int(g["best_of"]) + 1) // 2 else ""] for n in range(1, 5)]
     loop = g["bgloop"]
     sp = g["sponsors"]
     out += [["Tournament logo", g["tournament_logo"]],
