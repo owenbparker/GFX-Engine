@@ -475,3 +475,10 @@ table.sheet td.c:hover { background: #1d3b5e; }
 .caster-field .swatch { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--text); font-size: 12px; white-space: nowrap; }
 .caster-field .swatch input { width: 36px; height: 28px; padding: 2px; margin: 0; }
 .url-row .out-on { flex: 0 0 auto; margin: 0; font-size: 12px; min-width: 48px; }
+
+/* Dark scroll bars (WebView2 otherwise draws the light Windows ones). */
+::-webkit-scrollbar { width: 12px; height: 12px; background: transparent; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb { background: #3a3d44; border: 3px solid transparent; border-radius: 8px; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: #50545c; border: 3px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-button { display: none; }
