@@ -225,6 +225,17 @@ class StatsTests(unittest.TestCase):
         self.assertEqual(dict(stats.rows(old, False)[1:])["MVP row 3"], "–")
         lf["P1 DMG"] = "23456"
         self.assertEqual(dict(stats.rows(stats.read("lol", lf), False)[1:])["MVP row 3"], "23,456")
+        # Overwatch: DMG, kills, deaths (+ healing on Player stats); the MVP has the most damage; hero pictures.
+        of = {"left_p1_name": "Ana", "left_p1_hero": "Ana", "left_p1_hero_icon": "http://localhost:8785/heroes/ana",
+              "left_p1_kills": 4, "left_p1_deaths": 2, "left_p1_damage": 3000, "left_p1_healing": 12345,
+              "left_p2_name": "Rein", "left_p2_kills": 20, "left_p2_damage": 15000, "left_score": 1}
+        t = dict(stats.rows(stats.read("overwatch", of), False, {}, "auto", None, {"left": "champion"})[1:])
+        self.assertEqual((t["Stat 1 title"], t["Stat 2 title"], t["Stat 3 title"], t["Row 4 title"]), ("DMG", "KILLS", "DEATHS", "HEALING"))
+        self.assertEqual((t["Left stat 1"], t["Left player 1 stat 1"], t["Left player 1 character"], t["Left player 1 champion"]),
+                         ("18,000", "3,000", "Ana", "http://localhost:8785/heroes/ana"))
+        self.assertEqual((t["MVP"], t["MVP row 1"], t["Game"]), ("Rein", "15,000", "Overwatch"))
+        t = dict(stats.rows(stats.read("overwatch", of), False, {}, "left 1")[1:])
+        self.assertEqual(t["MVP row 4"], "12,345")
 
     def test_player_stats_pick_and_roster(self):
         from gfxengine import stats

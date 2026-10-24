@@ -448,11 +448,11 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const set = (side, v) => api("/api/global", { global: { pictures: { [page]: { [side]: v } } } });
     const pick = side => h("label", { class: "swatch" }, side === "left" ? "Left team" : "Right team",
       h("select", { "data-k": "pic-" + side, onchange: e => set(side, e.target.value) },
-        h("option", { value: "headshot" }, "Headshots"), h("option", { value: "champion" }, "Champions / agents")));
+        h("option", { value: "headshot" }, "Headshots"), h("option", { value: "champion" }, "Champions / agents / heroes")));
     const el = h("div", { class: "field caster-field", "data-page": page },
       h("label", {}, "Player pictures", h("span", { class: "kind" }, page === "player" ? "player stats" : "team stats")),
       h("div", { class: "row-gap" }, pick("left"), pick("right")),
-      h("div", { class: "resolved" }, "Headshots come from the Teams tab; champions (League) and agents (VALORANT) from the game. Only " + (page === "player" ? "Player stats" : "Team stats") + " follows this."));
+      h("div", { class: "resolved" }, "Headshots come from the Teams tab; champions (League), agents (VALORANT) and heroes (Overwatch) from the game. Only " + (page === "player" ? "Player stats" : "Team stats") + " follows this."));
     markSize(el, s);
     return el;
   }

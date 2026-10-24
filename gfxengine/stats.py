@@ -25,11 +25,13 @@ SIDES = ("left", "right")
 # which of them the stats pages show: the Team stats columns ("Stat 1"... 3)
 # and the Player stats rows ("Row 1"... 4). "kda" is K/D/A (3/1/7), "kd" the
 # kills per death.
-BASE = {"lol": ("kills", "deaths", "assists"), "valorant": ("kills", "deaths", "assists"), "rl": ("goals", "saves", "score")}
+BASE = {"lol": ("kills", "deaths", "assists"), "valorant": ("kills", "deaths", "assists"), "rl": ("goals", "saves", "score"),
+        "overwatch": ("kills", "deaths", "assists")}
 LAYOUT = {"lol": {"cols": ("kda", "cs", "dmg"), "rows": ("kda", "cs", "dmg", "gold")},
           "valorant": {"cols": ("acs", "kills", "deaths"), "rows": ("acs", "kills", "deaths", "assists")},
-          "rl": {"cols": ("goals", "saves", "score"), "rows": ("goals", "saves", "assists", "score")}}
-NAMES = {"acs": "ACS", "kda": "K/D/A", "kd": "K/D", "cs": "CS", "vision": "VISION", "gold": "GOLD", "dmg": "DMG"}
+          "rl": {"cols": ("goals", "saves", "score"), "rows": ("goals", "saves", "assists", "score")},
+          "overwatch": {"cols": ("dmg", "kills", "deaths"), "rows": ("dmg", "kills", "deaths", "healing")}}
+NAMES = {"acs": "ACS", "kda": "K/D/A", "kd": "K/D", "cs": "CS", "vision": "VISION", "gold": "GOLD", "dmg": "DMG", "healing": "HEALING"}
 TITLES = {g: tuple(k.upper() for k in keys) for g, keys in BASE.items()}
 GAMES = {"lol": "League of Legends", "valorant": "VALORANT", "rl": "Rocket League", "cod": "Call of Duty",
          "smash": "Super Smash Bros. Ultimate", "overwatch": "Overwatch"}
@@ -106,7 +108,22 @@ def _rl(f):
     return teams
 
 
-READERS = {"lol": _lol, "valorant": _valorant, "rl": _rl}
+def _overwatch(f):
+    # (typed in by hand on the Overwatch HUD's Stats page; the hero's picture is
+    # an address on the HUD)
+    teams = {}
+    for side in SIDES:
+        players = [{"name": f.get(f"{side}_p{n}_name") or "", "character": f.get(f"{side}_p{n}_hero") or "",
+                    "icon": str(f.get(f"{side}_p{n}_hero_icon") or ""),
+                    "stats": [_int(f.get(f"{side}_p{n}_{x}")) for x in ("kills", "deaths", "assists")],
+                    "extra": "", "values": {"dmg": _int(f.get(f"{side}_p{n}_damage")),
+                                            "healing": _int(f.get(f"{side}_p{n}_healing"))}}
+                   for n in range(1, 6)]
+        teams[side] = {"score": _int(f.get(f"{side}_score")), "players": players}
+    return teams
+
+
+READERS = {"lol": _lol, "valorant": _valorant, "rl": _rl, "overwatch": _overwatch}
 
 
 def read(game, fields):
@@ -144,7 +161,7 @@ def _show(key, v):
         return "–"     # (not reported: damage during the game, or stats kept from an older version)
     if not isinstance(v, int):
         return str(v)
-    return _gold(v) if key == "gold" else f"{v:,}" if key == "dmg" else str(v)
+    return _gold(v) if key == "gold" else f"{v:,}" if key in ("dmg", "healing") else str(v)
 
 
 def _total(key, players, game):
