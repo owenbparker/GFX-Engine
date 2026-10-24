@@ -91,7 +91,8 @@ def game_name(g):
             return name
     return {"league": GAMES["lol"], "cod": GAMES["cod"], "callofduty": GAMES["cod"], "rocketleague": GAMES["rl"],
             "ssbu": GAMES["smash"], "smash": GAMES["smash"], "smashultimate": GAMES["smash"], "smashbros": GAMES["smash"],
-            "val": GAMES["valorant"]}.get(low.replace(" ", ""), g)
+            "val": GAMES["valorant"], "ow": GAMES["overwatch"], "ow2": GAMES["overwatch"],
+            "overwatch2": GAMES["overwatch"]}.get(low.replace(" ", ""), g)
 
 
 def _clean(t):

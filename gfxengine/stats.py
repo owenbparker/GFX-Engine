@@ -32,7 +32,7 @@ LAYOUT = {"lol": {"cols": ("kda", "cs", "dmg"), "rows": ("kda", "cs", "dmg", "go
 NAMES = {"acs": "ACS", "kda": "K/D/A", "kd": "K/D", "cs": "CS", "vision": "VISION", "gold": "GOLD", "dmg": "DMG"}
 TITLES = {g: tuple(k.upper() for k in keys) for g, keys in BASE.items()}
 GAMES = {"lol": "League of Legends", "valorant": "VALORANT", "rl": "Rocket League", "cod": "Call of Duty",
-         "smash": "Super Smash Bros. Ultimate"}
+         "smash": "Super Smash Bros. Ultimate", "overwatch": "Overwatch"}
 LIVE_FOR = 10   # seconds without news before the stats are FINAL
 
 
