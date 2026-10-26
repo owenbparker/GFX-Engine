@@ -186,13 +186,16 @@
     badge.textContent = !live ? "Connecting…" : !cam.state && Date.now() - cam.asked > 3000 ? "Update Player Cam" : "";
     badge.hidden = !badge.textContent;
   }
+  // "VALORANT HUD (192.168.2.40)": the HUDs this page is getting the cams from.
+  const watching = () => Object.values(hubs).map(x => `${x.name} (${x.base.replace(/^https?:\/\/|:\d+$/g, "")})`).join(", ");
   function drawGrid() {
     const grid = $("#cr-grid");
     const list = Object.values(cams).sort((a, b) => (a.hub.name + (a.info.seat || "") + camName(a)).localeCompare(b.hub.name + (b.info.seat || "") + camName(b)));
     const notes = Object.values(hubs).map(x => x.note).filter(Boolean);
     $("#cr-note").textContent = notes.join(" · ") || (!Object.keys(hubs).length
       ? "No League or VALORANT HUD is connected to this engine. Connect one (its GFX Engine page), or add its address."
-      : list.length ? `${list.length} cam${list.length === 1 ? "" : "s"}` : "No player cams connected: players open SCC Player Cam on their PCs.");
+      : `${watching()}: ` + (list.length ? `${list.length} cam${list.length === 1 ? "" : "s"}`
+        : "no player cams connected to it yet (players open SCC Player Cam and press Connect to HUD)."));
     for (const cam of list) { drawTile(cam); if (cam.tile.parentNode !== grid || grid.children[list.indexOf(cam)] !== cam.tile) grid.insertBefore(cam.tile, grid.children[list.indexOf(cam)] || null); }
     for (const el of [...grid.children]) if (!list.some(c => c.tile === el)) el.remove();
     if (selected && !cams[selected]) selected = null;
