@@ -209,6 +209,7 @@ class Engine:
             "global": globalcfg.clean(project.get("global")),
             "teams": self.teams.list(),
             "games": list(GAMES.values()),   # (the games there are HUDs for)
+            "camera_looks": s.get("camera_looks") or [],
             "fonts": self._fonts(), "jobs": self.jobs.list(), "update": self.updater.info(),
         }
 
@@ -954,6 +955,13 @@ def make_handler(engine):
                     engine.settings.update(body)
                     if "network_address" in body and engine.server:
                         engine.server.rebind(engine.settings.get()["network_address"] or "")
+                    engine.changed()
+                elif path == "/api/camera-looks":
+                    looks = body.get("looks")
+                    if not isinstance(looks, list) or len(json.dumps(looks)) > 512 * 1024:
+                        raise ValueError("Bad camera looks")
+                    engine.settings.update({"camera_looks": [lk for lk in looks if isinstance(lk, dict) and lk.get("name")
+                                                             and isinstance(lk.get("cams"), dict)]})
                     engine.changed()
                 elif path == "/api/update/check":
                     engine.updater.check()

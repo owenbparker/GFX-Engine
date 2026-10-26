@@ -40,6 +40,9 @@ DEFAULTS = {
     "name": "",
     # The workspace open (its folder in workspaces/).
     "workspace": "",
+    # The Camera Control Room's saved lighting: [{"name", "cams": {"<pc>|<camera>":
+    # {setting: {"value", "auto"}}}}]
+    "camera_looks": [],
 }
 
 _lock = threading.Lock()
