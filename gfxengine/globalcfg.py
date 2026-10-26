@@ -45,8 +45,8 @@ DEFAULT = {
     "roster": "left",    # whose players the player graphics show
     # who the Player stats page shows: the top player ("auto") or one picked ("left 3")
     "player_stats": "auto",
-    # The caster lower third: how many boxes, the box's colour (primary) and
-    # the text and shadow's (secondary).
+    # The caster lower third: how many boxes, the box's colour (primary), its
+    # edge and shadow's (secondary) and the text's (none set: the secondary).
     "caster": {"count": 1, "primary": "#c2bdff", "secondary": "#001a1a"},
     # The graphics whose own output (/output?comp=id) is switched on: it always
     # shows its graphic, on Program or not (the rest show nothing, to save the PC).
@@ -136,6 +136,7 @@ def clean(g):
     out["caster"] = {"count": count if count in CASTER_SCALE else 1,
                      "primary": colour(caster.get("primary"), DEFAULT["caster"]["primary"]),
                      "secondary": colour(caster.get("secondary"), DEFAULT["caster"]["secondary"])}
+    out["caster"]["text"] = colour(caster.get("text"), out["caster"]["secondary"])
     clock = dict(DEFAULT["clock"], **(g.get("clock") or {}))
     until = str(clock.get("until") or "").strip()
     out["clock"] = {"mode": clock.get("mode") if clock.get("mode") in CLOCK_LABELS else "time",
@@ -252,7 +253,8 @@ def rows(g):
             ["Timer down", "1" if g["timer"]["down"] else ""]]
     c = g["caster"]
     moves = caster_moves(c["count"])
-    out += [["Caster boxes", str(c["count"])], ["Caster primary", c["primary"]], ["Caster secondary", c["secondary"]]]
+    out += [["Caster boxes", str(c["count"])], ["Caster primary", c["primary"]], ["Caster secondary", c["secondary"]],
+            ["Caster text", c["text"]]]
     for i in range(4):
         out += [[f"Caster {i + 1} shown", "1" if i < c["count"] else ""], [f"Caster {i + 1} move", moves[i] if i < c["count"] else ""]]
     out += [[k, v] for k, v in g["custom"]]

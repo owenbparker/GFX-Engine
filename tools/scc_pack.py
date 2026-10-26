@@ -134,9 +134,14 @@ def players(pg, n):
 def casters(comps):
     """The caster lower third: 1 to 4 boxes (Global's "Caster boxes"), side by
     side along the bottom, each with its caster's name and handle, in Global's
-    primary (box) and secondary (text, edge and shadow) colours."""
+    primary (box), secondary (edge and shadow) and text colours."""
     c = comps.get("Caster lower third")
-    if not c or any(l.get("move") for l in c["layers"]):
+    if not c:
+        return
+    if any(l.get("move") for l in c["layers"]):
+        for l in c["layers"]:
+            if l["type"] == "text":
+                l["color"] = "{{Global!Caster text}}"
         return
     x, y = 619, 451     # (the design's box: globalcfg.CASTER_BOX)
     names = {"Layer 1": ("Box", "primary"), "Layer 2": ("Box edge", "secondary"), "Layer 3": ("Box shadow", "secondary")}
@@ -148,7 +153,7 @@ def casters(comps):
         elif l["type"] == "text":
             big = l["size"] > 40
             l.update(name="Caster" if big else "Caster handle", field="Caster" if big else "Caster handle",
-                     text="CASTER NAME" if big else "@HANDLE", color="{{Global!Caster secondary}}")
+                     text="CASTER NAME" if big else "@HANDLE", color="{{Global!Caster text}}")
         group.append(l)
     # (Control lists fields top layer first: Caster 1, its handle, then Caster 2...)
     group.sort(key=lambda l: {"Caster": 4, "Caster handle": 3}.get(l["name"], 0))

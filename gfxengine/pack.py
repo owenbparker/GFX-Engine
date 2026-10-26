@@ -89,6 +89,15 @@ def upgrade(ws, starter):
             copy_files(fresh, starter, ws)
             comps[i] = fresh
             done.append(comp["name"])
+        # The caster names and handles have their own colour now (before, they
+        # took the secondary's); Global's text colour starts as the secondary,
+        # so changed copies look the same.
+        for comp in comps:
+            for l in comp.get("layers") or []:
+                if l.get("type") == "text" and l.get("color") == "{{Global!Caster secondary}}":
+                    l["color"] = "{{Global!Caster text}}"
+                    if comp["name"] not in done:
+                        done.append(comp["name"])
         # Graphics taken out of the pack: the untouched copies go.
         removed = set(project.get("pack_removed") or [])
         keep = [c for c in comps if not (c.get("name") in removed and signature(c) in history.get(c["name"], []))]
