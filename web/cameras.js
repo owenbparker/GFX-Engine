@@ -203,16 +203,28 @@
   }
 
   // --- one cam's settings ---------------------------------------------------------
-  const pending = {};   // control key -> {value / auto}, sent every 120 ms while dragging
-  let flushTimer = 0;
+  // What's changed here is sent every 120 ms while a slider's dragged, and
+  // shown as set for a moment after (the cam's answers can lag behind).
+  const HOLD = 1500;
   function change(cam, key, want) {
-    pending[key] = { ...(pending[key] || {}), ...want };
-    if (!flushTimer) flushTimer = setTimeout(() => {
-      flushTimer = 0;
-      const set = { ...pending };
-      for (const k of Object.keys(pending)) delete pending[k];
+    cam.pending = cam.pending || {};
+    cam.pending[key] = { ...(cam.pending[key] || {}), ...want };
+    cam.mine = cam.mine || {};
+    cam.mine[key] = { ...(cam.mine[key] || {}), ...want, at: Date.now() };
+    clearTimeout(cam.settle);
+    cam.settle = setTimeout(() => { if (selected === cam.key) drawSide(); }, HOLD + 50);   // (then as the cam says)
+    if (!cam.flush) cam.flush = setTimeout(() => {
+      const set = cam.pending;
+      cam.pending = {};
+      cam.flush = 0;
       send(cam, { type: "camctl", set });
     }, 120);
+  }
+  // A control as the cam last said, or as set here just now.
+  function shown(cam, c) {
+    const mine = (cam.mine || {})[c.key];
+    if (!mine || Date.now() - mine.at > HOLD) return c;
+    return { ...c, ...(mine.value !== undefined ? { value: mine.value } : {}), ...(mine.auto !== undefined && c.auto !== null ? { auto: mine.auto } : {}) };
   }
   const fmt = (c, v) => c.options ? ((c.options.find(o => o[0] === v) || [])[1] || v)
     : c.key === "zoom" && c.digital ? `${Number(v).toFixed(2)}x` : String(Math.round(Number(v) * 100) / 100);
@@ -257,9 +269,21 @@
     for (const [group, title] of [["light", "Lighting"], ["framing", "Framing"]]) {
       const rows = controls.filter(c => c.group === group);
       if (!rows.length) continue;
-      body.append(h("h4", {}, title), ...rows.map(c => controlRow(cam, c)));
+      body.append(h("h4", {}, title), ...rows.map(c => controlRow(cam, shown(cam, c))));
+      if (group === "light" && rows.some(c => c.key === "gain")) {
+        const exp = rows.find(c => c.key === "exposure");
+        if (exp && shown(cam, exp).auto)
+          body.append(h("p", { class: "muted small" }, "With Exposure on Auto the camera sets its own gain: moving Gain turns Exposure Auto off."));
+      }
     }
-    if (!controls.length) body.append(h("p", { class: "muted" }, "This camera has no settings that can be changed."));
+    if (!controls.length) {
+      // Why not: what the browser and the camera's driver said.
+      const why = cam.state.why || {};
+      body.append(h("p", { class: "muted" }, "Player Cam on this PC can't reach any of this camera's settings."),
+        h("p", { class: "muted small" }, `Browser (${why.agent || "?"}): ${(why.browser || []).join(", ") || "no camera settings"}. `
+          + (cam.state.app ? `Camera driver: ${why.driver || "no settings"}.` : "Opened in a browser, not the Player Cam app, so the driver isn't asked."),
+          " Close any other app using the camera (Logi Tune, G HUB, Camera, OBS) and reopen Player Cam."));
+    }
     const same = Object.values(cams).filter(o => o !== cam && o.state && camModel(o) === camModel(cam));
     body.append(h("div", { class: "cr-actions" },
       h("button", { class: "small", onclick: () => send(cam, { type: "camctl", reset: true }) }, "Reset camera"),
