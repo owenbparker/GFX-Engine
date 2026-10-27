@@ -637,6 +637,12 @@ class ServerTests(unittest.TestCase):
             live = json.loads(get("/api/state"))["live"]
             self.assertIn(cid, live["program"]["on"])
             self.assertIn("now", json.loads(get("/api/state"))["data"])
+            # Animations after a stinger TAKE: delayed by the take bar's setting (saved in the project).
+            post("/api/project", {"stinger_anim_delay": "1200"})
+            project = json.loads(get("/api/state"))["project"]
+            self.assertEqual((project["stinger_anim_delay"], project["name"]), (1200, state["project"]["name"]))
+            with self.assertRaises(urllib.error.HTTPError):
+                post("/api/project", {"stinger_anim_delay": "soon"})
             # The stream: everything first, then only what changed (a cue: not the project).
             with urllib.request.urlopen(base + "/api/stream", timeout=10) as r:
                 def message():

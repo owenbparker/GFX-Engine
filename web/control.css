@@ -81,6 +81,9 @@ label > input, label > select, label > textarea { margin-top: 3px; color: var(--
 .takebar { display: flex; flex-direction: column; gap: 8px; justify-content: center; padding-top: 28px; }
 .tr-chips { display: flex; flex-direction: column; gap: 4px; max-height: 26vh; overflow-y: auto; }
 .tr-chips button { justify-content: flex-start; font-size: 12px; padding: 5px 8px; overflow: hidden; text-overflow: ellipsis; }
+.stinger-delay { margin: 0; font-size: 11px; line-height: 1.3; }
+.stinger-delay span { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+.stinger-delay input { padding: 3px 6px; font-size: 12px; margin: 0; }
 .tr-chips button .k { margin-left: auto; color: var(--muted); font-size: 10px; }
 .tr-chips button.on .k { color: #dbeafe; }
 .take { height: 64px; font-size: 20px; font-weight: 800; letter-spacing: .08em; background: #c42b2b; border-color: #e04848; color: #fff; }
