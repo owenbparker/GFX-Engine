@@ -313,6 +313,7 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     $("#fields-send").disabled = !fields.length;
     const bracket = comp.layers.some(l => l.type === "bracket");
     const sched = comp.layers.some(l => /\{\{\s*Schedule!/i.test(l.show || ""));
+    const standing = comp.layers.some(l => /\{\{\s*Standings!/i.test(l.show || ""));
     const clock = comp.layers.some(l => /\{\{\s*clock\s*\}\}/i.test(l.text || ""));
     const timer = comp.layers.some(l => /\{\{\s*timer\s*\}\}/i.test(l.text || ""));
     const roster = comp.layers.some(l => /\{\{\s*Roster!/i.test((l.text || "") + (l.src || "")));
@@ -321,8 +322,8 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const pics = comp.layers.some(l => /\{\{\s*Stats!.*(headshot|champion)\}\}/i.test(l.src || ""));
     // (Player stats has its own setting: its picture is the MVP's)
     const picsPage = comp.layers.some(l => /\{\{\s*Stats!MVP (headshot|champion)\}\}/i.test(l.src || "")) ? "player" : "team";
-    const extras = () => [comp.hud ? hudField(s, comp) : null, caster ? casterField(s) : null, roster ? rosterField(s) : null, mvp ? mvpField(s) : null, pics ? picturesField(s, picsPage) : null, clock ? clockField(s) : null, timer ? timerField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null].filter(Boolean);
-    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, clock, timer, roster, mvp, caster, pics, picsPage,
+    const extras = () => [comp.hud ? hudField(s, comp) : null, caster ? casterField(s) : null, roster ? rosterField(s) : null, mvp ? mvpField(s) : null, pics ? picturesField(s, picsPage) : null, clock ? clockField(s) : null, timer ? timerField(s) : null, bracket ? sizeField(s) : null, sched ? countField(s) : null, standing ? standingsField(s) : null].filter(Boolean);
+    const sig = JSON.stringify([comp.id, fields.map(f => [f.field, f.type]), App.assetsRev, bracket, sched, standing, clock, timer, roster, mvp, caster, pics, picsPage,
       Object.keys(s.data.feeds || {}), (s.data.tables.Global || []).map(r => r[0]),
       comp.hud ? JSON.stringify(s.data.feeds[comp.hud.split("/")[0]] && s.data.feeds[comp.hud.split("/")[0]].unreachable) : ""]);
     if (!force && box.dataset.sig === sig) {
@@ -402,6 +403,25 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
       h("label", {}, "Matches shown", h("span", { class: "kind" }, "schedule")),
       h("select", { "data-k": "count", onchange: e => set(+e.target.value) }, ...[1, 2, 3].map(n => h("option", { value: n }, n === 1 ? "1 match" : `${n} matches`))),
       h("div", { class: "resolved" }, "The matches are in the Upcoming Schedule tab. This changes the graphic on air too."));
+    markSize(el, s);
+    return el;
+  }
+  // The Standings: what its boxes show (changes it on air too).
+  const STAT_NAMES = { record: "Record (W-L)", wins: "Wins", losses: "Losses", points: "Points", winpct: "Win %", diff: "Map difference (+/-)" };
+  function standingsField(s) {
+    const set = (k, v) => {
+      const st = JSON.parse(JSON.stringify(App.state.global.standings));
+      st[k] = v;
+      if (st.stat2 === st.stat) st.stat2 = "";
+      api("/api/global", { global: { standings: st } });
+    };
+    const opts = none => [...(none ? [h("option", { value: "" }, "Nothing")] : []), ...Object.entries(STAT_NAMES).map(([k, n]) => h("option", { value: k }, n))];
+    const el = h("div", { class: "field bracket-size" },
+      h("label", {}, "The box shows", h("span", { class: "kind" }, "standings")),
+      h("select", { "data-k": "st-stat", onchange: e => set("stat", e.target.value) }, ...opts(false)),
+      h("label", {}, "A second box shows"),
+      h("select", { "data-k": "st-stat2", onchange: e => set("stat2", e.target.value) }, ...opts(true)),
+      h("div", { class: "resolved" }, "The teams and their results are in the Tournament tab. This changes the graphic on air too."));
     markSize(el, s);
     return el;
   }
@@ -569,6 +589,11 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const size = ((s.global.tournament || {}).top || {}).size || 8;
     const sel = el.querySelector("[data-k=size]");
     if (sel && document.activeElement !== sel) sel.value = String(size);
+    const st = s.global.standings || {};
+    for (const k of ["stat", "stat2"]) {
+      const sel = el.querySelector(`[data-k=st-${k}]`);
+      if (sel && document.activeElement !== sel) sel.value = st[k] || "";
+    }
     const cnt = el.querySelector("[data-k=count]");
     if (cnt && document.activeElement !== cnt) cnt.value = String((s.global.schedule || {}).count || 3);
   }

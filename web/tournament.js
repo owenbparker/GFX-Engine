@@ -278,12 +278,137 @@
     refresh();
   }
 
+  // --- the standings ------------------------------------------------------------------
+  // The teams the Standings graphics list (8 or 16), each one's wins, losses,
+  // points and map difference, and what the boxes show.
+  const STATS = { record: "Record (W-L)", wins: "Wins", losses: "Losses", points: "Points", winpct: "Win %", diff: "Map difference (+/-)" };
+  let st = null;             // as edited here
+  let stPending = false;
+  const saveSt = debounce(() => { stPending = false; api("/api/global", { global: { standings: st } }); }, 350);
+  const stChanged = () => { stPending = true; saveSt(); };
+  const typing = new Set();  // rows typing a name that isn't in the team list
+  const teamNames = () => [...new Set((App.state.teams || []).map(x => x.name).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const fileTeam = f => f.name.replace(/\.[^.]+$/, "").replace(/[_]+/g, " ").replace(/\s+/g, " ").trim();
+  for (const [id, none] of [["#st-stat", false], ["#st-stat2", true]])
+    $(id).replaceChildren(...(none ? [h("option", { value: "" }, "Nothing")] : []), ...Object.entries(STATS).map(([k, n]) => h("option", { value: k }, n)));
+
+  // A logo for a team: into the team list (the team's added if it isn't there).
+  async function stLogo(row, file) {
+    const name = row.name || fileTeam(file);
+    if (!name) return;
+    const r = await postFile(`/api/teams/logo?team=${encodeURIComponent(name)}`, file);
+    App.state.teams = r.teams;
+    row.name = name;
+  }
+  function stTeam(row, i) {
+    const names = teamNames();
+    if (typing.has(i) || (row.name && !names.some(n => n.toLowerCase() === row.name.toLowerCase()))) {
+      return h("div", { class: "st-team" }, h("input", { value: row.name, placeholder: "Team name", "data-st": i,
+        oninput: e => { row.name = e.target.value; stChanged(); },
+        onblur: e => { if (!e.target.value.trim()) { typing.delete(i); renderStRows(); } } }),
+        h("button", { class: "ghost small", title: "Pick from the team list", onclick: () => { typing.delete(i); row.name = ""; stChanged(); renderStRows(); } }, "▾"));
+    }
+    const sel = h("select", { onchange: e => {
+      if (e.target.value === "\u0000type") { typing.add(i); renderStRows(); const inp = $(`#st-rows [data-st="${i}"]`); if (inp) inp.focus(); return; }
+      row.name = e.target.value; stChanged(); renderStRows();
+    } }, h("option", { value: "" }, "—"), ...names.map(n => h("option", { value: n }, n)), h("option", { value: "\u0000type" }, "Type a name…"));
+    sel.value = row.name ? names.find(n => n.toLowerCase() === row.name.toLowerCase()) : "";
+    return h("div", { class: "st-team" }, sel);
+  }
+  function stNum(row, k, title) {
+    return h("input", { class: "st-num-in", value: row[k], inputmode: "numeric", title, placeholder: "–",
+      oninput: e => { row[k] = e.target.value.trim(); stChanged(); } });
+  }
+  function renderStRows() {
+    const n = st.count, half = n / 2, box = $("#st-rows");
+    const heads = () => h("div", { class: "st-heads" }, h("span", { style: { flex: "0 0 64px" } }), h("div", { class: "st-team" }, "Team"),
+      h("span", {}, "W"), h("span", {}, "L"), h("span", {}, "Pts"), h("span", {}, "+/-"));
+    const rows = st.teams.slice(0, n).map((row, i) => {
+      const logo = logoOf(row.name);
+      const fileIn = h("input", { type: "file", accept: "image/*", hidden: true,
+        onchange: async e => { const f = e.target.files[0]; e.target.value = ""; if (f) { await stLogo(row, f); stChanged(); renderStRows(); } } });
+      const el = h("div", { class: "st-row" },
+        h("span", { class: "muted small st-num" }, String(i + 1)),
+        h("div", { class: "st-logo" + (logo ? " has" : ""), style: { backgroundImage: logo ? `url("${pic(logo)}")` : "" },
+          title: "Click or drop the team's logo", onclick: () => fileIn.click() }, "+", fileIn),
+        stTeam(row, i), stNum(row, "w", "Wins"), stNum(row, "l", "Losses"), stNum(row, "pts", "Points"), stNum(row, "diff", "Map difference"));
+      // (a logo dropped anywhere on the row is that team's)
+      el.addEventListener("dragover", e => { e.preventDefault(); el.classList.add("over"); });
+      el.addEventListener("dragleave", () => el.classList.remove("over"));
+      el.addEventListener("drop", async e => {
+        e.preventDefault(); e.stopPropagation(); el.classList.remove("over");
+        const f = e.dataTransfer.files[0];
+        if (f) { await stLogo(row, f); stChanged(); renderStRows(); toast(`${row.name}'s logo saved`); }
+      });
+      return el;
+    });
+    box.style.gridTemplateRows = `repeat(${half + 1}, auto)`;
+    box.replaceChildren(heads(), ...rows.slice(0, half), heads(), ...rows.slice(half));
+  }
+  function renderSt() {
+    for (const b of document.querySelectorAll("#st-count button")) b.classList.toggle("on", +b.dataset.count === st.count);
+    $("#st-stat").value = st.stat;
+    $("#st-stat2").value = st.stat2;
+    for (const [id, k] of [["#st-title", "title"], ["#st-subtitle", "subtitle"]]) if (document.activeElement !== $(id)) $(id).value = st[k];
+    $("#st-title").placeholder = (App.state.global.event || "") ? `${App.state.global.event} (Global's event)` : "(Global's event)";
+    renderStRows();
+  }
+  document.querySelectorAll("#st-count button").forEach(b => b.addEventListener("click", () => { st.count = +b.dataset.count; stChanged(); renderSt(); }));
+  $("#st-stat").addEventListener("change", e => { st.stat = e.target.value; if (st.stat2 === st.stat) st.stat2 = ""; stChanged(); renderSt(); });
+  $("#st-stat2").addEventListener("change", e => { st.stat2 = e.target.value === st.stat ? "" : e.target.value; stChanged(); renderSt(); });
+  $("#st-title").addEventListener("input", e => { st.title = e.target.value; stChanged(); });
+  $("#st-subtitle").addEventListener("input", e => { st.subtitle = e.target.value; stChanged(); });
+  $("#st-sort").addEventListener("click", () => {
+    const f = v => v === "" || v == null || isNaN(+v) ? 0 : +v;
+    const shown = st.teams.slice(0, st.count), rest = st.teams.slice(st.count);
+    const named = shown.filter(r => r.name), empty = shown.filter(r => !r.name);
+    named.sort((a, b) => f(b.w) - f(a.w) || f(a.l) - f(b.l) || f(b.pts) - f(a.pts) || f(b.diff) - f(a.diff));
+    st.teams = [...named, ...empty, ...rest];
+    typing.clear(); stChanged(); renderStRows();
+  });
+  $("#st-clear").addEventListener("click", () => {
+    if (!confirm("Clear every team's wins, losses, points and map difference?")) return;
+    st.teams.forEach(r => Object.assign(r, { w: "", l: "", pts: "", diff: "" })); stChanged(); renderStRows();
+  });
+  // Many logos at once: each fills the next empty row (or the row already named after it).
+  const stDrop = $("#st-drop");
+  const stFiles = h("input", { type: "file", accept: "image/*", multiple: true, hidden: true,
+    onchange: e => { const fs = [...e.target.files]; e.target.value = ""; dropLogos(fs); } });
+  stDrop.appendChild(stFiles);
+  stDrop.addEventListener("click", e => { if (e.target !== stFiles) stFiles.click(); });
+  stDrop.addEventListener("dragover", e => { e.preventDefault(); stDrop.classList.add("over"); });
+  stDrop.addEventListener("dragleave", () => stDrop.classList.remove("over"));
+  stDrop.addEventListener("drop", e => { e.preventDefault(); stDrop.classList.remove("over"); dropLogos([...e.dataTransfer.files].filter(f => /^image\//.test(f.type) || /\.(png|jpe?g|webp|svg|gif)$/i.test(f.name))); });
+  async function dropLogos(files) {
+    let added = 0;
+    for (const f of files) {
+      const name = fileTeam(f);
+      let row = st.teams.slice(0, st.count).find(r => r.name && r.name.toLowerCase() === name.toLowerCase())
+        || st.teams.slice(0, st.count).find(r => !r.name);
+      if (!row) { toast(`No empty row left for ${name}`, true); break; }
+      try { await stLogo(row, f); added++; } catch (e) { break; }
+    }
+    if (added) { stChanged(); renderStRows(); toast(`${added} logo${added === 1 ? "" : "s"} added`); }
+  }
+  function renderStandings(force) {
+    const editing = $("#st-part").contains(document.activeElement) || stPending;
+    const server = App.state.global.standings;
+    if (!server) return;
+    if (!st || (force && !stPending)) { st = JSON.parse(JSON.stringify(server)); force = true; }
+    else if (!editing && JSON.stringify(st) !== JSON.stringify(server)) { st = JSON.parse(JSON.stringify(server)); force = true; }
+    if (force) { typing.clear(); renderSt(); }
+    // (a team added to the list, or a new logo: the dropdowns and logos again)
+    const sig = JSON.stringify((App.state.teams || []).map(x => [x.name, x.logo]));
+    if (sig !== stTeamsSig) { stTeamsSig = sig; if (!force && !editing) renderStRows(); }
+  }
+  let stTeamsSig = "";
+
   // --- in step with the engine ----------------------------------------------------------
   let lastTeams = "";
   App.on(s => {
     renderNames();
     if (App.tab === "global") renderTicker();
-    if (App.tab === "tournament") renderTournament(false);
+    if (App.tab === "tournament") { renderTournament(false); renderStandings(false); }
     const sig = JSON.stringify(s.teams);
     if (App.tab === "teams" && sig !== lastTeams) {
       lastTeams = sig;
@@ -293,5 +418,5 @@
   const shown = pages.global.shown;
   pages.global.shown = () => { shown(); if (App.state) renderTicker(); };
   pages.teams = { shown() { if (App.state) { lastTeams = JSON.stringify(App.state.teams); renderTeams(true); } } };
-  pages.tournament = { shown() { if (App.state) renderTournament(true); } };
+  pages.tournament = { shown() { if (App.state) { renderTournament(true); renderStandings(true); } } };
 })();

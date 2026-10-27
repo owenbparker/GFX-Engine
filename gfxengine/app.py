@@ -38,7 +38,7 @@ from .media import Jobs, ffmpeg_path, stinger_cut
 from .project import Workspace, blank_comp, blank_layer, new_id
 from .stats import GAMES, Stats, read as read_stats, rows as stats_rows
 from .teams import Teams, ign_key, player_named, roster_rows
-from . import schedule, tournament
+from . import schedule, standings, tournament
 from .updater import Updater, clean_up_old_update
 from .workspaces import Workspaces
 
@@ -174,6 +174,7 @@ class Engine:
         snap["tables"]["Tournament"] = tournament.rows(g["tournament"], self.teams.find)
         snap["tables"]["Teams"] = self.teams.rows()
         snap["tables"]["Schedule"] = schedule.rows(g["schedule"], self.teams.find)
+        snap["tables"]["Standings"] = standings.rows(g["standings"], self.teams.find, g["event"])
         side = g["roster"]
         stats_names = dict(r[:2] for r in snap["tables"]["Stats"][1:] if len(r) >= 2)
         snap["tables"]["Roster"] = roster_rows(self.teams.find(g[side]["name"], g[side]["game"]), side,

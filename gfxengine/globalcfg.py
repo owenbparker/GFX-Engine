@@ -18,7 +18,7 @@ import copy
 import re
 import time
 
-from . import schedule, tournament
+from . import schedule, standings, tournament
 
 DEFAULT = {
     "event": "", "stage": "", "best_of": 3, "game": "",   # game: "" = from the score
@@ -35,6 +35,7 @@ DEFAULT = {
     "ticker": [],    # its lines, shown one after another
     "tournament": tournament.default(),
     "schedule": schedule.default(),
+    "standings": standings.default(),   # the Standings graphics' teams (see standings.py)
     # The clock graphics show ({{clock}} and {{Global!Clock label}}): the time of
     # day, or a countdown to "until" for Starting Soon or Be Right Back.
     "clock": {"mode": "time", "until": "", "zone": "EST"},
@@ -116,6 +117,7 @@ def clean(g):
     out["ticker"] = [str(x).strip()[:300] for x in (g.get("ticker") or []) if str(x).strip()][:40]
     out["tournament"] = tournament.clean(g.get("tournament"))
     out["schedule"] = schedule.clean(g.get("schedule"))
+    out["standings"] = standings.clean(g.get("standings"))
     out["roster"] = "right" if g.get("roster") == "right" else "left"
     pick = str(g.get("player_stats") or "")
     out["player_stats"] = pick if re.match(r"^(left|right) ([1-9]|10)$", pick) else "auto"

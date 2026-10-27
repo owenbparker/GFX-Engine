@@ -162,6 +162,15 @@ and the winners go through by themselves; the final four shows the
 knockout's last two rounds. In graphics: `{{Tournament!Top R1 M1 team 1}}`,
 `{{Tournament!Top champion}}`, `{{Tournament!Group A 1st}}`...
 
+Its **Standings** section fills in the Standings (8 teams) and Standings (16
+teams) graphics: each row's team (picked from the team list, or typed), its
+wins, losses, points and map difference, and what the box shows (the record,
+wins, losses, points, win % or map difference, and a second box if wanted;
+Control has the same choice). Drop a logo on a row for that team, or drop a
+batch of logos named after their teams to fill the empty rows; logos go in
+the team list. Sort by record puts the most wins first. In graphics:
+`{{Standings!Team 1}}`, `{{Standings!Team 1 logo}}`, `{{Standings!Team 1 stat 1}}`...
+
 The **Upcoming Schedule** tab has the matches the Schedule graphic lists:
 each one's tournament, game, match type, teams, date and time. The graphic
 shows the first 1, 2 or 3 of them (chosen in that tab, or in the Schedule's

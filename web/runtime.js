@@ -24,12 +24,14 @@
     ["Permanent Marker", "fonts/PermanentMarker-Regular.ttf", "400", "size-adjust:80%"],
     ...[400, 500, 700, 800, 900].map(w => ["Montserrat", `fonts/Montserrat-${w}.woff2`, String(w)]),
     ...[500, 600, 700].map(w => ["Barlow Condensed", `fonts/BarlowCondensed-${w}.woff2`, String(w)]),
+    ...[700, 900].map(w => ["Vazirmatn", `fonts/Vazirmatn-${w}.woff2`, String(w)]),
   ];
-  GFX.builtinFonts = ["Inter", "Montserrat", "Barlow Condensed", "Bebas Neue", "Anton", "Permanent Marker"];
+  GFX.builtinFonts = ["Inter", "Montserrat", "Barlow Condensed", "Bebas Neue", "Anton", "Permanent Marker", "Vazirmatn"];
   const STANDINS = [
     [/gotham.*(black|ultra)/i, "Montserrat", 900], [/gotham.*bold/i, "Montserrat", 700],
     [/gotham.*medium/i, "Montserrat", 500], [/gotham/i, "Montserrat", 400],
     [/(trade.?gothic|tradegothic).*(cond|cn|20)/i, "Barlow Condensed", 700], [/trade.?gothic/i, "Barlow Condensed", 600],
+    [/vazirmatn.*black/i, "Vazirmatn", 900], [/vazirmatn/i, "Vazirmatn", 700],
     [/anton/i, "Anton", 400], [/brick/i, "Permanent Marker", 400],
     [/redzone|carbon|bebas|impact|oswald/i, "Bebas Neue", 400],
     [/(helvetica|arial|roboto|sf.?pro|segoe).*(black|heavy)/i, "Inter", 900],

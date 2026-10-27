@@ -27,7 +27,7 @@ from gfxengine.project import new_id  # noqa: E402
 STARTER = os.path.join(ROOT, "starter")
 
 # Boards that fill the screen: the background loop plays over their backdrop.
-LOOP_BOARDS = ("Schedule", "Team stats", "Player stats", "Group bracket", "Top 8 bracket", "Final four",
+LOOP_BOARDS = ("Schedule", "Standings (8 teams)", "Standings (16 teams)", "Team stats", "Player stats", "Group bracket", "Top 8 bracket", "Final four",
                *(f"Player graphic ({n})" for n in range(1, 6)))
 # What each graphic is: one board and one lower third can be on air at a time.
 KINDS = {"lower third": ("Caster lower third",),
@@ -451,8 +451,13 @@ def link(data, starter=STARTER):
     # The Smash Ultimate crews scoreboard ("smash scoreboard.psd", pictures in tools/smash/).
     if "Smash crews scoreboard" not in comps:
         data["compositions"].append(smash_scoreboard(starter))
+    # The tournament standings ("Leaderboard 8.psd", its league logo in tools/standings/).
+    for count in (8, 16):
+        if f"Standings ({count} teams)" not in comps:
+            data["compositions"].append(standings(comps, count, starter))
     # (graphics new to the pack: workspaces made before get them too, once)
-    data["pack_new"] = sorted(set(data.get("pack_new") or []) | {"Timer bug", "Smash crews scoreboard"})
+    data["pack_new"] = sorted(set(data.get("pack_new") or []) | {"Timer bug", "Smash crews scoreboard",
+                                                                 "Standings (8 teams)", "Standings (16 teams)"})
 
     # Graphics no longer in the pack, and the files only they used.
     gone = [c for c in data["compositions"] if c["name"] in REMOVED]
@@ -544,6 +549,96 @@ def smash_scoreboard(starter=STARTER):
     ]
     return {"id": new_id("c"), "name": "Smash crews scoreboard", "layer": 0, "width": 1920, "height": 1080,
             "kind": "overlay", "layers": layers}
+
+
+# The standings' rows (from "Leaderboard 8.psd"): two columns of 4 (8 teams) or
+# 8 (16 teams), filled down the left column first. Per layout: the columns'
+# left edges, the rows' tops, a row's size, its logo and stat boxes' widths,
+# and the name and stat text sizes.
+STANDINGS = {8: dict(cols=(115, 998), tops=(382, 524, 682, 840), w=807, h=115, logo=122, stat=240, stat2=170,
+                     name=35, value=52, radius=22),
+             16: dict(cols=(115, 998), tops=tuple(318 + 85 * i for i in range(8)), w=807, h=72, logo=90, stat=200, stat2=150,
+                      name=27, value=36, radius=16)}
+
+
+def standings(comps, count, starter=STARTER):
+    """The tournament standings for 8 or 16 teams ("Leaderboard 8.psd"): the
+    league's logo (Global's tournament logo) and the title, then a row per
+    team (from the Tournament page's standings): its logo, its name, and a box
+    with its record (or the wins, points...; a second box beside it if one is
+    picked), over the boards' backdrop and background loop."""
+    rel = "assets/Standings/League logo.png"
+    os.makedirs(os.path.join(starter, os.path.dirname(rel)), exist_ok=True)
+    shutil.copy2(os.path.join(ROOT, "tools", "standings", "League logo.png"), os.path.join(starter, rel))
+    L = STANDINGS[count]
+    base = {"opacity": 1, "rotation": 0, "visible": True, "blend": "normal"}
+    fade = lambda delay=0: {"in": {"type": "fade", "dur": 450, "delay": delay}, "out": {"type": "fade", "dur": 250, "delay": 0}}
+    gold, bar, box_fill, edge = "#eda81f", "rgba(0,0,0,0.75)", "rgba(0,0,0,0.5)", "rgba(255,255,255,0.3)"
+
+    def text(name, value, x, y, w, h, size, font, color, align, anim, tracking=0, show=None, caps=False):
+        return dict(base, id=new_id("l"), name=name, type="text", x=x, y=y, w=w, h=h, field="", anim=anim, text=value,
+                    font=font, size=size, color=color, align=align, valign="middle", tracking=tracking, caps=caps,
+                    lineHeight=1, fit="shrink", weight=900 if font.endswith("Black") else 700, italic=False, scroll=0,
+                    **({"show": show} if show else {}))
+
+    def rect(name, x, y, w, h, fill, anim, show):
+        return dict(base, id=new_id("l"), name=name, type="rect", x=x, y=y, w=w, h=h, field="", anim=anim, fill=fill,
+                    radius=L["radius"], stroke=edge, strokeWidth=1, show=show)
+
+    layers = []
+    backdrop = next((l for l in (comps.get("Player stats") or {"layers": []})["layers"] if l["name"] == "Layer 1"), None)
+    if backdrop:
+        layers.append(dict(json.loads(json.dumps(backdrop)), id=new_id("l"), name="Backdrop"))
+    layers.append(dict(base, id=new_id("l"), name="Background loop", type="video", x=0, y=0, w=1920, h=1080, blend="screen",
+                       field="", anim={"in": {"type": "fade", "dur": 600, "delay": 0}, "out": {"type": "fade", "dur": 250, "delay": 0}},
+                       src="{{Global!BG loop}}", fit="cover", loop=True, audio=False, tint="{{Global!BG loop colour}}",
+                       brightness="{{Global!BG loop brightness}}", speed="{{Global!BG loop speed}}"))
+    layers += [
+        dict(base, id=new_id("l"), name="League logo", type="image", x=292, y=126, w=516, h=132, field="", anim=fade(),
+             src="{{Global!Tournament logo}}", placeholder=rel, fit="contain", position="right", loop=True),
+        text("Title", "{{Standings!Title}}", 911, 104, 894, 110, 83, "Vazirmatn-Black", gold, "left", fade(), caps=True),
+        text("Subtitle", "{{Standings!Subtitle}}", 911, 170, 894, 110, 83, "Vazirmatn-Black", gold, "left", fade(), caps=True),
+    ]
+    per_col = count // 2
+    for n in range(1, count + 1):
+        col, row = divmod(n - 1, per_col)
+        x, y, w, h = L["cols"][col], L["tops"][row], L["w"], L["h"]
+        anim = {"in": {"type": "slide-left" if col == 0 else "slide-right", "dur": 450, "delay": 150 + 50 * row},
+                "out": {"type": "fade", "dur": 250, "delay": 0}}
+        shown = f"{{{{Standings!Team {n} shown}}}}"
+        sx = x + w - L["stat"]          # the stat box
+        s2x = sx - L["stat2"] + L["radius"]   # the second one, tucked under its left edge
+        name_x = x + L["logo"] + round(h * 0.25)
+        logo_pad = round(h * 0.13)
+        layers += [
+            rect(f"Team {n} bar", x, y, w, h, bar, anim, shown),
+            rect(f"Team {n} logo box", x, y, L["logo"], h, box_fill, anim, shown),
+            rect(f"Team {n} stat 2 box", s2x, y, L["stat2"], h, "rgba(0,0,0,0.3)", anim, f"{{{{Standings!Team {n} stat 2 shown}}}}"),
+            rect(f"Team {n} stat box", sx, y, L["stat"], h, box_fill, anim, shown),
+            dict(base, id=new_id("l"), name=f"Team {n} logo", type="image", x=x + logo_pad, y=y + logo_pad,
+                 w=L["logo"] - 2 * logo_pad, h=h - 2 * logo_pad, field="", anim=anim, src=f"{{{{Standings!Team {n} logo}}}}",
+                 show=f"{{{{Standings!Team {n} logo}}}}", fit="contain", loop=True),
+            # (the name has the room up to the stat box, or up to the second one)
+            text(f"Team {n} name", f"{{{{Standings!Team {n}}}}}", name_x, y, sx - name_x - 20, h, L["name"],
+                 "Vazirmatn-Bold", "#ffffff", "left", anim, show=f"{{{{Standings!One stat}}}}", caps=True),
+            text(f"Team {n} name (2 stats)", f"{{{{Standings!Team {n}}}}}", name_x, y, s2x - name_x - 16, h, L["name"],
+                 "Vazirmatn-Bold", "#ffffff", "left", anim, show=f"{{{{Standings!Stat 2 shown}}}}", caps=True),
+            text(f"Team {n} stat 2", f"{{{{Standings!Team {n} stat 2}}}}", s2x, y, L["stat2"] - L["radius"], h,
+                 round(L["value"] * 0.8), "Vazirmatn-Black", "#ffffff", "center", anim),
+            text(f"Team {n} stat", f"{{{{Standings!Team {n} stat 1}}}}", sx + 10, y, L["stat"] - 20, h, L["value"],
+                 "Vazirmatn-Black", gold, "center", anim, tracking=200),
+        ]
+        if row == 0:   # (what the boxes show, over each column)
+            head = fade(150)
+            ty, th = y - 40, 34
+            layers += [
+                text(f"Column {col + 1} stat title", "{{Standings!Stat 1 title}}", sx, ty, L["stat"], th, 24,
+                     "Vazirmatn-Black", gold, "center", head, show="{{Standings!Stat titles shown}}"),
+                text(f"Column {col + 1} stat 2 title", "{{Standings!Stat 2 title}}", s2x, ty, L["stat2"] - L["radius"], th, 24,
+                     "Vazirmatn-Black", "#ffffff", "center", head, show="{{Standings!Stat 2 shown}}"),
+            ]
+    return {"id": new_id("c"), "name": f"Standings ({count} teams)", "layer": 0, "width": 1920, "height": 1080,
+            "kind": "board", "layers": layers}
 
 
 def strip(comp):

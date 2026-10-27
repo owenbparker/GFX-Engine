@@ -160,10 +160,26 @@
 <main id="page-tournament" class="page" hidden>
   <div class="page-head">
     <h2>Tournament</h2>
-    <span class="muted">The bracket graphics show these. Enter the scores and the winners go through.</span>
+    <span class="muted">The standings and bracket graphics show these. Enter the scores and the winners go through.</span>
   </div>
     <section class="g-tournament">
       <div class="tourney">
+        <div class="tn-part panel pad" id="st-part">
+          <div class="tn-head"><h4>Standings</h4>
+            <div class="seg" id="st-count"><button data-count="8">8 teams</button><button data-count="16">16 teams</button></div>
+            <label class="row-gap muted small">The box shows <select id="st-stat"></select></label>
+            <label class="row-gap muted small">Second box <select id="st-stat2"></select></label>
+            <div class="spacer"></div>
+            <button class="small ghost" id="st-sort" title="Most wins first (then fewest losses, most points, best map difference)">Sort by record</button>
+            <button class="small ghost" id="st-clear" title="Keep the teams, clear every result">Clear results</button></div>
+          <div class="st-top">
+            <label class="muted small">Title <input id="st-title" placeholder="(Global's event)"></label>
+            <label class="muted small">Under it <input id="st-subtitle" placeholder="e.g. LEADERBOARD"></label>
+            <div id="st-drop" class="st-drop" title="Click or drop team logos">Drop team logos here: each one fills the next empty row, named after its file (and goes in the team list)</div>
+          </div>
+          <div id="st-rows" class="st-rows"></div>
+          <p class="muted small">The Standings (8 teams) and Standings (16 teams) graphics show these, down the left column first. Pick a team from the team list, or type a new one; drop a logo on a row to give that team its logo.</p>
+        </div>
         <div class="tn-part panel pad">
           <div class="tn-head"><h4>Knockout bracket</h4>
             <div class="seg" id="tn-size"><button data-size="8">8 teams</button><button data-size="16">16 teams</button></div>

@@ -506,6 +506,26 @@ class ScheduleTests(unittest.TestCase):
         self.assertEqual(dict(schedule.rows({})[1:])["Match 1 show"], "")
 
 
+class StandingsTests(unittest.TestCase):
+    def test_rows(self):
+        from gfxengine import standings
+        s = standings.clean({"count": 8, "stat": "record", "stat2": "winpct", "subtitle": "STANDINGS",
+                             "teams": [{"name": "A", "w": "6", "l": "1"}, {"name": "B", "w": 2, "l": "5", "diff": "3"}, {"name": "", "w": "x"}]})
+        rows = dict(standings.rows(s, lambda n: {"logo": f"library/teams/{n}.png"} if n == "A" else None, "NACE")[1:])
+        self.assertEqual((rows["Title"], rows["Subtitle"]), ("NACE", "STANDINGS"))
+        self.assertEqual((rows["Team 1"], rows["Team 1 logo"], rows["Team 1 stat 1"], rows["Team 1 stat 2"]),
+                         ("A", "library/teams/A.png", "6-1", "86%"))
+        self.assertEqual((rows["Team 2 diff"], rows["Team 3 shown"], rows["Team 3 wins"]), ("+3", "", ""))
+        self.assertEqual((rows["Stat 2 shown"], rows["One stat"], rows["Team 2 stat 2 shown"]), ("1", "", "1"))
+        self.assertNotIn("Team 9", rows)
+        self.assertIn("Team 16", dict(standings.rows(dict(s, count=16))[1:]))
+        self.assertEqual(standings.clean({"count": 12, "stat": "x", "stat2": "wins"})["count"], 8)
+        self.assertEqual(standings.clean({"stat": "wins", "stat2": "wins"})["stat2"], "")
+        # (the Global configuration keeps them)
+        from gfxengine import globalcfg
+        self.assertEqual(globalcfg.clean({"standings": {"count": 16}})["standings"]["count"], 16)
+
+
 class TournamentTests(unittest.TestCase):
     def test_knockout_winners_go_through(self):
         from gfxengine import tournament

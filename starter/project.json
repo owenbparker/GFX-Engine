@@ -20395,6 +20395,8176 @@
      "loop": true
     }
    ]
+  },
+  {
+   "id": "c0108009e",
+   "name": "Standings (8 teams)",
+   "layer": 0,
+   "width": 1920,
+   "height": 1080,
+   "kind": "board",
+   "layers": [
+    {
+     "id": "l79a66111",
+     "name": "Backdrop",
+     "type": "image",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 0.749,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 24
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Player stats/Layer 1.png",
+     "fit": "fill",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "screen",
+     "id": "le2386444",
+     "name": "Background loop",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!BG loop}}",
+     "fit": "cover",
+     "loop": true,
+     "audio": false,
+     "tint": "{{Global!BG loop colour}}",
+     "brightness": "{{Global!BG loop brightness}}",
+     "speed": "{{Global!BG loop speed}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l04c31464",
+     "name": "League logo",
+     "type": "image",
+     "x": 292,
+     "y": 126,
+     "w": 516,
+     "h": 132,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!Tournament logo}}",
+     "placeholder": "assets/Standings/League logo.png",
+     "fit": "contain",
+     "position": "right",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lca78d76c",
+     "name": "Title",
+     "type": "text",
+     "x": 911,
+     "y": 104,
+     "w": 894,
+     "h": 110,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Title}}",
+     "font": "Vazirmatn-Black",
+     "size": 83,
+     "color": "#eda81f",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lf5933a9f",
+     "name": "Subtitle",
+     "type": "text",
+     "x": 911,
+     "y": 170,
+     "w": 894,
+     "h": 110,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Subtitle}}",
+     "font": "Vazirmatn-Black",
+     "size": 83,
+     "color": "#eda81f",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l5162a159",
+     "name": "Team 1 bar",
+     "type": "rect",
+     "x": 115,
+     "y": 382,
+     "w": 807,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 1 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l27a570e2",
+     "name": "Team 1 logo box",
+     "type": "rect",
+     "x": 115,
+     "y": 382,
+     "w": 122,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 1 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lf15dcbab",
+     "name": "Team 1 stat 2 box",
+     "type": "rect",
+     "x": 534,
+     "y": 382,
+     "w": 170,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 1 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l351acafe",
+     "name": "Team 1 stat box",
+     "type": "rect",
+     "x": 682,
+     "y": 382,
+     "w": 240,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 1 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lbf3f2437",
+     "name": "Team 1 logo",
+     "type": "image",
+     "x": 130,
+     "y": 397,
+     "w": 92,
+     "h": 85,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 1 logo}}",
+     "show": "{{Standings!Team 1 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lf94cff7b",
+     "name": "Team 1 name",
+     "type": "text",
+     "x": 266,
+     "y": 382,
+     "w": 396,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 1}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l52390647",
+     "name": "Team 1 name (2 stats)",
+     "type": "text",
+     "x": 266,
+     "y": 382,
+     "w": 252,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 1}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lc2c23c29",
+     "name": "Team 1 stat 2",
+     "type": "text",
+     "x": 534,
+     "y": 382,
+     "w": 148,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 1 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 42,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l44fc7238",
+     "name": "Team 1 stat",
+     "type": "text",
+     "x": 692,
+     "y": 382,
+     "w": 220,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 1 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 52,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l3d18d639",
+     "name": "Column 1 stat title",
+     "type": "text",
+     "x": 682,
+     "y": 342,
+     "w": 240,
+     "h": 34,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Stat 1 title}}",
+     "font": "Vazirmatn-Black",
+     "size": 24,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat titles shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l4a9797ef",
+     "name": "Column 1 stat 2 title",
+     "type": "text",
+     "x": 534,
+     "y": 342,
+     "w": 148,
+     "h": 34,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Stat 2 title}}",
+     "font": "Vazirmatn-Black",
+     "size": 24,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l4d0f18e1",
+     "name": "Team 2 bar",
+     "type": "rect",
+     "x": 115,
+     "y": 524,
+     "w": 807,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lb5a5bab7",
+     "name": "Team 2 logo box",
+     "type": "rect",
+     "x": 115,
+     "y": 524,
+     "w": 122,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l969ccda6",
+     "name": "Team 2 stat 2 box",
+     "type": "rect",
+     "x": 534,
+     "y": 524,
+     "w": 170,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 2 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "le68cf374",
+     "name": "Team 2 stat box",
+     "type": "rect",
+     "x": 682,
+     "y": 524,
+     "w": 240,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l2d0788d5",
+     "name": "Team 2 logo",
+     "type": "image",
+     "x": 130,
+     "y": 539,
+     "w": 92,
+     "h": 85,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 2 logo}}",
+     "show": "{{Standings!Team 2 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l2889e1f4",
+     "name": "Team 2 name",
+     "type": "text",
+     "x": 266,
+     "y": 524,
+     "w": 396,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 2}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lfe99d37d",
+     "name": "Team 2 name (2 stats)",
+     "type": "text",
+     "x": 266,
+     "y": 524,
+     "w": 252,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 2}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l7b5452b3",
+     "name": "Team 2 stat 2",
+     "type": "text",
+     "x": 534,
+     "y": 524,
+     "w": 148,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 2 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 42,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l87fdfe1c",
+     "name": "Team 2 stat",
+     "type": "text",
+     "x": 692,
+     "y": 524,
+     "w": 220,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 2 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 52,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lc0b3bfcf",
+     "name": "Team 3 bar",
+     "type": "rect",
+     "x": 115,
+     "y": 682,
+     "w": 807,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 3 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lf9ef1a88",
+     "name": "Team 3 logo box",
+     "type": "rect",
+     "x": 115,
+     "y": 682,
+     "w": 122,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 3 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l92b0ba51",
+     "name": "Team 3 stat 2 box",
+     "type": "rect",
+     "x": 534,
+     "y": 682,
+     "w": 170,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 3 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l00065b35",
+     "name": "Team 3 stat box",
+     "type": "rect",
+     "x": 682,
+     "y": 682,
+     "w": 240,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 3 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l683cf920",
+     "name": "Team 3 logo",
+     "type": "image",
+     "x": 130,
+     "y": 697,
+     "w": 92,
+     "h": 85,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 3 logo}}",
+     "show": "{{Standings!Team 3 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l630db2ff",
+     "name": "Team 3 name",
+     "type": "text",
+     "x": 266,
+     "y": 682,
+     "w": 396,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 3}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l74d9eea5",
+     "name": "Team 3 name (2 stats)",
+     "type": "text",
+     "x": 266,
+     "y": 682,
+     "w": 252,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 3}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l01fab714",
+     "name": "Team 3 stat 2",
+     "type": "text",
+     "x": 534,
+     "y": 682,
+     "w": 148,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 3 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 42,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l683f2992",
+     "name": "Team 3 stat",
+     "type": "text",
+     "x": 692,
+     "y": 682,
+     "w": 220,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 3 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 52,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "le64845c7",
+     "name": "Team 4 bar",
+     "type": "rect",
+     "x": 115,
+     "y": 840,
+     "w": 807,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 4 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l62ec297a",
+     "name": "Team 4 logo box",
+     "type": "rect",
+     "x": 115,
+     "y": 840,
+     "w": 122,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 4 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l2e549eb6",
+     "name": "Team 4 stat 2 box",
+     "type": "rect",
+     "x": 534,
+     "y": 840,
+     "w": 170,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 4 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lbd314ddd",
+     "name": "Team 4 stat box",
+     "type": "rect",
+     "x": 682,
+     "y": 840,
+     "w": 240,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 4 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l1e84ccad",
+     "name": "Team 4 logo",
+     "type": "image",
+     "x": 130,
+     "y": 855,
+     "w": 92,
+     "h": 85,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 4 logo}}",
+     "show": "{{Standings!Team 4 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lee24ada4",
+     "name": "Team 4 name",
+     "type": "text",
+     "x": 266,
+     "y": 840,
+     "w": 396,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 4}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lf459a23d",
+     "name": "Team 4 name (2 stats)",
+     "type": "text",
+     "x": 266,
+     "y": 840,
+     "w": 252,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 4}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l9caa4f2d",
+     "name": "Team 4 stat 2",
+     "type": "text",
+     "x": 534,
+     "y": 840,
+     "w": 148,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 4 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 42,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lb4a5e5ba",
+     "name": "Team 4 stat",
+     "type": "text",
+     "x": 692,
+     "y": 840,
+     "w": 220,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 4 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 52,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l98135b57",
+     "name": "Team 5 bar",
+     "type": "rect",
+     "x": 998,
+     "y": 382,
+     "w": 807,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 5 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "la9634e18",
+     "name": "Team 5 logo box",
+     "type": "rect",
+     "x": 998,
+     "y": 382,
+     "w": 122,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 5 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "le92b849b",
+     "name": "Team 5 stat 2 box",
+     "type": "rect",
+     "x": 1417,
+     "y": 382,
+     "w": 170,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 5 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l6d72a59a",
+     "name": "Team 5 stat box",
+     "type": "rect",
+     "x": 1565,
+     "y": 382,
+     "w": 240,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 5 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lc98ba80e",
+     "name": "Team 5 logo",
+     "type": "image",
+     "x": 1013,
+     "y": 397,
+     "w": 92,
+     "h": 85,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 5 logo}}",
+     "show": "{{Standings!Team 5 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l679df0f5",
+     "name": "Team 5 name",
+     "type": "text",
+     "x": 1149,
+     "y": 382,
+     "w": 396,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 5}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l335edf15",
+     "name": "Team 5 name (2 stats)",
+     "type": "text",
+     "x": 1149,
+     "y": 382,
+     "w": 252,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 5}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l1f4ea6a4",
+     "name": "Team 5 stat 2",
+     "type": "text",
+     "x": 1417,
+     "y": 382,
+     "w": 148,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 5 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 42,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l14cfca7a",
+     "name": "Team 5 stat",
+     "type": "text",
+     "x": 1575,
+     "y": 382,
+     "w": 220,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 5 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 52,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l1b084c56",
+     "name": "Column 2 stat title",
+     "type": "text",
+     "x": 1565,
+     "y": 342,
+     "w": 240,
+     "h": 34,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Stat 1 title}}",
+     "font": "Vazirmatn-Black",
+     "size": 24,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat titles shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "la75e8f67",
+     "name": "Column 2 stat 2 title",
+     "type": "text",
+     "x": 1417,
+     "y": 342,
+     "w": 148,
+     "h": 34,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Stat 2 title}}",
+     "font": "Vazirmatn-Black",
+     "size": 24,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lbf2f330d",
+     "name": "Team 6 bar",
+     "type": "rect",
+     "x": 998,
+     "y": 524,
+     "w": 807,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 6 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l79729707",
+     "name": "Team 6 logo box",
+     "type": "rect",
+     "x": 998,
+     "y": 524,
+     "w": 122,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 6 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l0151b01a",
+     "name": "Team 6 stat 2 box",
+     "type": "rect",
+     "x": 1417,
+     "y": 524,
+     "w": 170,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 6 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l7d56498e",
+     "name": "Team 6 stat box",
+     "type": "rect",
+     "x": 1565,
+     "y": 524,
+     "w": 240,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 6 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l481fb0e0",
+     "name": "Team 6 logo",
+     "type": "image",
+     "x": 1013,
+     "y": 539,
+     "w": 92,
+     "h": 85,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 6 logo}}",
+     "show": "{{Standings!Team 6 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "le0fb1dae",
+     "name": "Team 6 name",
+     "type": "text",
+     "x": 1149,
+     "y": 524,
+     "w": 396,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 6}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "ldbb4e2d4",
+     "name": "Team 6 name (2 stats)",
+     "type": "text",
+     "x": 1149,
+     "y": 524,
+     "w": 252,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 6}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l515e6658",
+     "name": "Team 6 stat 2",
+     "type": "text",
+     "x": 1417,
+     "y": 524,
+     "w": 148,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 6 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 42,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l928e851b",
+     "name": "Team 6 stat",
+     "type": "text",
+     "x": 1575,
+     "y": 524,
+     "w": 220,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 6 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 52,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lab92a09f",
+     "name": "Team 7 bar",
+     "type": "rect",
+     "x": 998,
+     "y": 682,
+     "w": 807,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 7 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l6706867c",
+     "name": "Team 7 logo box",
+     "type": "rect",
+     "x": 998,
+     "y": 682,
+     "w": 122,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 7 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l3c193865",
+     "name": "Team 7 stat 2 box",
+     "type": "rect",
+     "x": 1417,
+     "y": 682,
+     "w": 170,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 7 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l85727381",
+     "name": "Team 7 stat box",
+     "type": "rect",
+     "x": 1565,
+     "y": 682,
+     "w": 240,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 7 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "le70be264",
+     "name": "Team 7 logo",
+     "type": "image",
+     "x": 1013,
+     "y": 697,
+     "w": 92,
+     "h": 85,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 7 logo}}",
+     "show": "{{Standings!Team 7 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l188620f5",
+     "name": "Team 7 name",
+     "type": "text",
+     "x": 1149,
+     "y": 682,
+     "w": 396,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 7}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l33ffb1dc",
+     "name": "Team 7 name (2 stats)",
+     "type": "text",
+     "x": 1149,
+     "y": 682,
+     "w": 252,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 7}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l1811bf35",
+     "name": "Team 7 stat 2",
+     "type": "text",
+     "x": 1417,
+     "y": 682,
+     "w": 148,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 7 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 42,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "la6be066d",
+     "name": "Team 7 stat",
+     "type": "text",
+     "x": 1575,
+     "y": 682,
+     "w": 220,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 7 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 52,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l5928eda3",
+     "name": "Team 8 bar",
+     "type": "rect",
+     "x": 998,
+     "y": 840,
+     "w": 807,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 8 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l6eba62d7",
+     "name": "Team 8 logo box",
+     "type": "rect",
+     "x": 998,
+     "y": 840,
+     "w": 122,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 8 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l07115ea6",
+     "name": "Team 8 stat 2 box",
+     "type": "rect",
+     "x": 1417,
+     "y": 840,
+     "w": 170,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 8 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l163753b4",
+     "name": "Team 8 stat box",
+     "type": "rect",
+     "x": 1565,
+     "y": 840,
+     "w": 240,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 22,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 8 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l6314640a",
+     "name": "Team 8 logo",
+     "type": "image",
+     "x": 1013,
+     "y": 855,
+     "w": 92,
+     "h": 85,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 8 logo}}",
+     "show": "{{Standings!Team 8 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l533b9e33",
+     "name": "Team 8 name",
+     "type": "text",
+     "x": 1149,
+     "y": 840,
+     "w": 396,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 8}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lb7178c68",
+     "name": "Team 8 name (2 stats)",
+     "type": "text",
+     "x": 1149,
+     "y": 840,
+     "w": 252,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 8}}",
+     "font": "Vazirmatn-Bold",
+     "size": 35,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "laf1661df",
+     "name": "Team 8 stat 2",
+     "type": "text",
+     "x": 1417,
+     "y": 840,
+     "w": 148,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 8 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 42,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l52dbeaaa",
+     "name": "Team 8 stat",
+     "type": "text",
+     "x": 1575,
+     "y": 840,
+     "w": 220,
+     "h": 115,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 8 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 52,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    }
+   ]
+  },
+  {
+   "id": "ccdebd23d",
+   "name": "Standings (16 teams)",
+   "layer": 0,
+   "width": 1920,
+   "height": 1080,
+   "kind": "board",
+   "layers": [
+    {
+     "id": "l981b0d48",
+     "name": "Backdrop",
+     "type": "image",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 0.749,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 24
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Player stats/Layer 1.png",
+     "fit": "fill",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "screen",
+     "id": "l06ab7369",
+     "name": "Background loop",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!BG loop}}",
+     "fit": "cover",
+     "loop": true,
+     "audio": false,
+     "tint": "{{Global!BG loop colour}}",
+     "brightness": "{{Global!BG loop brightness}}",
+     "speed": "{{Global!BG loop speed}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "ld2a31115",
+     "name": "League logo",
+     "type": "image",
+     "x": 292,
+     "y": 126,
+     "w": 516,
+     "h": 132,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!Tournament logo}}",
+     "placeholder": "assets/Standings/League logo.png",
+     "fit": "contain",
+     "position": "right",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lda2866df",
+     "name": "Title",
+     "type": "text",
+     "x": 911,
+     "y": 104,
+     "w": 894,
+     "h": 110,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Title}}",
+     "font": "Vazirmatn-Black",
+     "size": 83,
+     "color": "#eda81f",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l04af8e78",
+     "name": "Subtitle",
+     "type": "text",
+     "x": 911,
+     "y": 170,
+     "w": 894,
+     "h": 110,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Subtitle}}",
+     "font": "Vazirmatn-Black",
+     "size": 83,
+     "color": "#eda81f",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l2ddcf321",
+     "name": "Team 1 bar",
+     "type": "rect",
+     "x": 115,
+     "y": 318,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 1 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l28ed4157",
+     "name": "Team 1 logo box",
+     "type": "rect",
+     "x": 115,
+     "y": 318,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 1 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l831d6b54",
+     "name": "Team 1 stat 2 box",
+     "type": "rect",
+     "x": 588,
+     "y": 318,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 1 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lfe81993d",
+     "name": "Team 1 stat box",
+     "type": "rect",
+     "x": 722,
+     "y": 318,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 1 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l4daeb7ae",
+     "name": "Team 1 logo",
+     "type": "image",
+     "x": 124,
+     "y": 327,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 1 logo}}",
+     "show": "{{Standings!Team 1 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l6a7b7f3f",
+     "name": "Team 1 name",
+     "type": "text",
+     "x": 223,
+     "y": 318,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 1}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l026d42cf",
+     "name": "Team 1 name (2 stats)",
+     "type": "text",
+     "x": 223,
+     "y": 318,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 1}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lc4641a92",
+     "name": "Team 1 stat 2",
+     "type": "text",
+     "x": 588,
+     "y": 318,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 1 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l22baafa3",
+     "name": "Team 1 stat",
+     "type": "text",
+     "x": 732,
+     "y": 318,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 1 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l5b854a9c",
+     "name": "Column 1 stat title",
+     "type": "text",
+     "x": 722,
+     "y": 278,
+     "w": 200,
+     "h": 34,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Stat 1 title}}",
+     "font": "Vazirmatn-Black",
+     "size": 24,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat titles shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "la8abf6d1",
+     "name": "Column 1 stat 2 title",
+     "type": "text",
+     "x": 588,
+     "y": 278,
+     "w": 134,
+     "h": 34,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Stat 2 title}}",
+     "font": "Vazirmatn-Black",
+     "size": 24,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l43aa1dc2",
+     "name": "Team 2 bar",
+     "type": "rect",
+     "x": 115,
+     "y": 403,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l76c99b79",
+     "name": "Team 2 logo box",
+     "type": "rect",
+     "x": 115,
+     "y": 403,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l6cf18770",
+     "name": "Team 2 stat 2 box",
+     "type": "rect",
+     "x": 588,
+     "y": 403,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 2 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "ld6b3a419",
+     "name": "Team 2 stat box",
+     "type": "rect",
+     "x": 722,
+     "y": 403,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l95b4f441",
+     "name": "Team 2 logo",
+     "type": "image",
+     "x": 124,
+     "y": 412,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 2 logo}}",
+     "show": "{{Standings!Team 2 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l11ae803b",
+     "name": "Team 2 name",
+     "type": "text",
+     "x": 223,
+     "y": 403,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 2}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "led2dfc24",
+     "name": "Team 2 name (2 stats)",
+     "type": "text",
+     "x": 223,
+     "y": 403,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 2}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lea181775",
+     "name": "Team 2 stat 2",
+     "type": "text",
+     "x": 588,
+     "y": 403,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 2 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l2ba603bd",
+     "name": "Team 2 stat",
+     "type": "text",
+     "x": 732,
+     "y": 403,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 2 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l4e95db31",
+     "name": "Team 3 bar",
+     "type": "rect",
+     "x": 115,
+     "y": 488,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 3 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l556c1861",
+     "name": "Team 3 logo box",
+     "type": "rect",
+     "x": 115,
+     "y": 488,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 3 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l51bfb7a8",
+     "name": "Team 3 stat 2 box",
+     "type": "rect",
+     "x": 588,
+     "y": 488,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 3 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l6dee07ac",
+     "name": "Team 3 stat box",
+     "type": "rect",
+     "x": 722,
+     "y": 488,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 3 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l480f47c5",
+     "name": "Team 3 logo",
+     "type": "image",
+     "x": 124,
+     "y": 497,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 3 logo}}",
+     "show": "{{Standings!Team 3 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lea743a43",
+     "name": "Team 3 name",
+     "type": "text",
+     "x": 223,
+     "y": 488,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 3}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l370a33b7",
+     "name": "Team 3 name (2 stats)",
+     "type": "text",
+     "x": 223,
+     "y": 488,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 3}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lba976f65",
+     "name": "Team 3 stat 2",
+     "type": "text",
+     "x": 588,
+     "y": 488,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 3 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "le518a59d",
+     "name": "Team 3 stat",
+     "type": "text",
+     "x": 732,
+     "y": 488,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 3 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l7cd3ef22",
+     "name": "Team 4 bar",
+     "type": "rect",
+     "x": 115,
+     "y": 573,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 4 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lcbd88cc9",
+     "name": "Team 4 logo box",
+     "type": "rect",
+     "x": 115,
+     "y": 573,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 4 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l541ef8c9",
+     "name": "Team 4 stat 2 box",
+     "type": "rect",
+     "x": 588,
+     "y": 573,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 4 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "la7717c88",
+     "name": "Team 4 stat box",
+     "type": "rect",
+     "x": 722,
+     "y": 573,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 4 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l2f7e4bdc",
+     "name": "Team 4 logo",
+     "type": "image",
+     "x": 124,
+     "y": 582,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 4 logo}}",
+     "show": "{{Standings!Team 4 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l7e10ccf6",
+     "name": "Team 4 name",
+     "type": "text",
+     "x": 223,
+     "y": 573,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 4}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l442f9529",
+     "name": "Team 4 name (2 stats)",
+     "type": "text",
+     "x": 223,
+     "y": 573,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 4}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "laaaebc13",
+     "name": "Team 4 stat 2",
+     "type": "text",
+     "x": 588,
+     "y": 573,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 4 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l09994fdd",
+     "name": "Team 4 stat",
+     "type": "text",
+     "x": 732,
+     "y": 573,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 4 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l887fdba2",
+     "name": "Team 5 bar",
+     "type": "rect",
+     "x": 115,
+     "y": 658,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 5 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l780e744c",
+     "name": "Team 5 logo box",
+     "type": "rect",
+     "x": 115,
+     "y": 658,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 5 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lbea13dee",
+     "name": "Team 5 stat 2 box",
+     "type": "rect",
+     "x": 588,
+     "y": 658,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 5 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lfca15f74",
+     "name": "Team 5 stat box",
+     "type": "rect",
+     "x": 722,
+     "y": 658,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 5 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "la1662594",
+     "name": "Team 5 logo",
+     "type": "image",
+     "x": 124,
+     "y": 667,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 5 logo}}",
+     "show": "{{Standings!Team 5 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l95c6e294",
+     "name": "Team 5 name",
+     "type": "text",
+     "x": 223,
+     "y": 658,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 5}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l015dd862",
+     "name": "Team 5 name (2 stats)",
+     "type": "text",
+     "x": 223,
+     "y": 658,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 5}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lafff592b",
+     "name": "Team 5 stat 2",
+     "type": "text",
+     "x": 588,
+     "y": 658,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 5 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l5d760572",
+     "name": "Team 5 stat",
+     "type": "text",
+     "x": 732,
+     "y": 658,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 5 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l18c9afc7",
+     "name": "Team 6 bar",
+     "type": "rect",
+     "x": 115,
+     "y": 743,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 6 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l4bbe2991",
+     "name": "Team 6 logo box",
+     "type": "rect",
+     "x": 115,
+     "y": 743,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 6 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l8e38e212",
+     "name": "Team 6 stat 2 box",
+     "type": "rect",
+     "x": 588,
+     "y": 743,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 6 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "laab8993f",
+     "name": "Team 6 stat box",
+     "type": "rect",
+     "x": 722,
+     "y": 743,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 6 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "labc2ab87",
+     "name": "Team 6 logo",
+     "type": "image",
+     "x": 124,
+     "y": 752,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 6 logo}}",
+     "show": "{{Standings!Team 6 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l2d098bf7",
+     "name": "Team 6 name",
+     "type": "text",
+     "x": 223,
+     "y": 743,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 6}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l40d9f77f",
+     "name": "Team 6 name (2 stats)",
+     "type": "text",
+     "x": 223,
+     "y": 743,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 6}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lcf758ac6",
+     "name": "Team 6 stat 2",
+     "type": "text",
+     "x": 588,
+     "y": 743,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 6 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l0319f7ff",
+     "name": "Team 6 stat",
+     "type": "text",
+     "x": 732,
+     "y": 743,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 6 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l31a25bb0",
+     "name": "Team 7 bar",
+     "type": "rect",
+     "x": 115,
+     "y": 828,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 7 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l652c1c87",
+     "name": "Team 7 logo box",
+     "type": "rect",
+     "x": 115,
+     "y": 828,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 7 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "la2c42523",
+     "name": "Team 7 stat 2 box",
+     "type": "rect",
+     "x": 588,
+     "y": 828,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 7 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lc561dbf8",
+     "name": "Team 7 stat box",
+     "type": "rect",
+     "x": 722,
+     "y": 828,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 7 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l325038a2",
+     "name": "Team 7 logo",
+     "type": "image",
+     "x": 124,
+     "y": 837,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 7 logo}}",
+     "show": "{{Standings!Team 7 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lb3f7298d",
+     "name": "Team 7 name",
+     "type": "text",
+     "x": 223,
+     "y": 828,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 7}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "la22e911b",
+     "name": "Team 7 name (2 stats)",
+     "type": "text",
+     "x": 223,
+     "y": 828,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 7}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l7b1d8241",
+     "name": "Team 7 stat 2",
+     "type": "text",
+     "x": 588,
+     "y": 828,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 7 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l4c2cf7c0",
+     "name": "Team 7 stat",
+     "type": "text",
+     "x": 732,
+     "y": 828,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 7 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lfe419c16",
+     "name": "Team 8 bar",
+     "type": "rect",
+     "x": 115,
+     "y": 913,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 8 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "le1b440ae",
+     "name": "Team 8 logo box",
+     "type": "rect",
+     "x": 115,
+     "y": 913,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 8 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l85bdce9e",
+     "name": "Team 8 stat 2 box",
+     "type": "rect",
+     "x": 588,
+     "y": 913,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 8 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l4e877678",
+     "name": "Team 8 stat box",
+     "type": "rect",
+     "x": 722,
+     "y": 913,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 8 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lc29d6c52",
+     "name": "Team 8 logo",
+     "type": "image",
+     "x": 124,
+     "y": 922,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 8 logo}}",
+     "show": "{{Standings!Team 8 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l0e70d003",
+     "name": "Team 8 name",
+     "type": "text",
+     "x": 223,
+     "y": 913,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 8}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "le75704e1",
+     "name": "Team 8 name (2 stats)",
+     "type": "text",
+     "x": 223,
+     "y": 913,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 8}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l4038fbaa",
+     "name": "Team 8 stat 2",
+     "type": "text",
+     "x": 588,
+     "y": 913,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 8 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lc1295724",
+     "name": "Team 8 stat",
+     "type": "text",
+     "x": 732,
+     "y": 913,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-left",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 8 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lc356f148",
+     "name": "Team 9 bar",
+     "type": "rect",
+     "x": 998,
+     "y": 318,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 9 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lafdd45db",
+     "name": "Team 9 logo box",
+     "type": "rect",
+     "x": 998,
+     "y": 318,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 9 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "ld452ed0f",
+     "name": "Team 9 stat 2 box",
+     "type": "rect",
+     "x": 1471,
+     "y": 318,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 9 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lafed9608",
+     "name": "Team 9 stat box",
+     "type": "rect",
+     "x": 1605,
+     "y": 318,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 9 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l5d4cc203",
+     "name": "Team 9 logo",
+     "type": "image",
+     "x": 1007,
+     "y": 327,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 9 logo}}",
+     "show": "{{Standings!Team 9 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lef29fc01",
+     "name": "Team 9 name",
+     "type": "text",
+     "x": 1106,
+     "y": 318,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 9}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l69a160c2",
+     "name": "Team 9 name (2 stats)",
+     "type": "text",
+     "x": 1106,
+     "y": 318,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 9}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l01bf13ab",
+     "name": "Team 9 stat 2",
+     "type": "text",
+     "x": 1471,
+     "y": 318,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 9 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l4f80e97a",
+     "name": "Team 9 stat",
+     "type": "text",
+     "x": 1615,
+     "y": 318,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 9 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l62ee0154",
+     "name": "Column 2 stat title",
+     "type": "text",
+     "x": 1605,
+     "y": 278,
+     "w": 200,
+     "h": 34,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Stat 1 title}}",
+     "font": "Vazirmatn-Black",
+     "size": 24,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat titles shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l47863f36",
+     "name": "Column 2 stat 2 title",
+     "type": "text",
+     "x": 1471,
+     "y": 278,
+     "w": 134,
+     "h": 34,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 150
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Stat 2 title}}",
+     "font": "Vazirmatn-Black",
+     "size": 24,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l4e3cc305",
+     "name": "Team 10 bar",
+     "type": "rect",
+     "x": 998,
+     "y": 403,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 10 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "ldfeb66d5",
+     "name": "Team 10 logo box",
+     "type": "rect",
+     "x": 998,
+     "y": 403,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 10 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l9e567090",
+     "name": "Team 10 stat 2 box",
+     "type": "rect",
+     "x": 1471,
+     "y": 403,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 10 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l0f32557a",
+     "name": "Team 10 stat box",
+     "type": "rect",
+     "x": 1605,
+     "y": 403,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 10 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l45601724",
+     "name": "Team 10 logo",
+     "type": "image",
+     "x": 1007,
+     "y": 412,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 10 logo}}",
+     "show": "{{Standings!Team 10 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l343f3c04",
+     "name": "Team 10 name",
+     "type": "text",
+     "x": 1106,
+     "y": 403,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 10}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l22178dbe",
+     "name": "Team 10 name (2 stats)",
+     "type": "text",
+     "x": 1106,
+     "y": 403,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 10}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lb71ba9d2",
+     "name": "Team 10 stat 2",
+     "type": "text",
+     "x": 1471,
+     "y": 403,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 10 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l0ff0de71",
+     "name": "Team 10 stat",
+     "type": "text",
+     "x": 1615,
+     "y": 403,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 10 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l5d5e2dc5",
+     "name": "Team 11 bar",
+     "type": "rect",
+     "x": 998,
+     "y": 488,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 11 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l5dc501f0",
+     "name": "Team 11 logo box",
+     "type": "rect",
+     "x": 998,
+     "y": 488,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 11 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l2f3efc81",
+     "name": "Team 11 stat 2 box",
+     "type": "rect",
+     "x": 1471,
+     "y": 488,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 11 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "le1e7dca3",
+     "name": "Team 11 stat box",
+     "type": "rect",
+     "x": 1605,
+     "y": 488,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 11 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l7b2a61fc",
+     "name": "Team 11 logo",
+     "type": "image",
+     "x": 1007,
+     "y": 497,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 11 logo}}",
+     "show": "{{Standings!Team 11 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l0f923388",
+     "name": "Team 11 name",
+     "type": "text",
+     "x": 1106,
+     "y": 488,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 11}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "ld56569dd",
+     "name": "Team 11 name (2 stats)",
+     "type": "text",
+     "x": 1106,
+     "y": 488,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 11}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l73dad0b2",
+     "name": "Team 11 stat 2",
+     "type": "text",
+     "x": 1471,
+     "y": 488,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 11 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lc089cb26",
+     "name": "Team 11 stat",
+     "type": "text",
+     "x": 1615,
+     "y": 488,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 250
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 11 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lf339a5da",
+     "name": "Team 12 bar",
+     "type": "rect",
+     "x": 998,
+     "y": 573,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 12 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l93c0c697",
+     "name": "Team 12 logo box",
+     "type": "rect",
+     "x": 998,
+     "y": 573,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 12 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l93e30d8c",
+     "name": "Team 12 stat 2 box",
+     "type": "rect",
+     "x": 1471,
+     "y": 573,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 12 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l759869d5",
+     "name": "Team 12 stat box",
+     "type": "rect",
+     "x": 1605,
+     "y": 573,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 12 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lab2589e5",
+     "name": "Team 12 logo",
+     "type": "image",
+     "x": 1007,
+     "y": 582,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 12 logo}}",
+     "show": "{{Standings!Team 12 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l9982adcc",
+     "name": "Team 12 name",
+     "type": "text",
+     "x": 1106,
+     "y": 573,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 12}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lf38e44e8",
+     "name": "Team 12 name (2 stats)",
+     "type": "text",
+     "x": 1106,
+     "y": 573,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 12}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l57a56733",
+     "name": "Team 12 stat 2",
+     "type": "text",
+     "x": 1471,
+     "y": 573,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 12 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "la84f45ac",
+     "name": "Team 12 stat",
+     "type": "text",
+     "x": 1615,
+     "y": 573,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 300
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 12 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l77f3f529",
+     "name": "Team 13 bar",
+     "type": "rect",
+     "x": 998,
+     "y": 658,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 13 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "la2377a18",
+     "name": "Team 13 logo box",
+     "type": "rect",
+     "x": 998,
+     "y": 658,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 13 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l5c96277e",
+     "name": "Team 13 stat 2 box",
+     "type": "rect",
+     "x": 1471,
+     "y": 658,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 13 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lc31aee04",
+     "name": "Team 13 stat box",
+     "type": "rect",
+     "x": 1605,
+     "y": 658,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 13 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l68f2c41c",
+     "name": "Team 13 logo",
+     "type": "image",
+     "x": 1007,
+     "y": 667,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 13 logo}}",
+     "show": "{{Standings!Team 13 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l68cf835a",
+     "name": "Team 13 name",
+     "type": "text",
+     "x": 1106,
+     "y": 658,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 13}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l1e1425d0",
+     "name": "Team 13 name (2 stats)",
+     "type": "text",
+     "x": 1106,
+     "y": 658,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 13}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l2bc95dbc",
+     "name": "Team 13 stat 2",
+     "type": "text",
+     "x": 1471,
+     "y": 658,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 13 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l22cc2c8d",
+     "name": "Team 13 stat",
+     "type": "text",
+     "x": 1615,
+     "y": 658,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 350
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 13 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lbe78e331",
+     "name": "Team 14 bar",
+     "type": "rect",
+     "x": 998,
+     "y": 743,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 14 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l043201a9",
+     "name": "Team 14 logo box",
+     "type": "rect",
+     "x": 998,
+     "y": 743,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 14 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l378be260",
+     "name": "Team 14 stat 2 box",
+     "type": "rect",
+     "x": 1471,
+     "y": 743,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 14 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lfcf9e807",
+     "name": "Team 14 stat box",
+     "type": "rect",
+     "x": 1605,
+     "y": 743,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 14 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l9d88acdc",
+     "name": "Team 14 logo",
+     "type": "image",
+     "x": 1007,
+     "y": 752,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 14 logo}}",
+     "show": "{{Standings!Team 14 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l372d1ae6",
+     "name": "Team 14 name",
+     "type": "text",
+     "x": 1106,
+     "y": 743,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 14}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l7e69ebd1",
+     "name": "Team 14 name (2 stats)",
+     "type": "text",
+     "x": 1106,
+     "y": 743,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 14}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l4cb49fd9",
+     "name": "Team 14 stat 2",
+     "type": "text",
+     "x": 1471,
+     "y": 743,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 14 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l1230077c",
+     "name": "Team 14 stat",
+     "type": "text",
+     "x": 1615,
+     "y": 743,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 400
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 14 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l0090a9b9",
+     "name": "Team 15 bar",
+     "type": "rect",
+     "x": 998,
+     "y": 828,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 15 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l5c8eda35",
+     "name": "Team 15 logo box",
+     "type": "rect",
+     "x": 998,
+     "y": 828,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 15 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l276c594e",
+     "name": "Team 15 stat 2 box",
+     "type": "rect",
+     "x": 1471,
+     "y": 828,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 15 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l95383f7c",
+     "name": "Team 15 stat box",
+     "type": "rect",
+     "x": 1605,
+     "y": 828,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 15 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l0780a310",
+     "name": "Team 15 logo",
+     "type": "image",
+     "x": 1007,
+     "y": 837,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 15 logo}}",
+     "show": "{{Standings!Team 15 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "le52905d5",
+     "name": "Team 15 name",
+     "type": "text",
+     "x": 1106,
+     "y": 828,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 15}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lf3bf7757",
+     "name": "Team 15 name (2 stats)",
+     "type": "text",
+     "x": 1106,
+     "y": 828,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 15}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lf26f9094",
+     "name": "Team 15 stat 2",
+     "type": "text",
+     "x": 1471,
+     "y": 828,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 15 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l381b2df1",
+     "name": "Team 15 stat",
+     "type": "text",
+     "x": 1615,
+     "y": 828,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 450
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 15 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l6190dcaa",
+     "name": "Team 16 bar",
+     "type": "rect",
+     "x": 998,
+     "y": 913,
+     "w": 807,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.75)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 16 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l617bc107",
+     "name": "Team 16 logo box",
+     "type": "rect",
+     "x": 998,
+     "y": 913,
+     "w": 90,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 16 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l27b4bc23",
+     "name": "Team 16 stat 2 box",
+     "type": "rect",
+     "x": 1471,
+     "y": 913,
+     "w": 150,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.3)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 16 stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lcaf1a723",
+     "name": "Team 16 stat box",
+     "type": "rect",
+     "x": 1605,
+     "y": 913,
+     "w": 200,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "fill": "rgba(0,0,0,0.5)",
+     "radius": 16,
+     "stroke": "rgba(255,255,255,0.3)",
+     "strokeWidth": 1,
+     "show": "{{Standings!Team 16 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l2fdfdc29",
+     "name": "Team 16 logo",
+     "type": "image",
+     "x": 1007,
+     "y": 922,
+     "w": 72,
+     "h": 54,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Standings!Team 16 logo}}",
+     "show": "{{Standings!Team 16 logo}}",
+     "fit": "contain",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l4fa36c92",
+     "name": "Team 16 name",
+     "type": "text",
+     "x": 1106,
+     "y": 913,
+     "w": 479,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 16}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!One stat}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lad999f81",
+     "name": "Team 16 name (2 stats)",
+     "type": "text",
+     "x": 1106,
+     "y": 913,
+     "w": 349,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 16}}",
+     "font": "Vazirmatn-Bold",
+     "size": 27,
+     "color": "#ffffff",
+     "align": "left",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": true,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 700,
+     "italic": false,
+     "scroll": 0,
+     "show": "{{Standings!Stat 2 shown}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l7058a340",
+     "name": "Team 16 stat 2",
+     "type": "text",
+     "x": 1471,
+     "y": 913,
+     "w": 134,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 16 stat 2}}",
+     "font": "Vazirmatn-Black",
+     "size": 29,
+     "color": "#ffffff",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 0,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "l985efe5b",
+     "name": "Team 16 stat",
+     "type": "text",
+     "x": 1615,
+     "y": 913,
+     "w": 180,
+     "h": 72,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "slide-right",
+       "dur": 450,
+       "delay": 500
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "text": "{{Standings!Team 16 stat 1}}",
+     "font": "Vazirmatn-Black",
+     "size": 36,
+     "color": "#eda81f",
+     "align": "center",
+     "valign": "middle",
+     "tracking": 200,
+     "caps": false,
+     "lineHeight": 1,
+     "fit": "shrink",
+     "weight": 900,
+     "italic": false,
+     "scroll": 0
+    }
+   ]
   }
  ],
  "transitions": [
@@ -20602,7 +28772,8 @@
    "2320941025e868b7",
    "ae6aa86ce5f7ec9b",
    "c03c7b06b7743f97",
-   "52c8a246a9e89aff"
+   "52c8a246a9e89aff",
+   "e0d937500c443d87"
   ],
   "Team stats": [
    "f5206d0a5a78daf3",
@@ -20712,6 +28883,8 @@
  ],
  "pack_new": [
   "Smash crews scoreboard",
+  "Standings (16 teams)",
+  "Standings (8 teams)",
   "Timer bug"
  ]
 }
