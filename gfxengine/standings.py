@@ -97,8 +97,8 @@ def rows(s, find=None, event=""):
            ["Stat 1 title", STATS[s["stat"]][0]], ["Stat 2 title", STATS[s["stat2"]][0] if s["stat2"] else ""],
            # (one box: the team's name has the room up to it; two: up to the second)
            ["Stat 2 shown", "1" if s["stat2"] else ""], ["One stat", "" if s["stat2"] else "1"],
-           # (the titles over the boxes: needed unless it's just the record)
-           ["Stat titles shown", "1" if s["stat2"] or s["stat"] != "record" else ""]]
+           # (the titles over the boxes: W-L, PTS...)
+           ["Stat titles shown", "1"]]
     for n, t in enumerate(s["teams"][:s["count"]], 1):
         info = (find(t["name"]) if find and t["name"] else None) or {}
         out += [[f"Team {n}", t["name"]], [f"Team {n} short", info.get("short") or t["name"]],
