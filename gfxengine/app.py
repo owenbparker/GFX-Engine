@@ -885,7 +885,10 @@ def make_handler(engine):
                 elif path == "/api/layer/blank":
                     result = {"layer": blank_layer(body.get("type", "text"))}
                 elif path == "/api/project":
-                    ws.rename(body.get("name", ""))
+                    if "name" in body:
+                        ws.rename(body.get("name", ""))
+                    if "stinger_anim_delay" in body:
+                        ws.set_stinger_delay(body["stinger_anim_delay"])
                 # --- workspaces ---
                 elif path == "/api/workspaces/create":
                     result = {"id": engine.create_workspace(body.get("name", ""), body.get("template", "scc"),

@@ -761,8 +761,8 @@
   GFX.animTypes = ["none", "fade", "slide-left", "slide-right", "slide-up", "slide-down", "wipe-right", "wipe-left",
     "wipe-down", "wipe-up", "grow-x", "grow-y", "scale", "pop", "blur"];
 
-  // Plays a graphic's layers in (or out). Resolves when done.
-  GFX.play = function (root, dir) {
+  // Plays a graphic's layers in (or out), `wait` ms from now. Resolves when done.
+  GFX.play = function (root, dir, wait) {
     const runs = [];
     for (const L of root.children) {
       const layer = L._layer;
@@ -771,7 +771,7 @@
       const inner = L.firstChild;
       if (!f || !inner) { if (dir === "out") inner && (inner.style.opacity = 0); continue; }
       const anim = inner.animate(dir === "in" ? f : f.slice().reverse(), {
-        duration: Math.max(1, +a.dur || 300), delay: Math.max(0, +a.delay || 0),
+        duration: Math.max(1, +a.dur || 300), delay: Math.max(0, +a.delay || 0) + Math.max(0, wait || 0),
         easing: a.ease || (dir === "in" ? EASE : EASE_OUT), fill: "both" });
       runs.push(anim.finished.catch(() => {}));
     }
@@ -832,7 +832,7 @@
       this.seen = { rev: state.rev, take, seq: bus.seq };
       if (tookNow) {
         // (one graphic's own output doesn't follow takes: it's on while switched on)
-        if (!this.opts.comp) return this.transition(want, t);
+        if (!this.opts.comp) return this.transition(want, t, state);
       }
       return this.sync(want, first ? "cut" : this.opts.bus === "preview" ? "cut" : "update");
     }
@@ -845,7 +845,8 @@
       for (const [id, root] of this.shown) {
         if (!ids.has(id)) {
           this.shown.delete(id);
-          this.out(root, mode, t);
+          // (under a stinger: gone at once, it's covered)
+          this.out(root, t.animAt ? "cut" : mode, t);
         } else {
           GFX.updateComp(root, want.comps.get(id), want.values[id] || {});
         }
@@ -873,7 +874,7 @@
     }
 
     in(root, mode, t) {
-      if (mode === "animate") GFX.play(root, "in");
+      if (mode === "animate") GFX.play(root, "in", t.animAt ? t.animAt - performance.now() : 0);
       else if (mode === "fade") root.animate([{ opacity: 0 }, { opacity: 1 }], { duration: t.dur || 500, easing: "linear" });
       else if (mode === "wipe") root.animate(wipe(t.direction, true), { duration: t.dur || 600, easing: EASE });
       requestAnimationFrame(() => root.querySelectorAll(".gfx-text").forEach(fit));
@@ -897,7 +898,7 @@
       for (const root of this.shown.values()) { root.getAnimations().forEach(a => a.finish()); GFX.finish(root); }
     }
 
-    transition(want, t) {
+    transition(want, t, state) {
       this.hurry();
       switch (t.type) {
         case "cut": return this.sync(want, "cut");
@@ -918,7 +919,7 @@
           }, () => {});
           return;
         }
-        case "stinger": return this.stinger(want, t);
+        case "stinger": return this.stinger(want, t, +state.project.stinger_anim_delay || 0);
         case "delay": {
           const timer = setTimeout(() => this.sync(want, "cut"), t.ms || 0);
           this.cleanup.push(() => { clearTimeout(timer); this.sync(want, "cut"); });
@@ -928,15 +929,19 @@
       }
     }
 
-    stinger(want, t) {
+    // animDelay: the new graphics come in under the stinger and play their
+    // intro animations this long (ms) after the TAKE, once it has cleared
+    // (0: they just cut in).
+    stinger(want, t, animDelay) {
       if (!t.src) return this.sync(want, "cut");
+      const animAt = performance.now() + animDelay;
       const v = this.stingerVideo(t.src);
       v.muted = !!this.opts.monitor || t.audio === false;
       v.volume = t.volume == null ? 1 : +t.volume;
       v.currentTime = 0;
       v.style.visibility = "visible";
       let swapped = false;
-      const swap = () => { if (!swapped) { swapped = true; this.sync(want, "cut"); } };
+      const swap = () => { if (!swapped) { swapped = true; animDelay > 0 ? this.sync(want, "animate", { animAt }) : this.sync(want, "cut"); } };
       const cutAt = Math.max(0, +t.cut || 0) / 1000;
       const hide = () => { v.pause(); v.style.visibility = "hidden"; v.removeEventListener("timeupdate", tick); };
       const tick = () => { if (v.currentTime >= cutAt) swap(); };

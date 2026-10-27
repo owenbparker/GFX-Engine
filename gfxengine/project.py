@@ -222,6 +222,17 @@ class Workspace:
             self.data["name"] = str(name)[:80]
             self.changed()
 
+    def set_stinger_delay(self, ms):
+        """How long after a stinger TAKE the new graphics start their intro
+        animations (ms; 0 = they cut in under the stinger, unanimated)."""
+        try:
+            ms = int(float(ms or 0))
+        except (TypeError, ValueError):
+            raise ValueError("The delay must be a number of milliseconds")
+        with self.lock:
+            self.data["stinger_anim_delay"] = max(0, min(ms, 60000))
+            self.changed()
+
     # --- assets --------------------------------------------------------
 
     def asset_path(self, rel):

@@ -241,6 +241,8 @@
     </div>
     <div class="takebar">
       <div id="tr-chips" class="tr-chips"></div>
+      <label id="stinger-delay-row" class="stinger-delay" title="When TAKE uses a stinger, the new graphics come in under it and play their animations this long after TAKE, so they're seen once the stinger clears. 0: they just cut in.">Delay Animations When Taking Stingers By:
+        <span><input id="stinger-delay" type="number" min="0" max="60000" step="50" placeholder="0"> ms</span></label>
       <button id="take" class="take" title="Preview to Program with the transition above (Space)">TAKE</button>
       <button id="cut" class="cut" title="Preview to Program at once (Enter)">CUT</button>
       <button id="pgm-clear" class="ghost" title="Take everything off Program">Clear Program</button>

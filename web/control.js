@@ -194,6 +194,17 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     btn.classList.add("busy");
     try { await api("/api/take", { transition: tid || chosen(App.state) }); } finally { setTimeout(() => btn.classList.remove("busy"), 400); }
   }
+  // How long after a stinger TAKE the graphics play their animations.
+  const delay = $("#stinger-delay");
+  delay.addEventListener("change", () => {
+    const ms = Math.max(0, Math.round(+delay.value || 0));
+    delay.value = ms || "";
+    api("/api/project", { stinger_anim_delay: ms });
+  });
+  App.on(s => {
+    $("#stinger-delay-row").hidden = !s.project.transitions.some(t => t.type === "stinger" && t.enabled !== false);
+    if (document.activeElement !== delay) delay.value = s.project.stinger_anim_delay || "";
+  });
   $("#take").addEventListener("click", () => take());
   $("#cut").addEventListener("click", () => take("cut"));
   $("#pgm-clear").addEventListener("click", () => api("/api/clear", { bus: "program", transition: chosen(App.state) }));
