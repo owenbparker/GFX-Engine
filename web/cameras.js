@@ -2,7 +2,7 @@
 // set from here (white balance, exposure, gain, zoom...).
 //
 // The cams are the SCC Player Cam app on the players' PCs, connected to the
-// League / VALORANT HUD. This page talks to each HUD's cam hub like the HUD's
+// League / VALORANT / CoD HUD. This page talks to each HUD's cam hub like the HUD's
 // own overlay does: it gets each cam's picture peer to peer (WebRTC, small),
 // and sends the cam {type: "camctl"} messages; Player Cam sets its camera
 // and answers with what the camera has and is set to ("camstate"). The cams
@@ -12,8 +12,8 @@
 
 (function cameras() {
   const ME = "ccr" + Math.random().toString(16).slice(2, 15);
-  const PORTS = { lol: 8777, valorant: 8778 };
-  const GAME_NAMES = { lol: "League HUD", valorant: "VALORANT HUD" };
+  const PORTS = { lol: 8777, valorant: 8778, cod: 8780 };
+  const GAME_NAMES = { lol: "League HUD", valorant: "VALORANT HUD", cod: "CoD HUD" };
   const hubs = {};   // HUD address -> { base, game, note, polling }
   const cams = {};   // "address|id" -> { hub, id, info, pc, video, tile, state, asked }
   let selected = null, active = false, listTimer = 0;
@@ -203,7 +203,7 @@
     const list = Object.values(cams).sort((a, b) => (a.hub.name + (a.info.seat || "") + camName(a)).localeCompare(b.hub.name + (b.info.seat || "") + camName(b)));
     const notes = Object.values(hubs).map(x => x.note).filter(Boolean);
     $("#cr-note").textContent = notes.join(" · ") || (!Object.keys(hubs).length
-      ? "No League or VALORANT HUD is connected to this engine. Connect one (its GFX Engine page), or add its address."
+      ? "No League, VALORANT or CoD HUD is connected to this engine. Connect one (its GFX Engine page), or add its address."
       : `${watching()}: ` + (list.length ? `${list.length} cam${list.length === 1 ? "" : "s"}`
         : "no player cams connected to it yet (players open SCC Player Cam and press Connect to HUD)."));
     for (const cam of list) { drawTile(cam); if (cam.tile.parentNode !== grid || grid.children[list.indexOf(cam)] !== cam.tile) grid.insertBefore(cam.tile, grid.children[list.indexOf(cam)] || null); }
@@ -352,7 +352,7 @@
     if (name && confirm(`Delete the lighting "${name}"?`)) await saveLooks(looks().filter(l => l.name !== name));
   });
   $("#cr-add").addEventListener("click", () => {
-    const typed = (prompt("A League or VALORANT HUD's address (e.g. 192.168.2.40:8778), or blank to forget the ones added:",
+    const typed = (prompt("A League, VALORANT or CoD HUD's address (e.g. 192.168.2.40:8778), or blank to forget the ones added:",
                           savedAddresses().map(a => a.replace(/^https?:\/\//, "")).join(", ")) ?? null);
     if (typed === null) return;
     const list = typed.split(/[,\s]+/).filter(Boolean).map(t => {
