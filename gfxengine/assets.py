@@ -2,7 +2,7 @@
 
 Adding a file does what that kind of file needs:
 
-    .psd                  becomes a new graphic (see psdimport)
+    .psd .psb             becomes a new graphic (see psdimport)
     .mov .avi .mkv ...    converted to WebM (see-through) or MP4 (see media)
     .zip                  unpacked: a PNG sequence becomes one video, fonts and
                           images are added, a Lottie animation keeps its images
@@ -30,7 +30,6 @@ REFUSED = {
     ".aet": "After Effects templates can't be played directly: export Lottie (.json) or render a .mov.",
     ".ai": "Illustrator files can't be used directly: export them as SVG or PNG.",
     ".prproj": "Premiere projects can't be used directly: export the video (.mp4 or .mov) instead.",
-    ".psb": "Large Document (.psb) files aren't supported: save as .psd.",
 }
 
 
@@ -48,7 +47,7 @@ def kind_of(name):
         return "lottie"
     if low.endswith((".csv", ".tsv", ".txt", ".xlsx", ".xlsm")):
         return "data"
-    if low.endswith(".psd"):
+    if low.endswith((".psd", ".psb")):
         return "psd"
     return "other"
 
@@ -147,22 +146,24 @@ class Assets:
 
     # --- adding --------------------------------------------------------
 
-    def add(self, name, src_path, fps=None):
+    def add(self, name, src_path, fps=None, graphic=False):
         """Takes in an uploaded file (already saved at src_path, which this
-        moves or removes). Returns {"assets": [paths], "comps": [comps],
-        "sources": [sources], "job": job id or None}."""
+        moves or removes). graphic: make a new graphic of it (Composer's
+        Import: design files and pictures, see docimport). Returns {"assets":
+        [paths], "comps": [comps], "sources": [sources], "job": job id or None}."""
         ext = os.path.splitext(name.lower())[1]
-        if ext in REFUSED:
+        if ext in REFUSED and not graphic:
             os.remove(src_path)
             raise ValueError(REFUSED[ext])
         kind = kind_of(name)
         result = {"assets": [], "comps": [], "sources": [], "job": None}
-        if kind == "psd":
-            from .psdimport import import_psd
+        if kind == "psd" or graphic:
+            from .docimport import import_file
             try:
-                comp, used_fonts = import_psd(src_path, self.ws, os.path.splitext(os.path.basename(name))[0])
+                comp, used_fonts = import_file(src_path, self.ws, os.path.basename(name))
             finally:
-                os.remove(src_path)
+                if os.path.exists(src_path):
+                    os.remove(src_path)
             self.ws.add_comp(comp)
             result["comps"].append(comp)
             have = {f["postscript"] for f in self.fonts()}

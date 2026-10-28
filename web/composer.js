@@ -84,6 +84,18 @@
     const r = await api("/api/comp/new", { name, after: compId });
     open(r.comp.id);
   });
+  $("#comp-import").addEventListener("click", () => $("#comp-import-file").click());
+  $("#comp-import-file").addEventListener("change", async e => {
+    const f = e.target.files[0];
+    e.target.value = "";
+    if (!f) return;
+    const r = await upload(f, true);
+    if (!(r && r.comps && r.comps[0])) return;
+    // (once the engine's update with the new graphic is here)
+    const id = r.comps[0].id;
+    for (let i = 0; i < 40 && !App.comp(id); i++) await new Promise(res => setTimeout(res, 100));
+    open(id);
+  });
   $("#comp-dup").addEventListener("click", async () => { if (compId) open((await api("/api/comp/duplicate", { id: compId })).comp.id); });
   $("#comp-del").addEventListener("click", async () => {
     if (!comp || !confirm(`Delete "${comp.name}"? It comes off air too.`)) return;
@@ -469,7 +481,7 @@
   }
 
   function renderProps() {
-    if (!comp) { props.replaceChildren(h("div", { class: "empty" }, "Make a graphic with + New, or add a Photoshop file in Assets.")); return; }
+    if (!comp) { props.replaceChildren(h("div", { class: "empty" }, "Make a graphic with + New, or Import a Photoshop file.")); return; }
     const l = layerById(selected);
     if (!l) return renderCompProps();
     const sections = [];

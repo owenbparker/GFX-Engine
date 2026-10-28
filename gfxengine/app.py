@@ -589,7 +589,7 @@ class Engine:
         if new:
             self.set_sources(self.ws.get()["sources"] + new)
 
-    def upload(self, name, rfile, length, fps=None):
+    def upload(self, name, rfile, length, fps=None, graphic=False):
         name = os.path.basename(name.replace("\\", "/"))
         if not name:
             raise ValueError("No file name")
@@ -607,7 +607,7 @@ class Engine:
         if left > 0:
             os.remove(tmp)
             raise ValueError("The upload was cut short")
-        result = self.assets.add(name, tmp, fps=fps)
+        result = self.assets.add(name, tmp, fps=fps, graphic=graphic)
         self.add_sources(result.get("sources"))
         self.assets_rev += 1
         self.changed()
@@ -844,7 +844,7 @@ def make_handler(engine):
                 if path == "/api/upload":
                     name = unquote(self.headers.get("X-Filename") or (q.get("name") or [""])[0])
                     fps = float((q.get("fps") or ["0"])[0]) or None
-                    return self._json(engine.upload(name, self.rfile, length, fps))
+                    return self._json(engine.upload(name, self.rfile, length, fps, graphic=(q.get("graphic") or [""])[0] == "1"))
                 if path in ("/api/teams/import", "/api/teams/logo", "/api/teams/photo"):
                     if length > 30 << 20:
                         raise ValueError("That file is too big (30 MB at most)")

@@ -273,7 +273,9 @@
 <main id="page-composer" class="page" hidden>
   <aside class="comp-left panel">
     <div class="panel-head"><h3>Graphics</h3>
-      <div class="row-gap"><button class="small" id="comp-new" title="New, empty graphic">+ New</button></div></div>
+      <div class="row-gap"><button class="small" id="comp-import" title="A new graphic from a Photoshop file (layers and text come across), OpenRaster or picture. Affinity, Krita, GIMP, Procreate: save as .psd first">Import</button>
+        <button class="small" id="comp-new" title="New, empty graphic">+ New</button>
+        <input type="file" id="comp-import-file" accept=".psd,.psb,.ora,.png,.jpg,.jpeg,.webp,.gif,.svg,.avif,.bmp,.afdesign,.afphoto,.afpub,.af,.kra,.xcf,.procreate,.clip,.ptg,.ai,.sketch,.fig" hidden></div></div>
     <div id="comp-list" class="comp-list"></div>
     <div class="panel-head"><h3>Layers</h3>
       <div class="add-layer">

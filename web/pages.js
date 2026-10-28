@@ -3,10 +3,10 @@
 "use strict";
 
 // --- adding files ----------------------------------------------------------------
-async function upload(file) {
+async function upload(file, graphic) {
   const fps = +($("#seq-fps") && $("#seq-fps").value) || 30;
-  toast(`Adding ${file.name}…`);
-  const r = await fetch(`/api/upload?fps=${fps}`, { method: "POST", headers: { "X-Filename": encodeURIComponent(file.name) }, body: file });
+  toast(graphic ? `Importing ${file.name}…` : `Adding ${file.name}…`);
+  const r = await fetch(`/api/upload?fps=${fps}${graphic ? "&graphic=1" : ""}`, { method: "POST", headers: { "X-Filename": encodeURIComponent(file.name) }, body: file });
   const data = await r.json().catch(() => ({}));
   if (!r.ok || data.error) { toast(`${file.name}: ${data.error || r.status}`, true); return null; }
   if (data.comps && data.comps.length) {

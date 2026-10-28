@@ -167,6 +167,66 @@ class PsdTests(unittest.TestCase):
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
+    def test_import_button(self):
+        # Composer's Import: PSB, OpenRaster, a picture; Affinity says how to export.
+        import zipfile
+        from psd_tools import PSDImage
+        from gfxengine.assets import Assets
+        tmp = tempfile.mkdtemp()
+        try:
+            ws = Workspace(os.path.join(tmp, "ws"), starter="")
+            assets = Assets(ws, None)
+
+            def add(name, write):
+                src = os.path.join(tmp, "up-" + name)
+                write(src)
+                return assets.add(name, src, graphic=True)
+            img = Image.new("RGBA", (1920, 1080), (0, 0, 0, 0))
+            img.paste((10, 120, 60, 255), (100, 800, 900, 980))
+
+            def psb(p):
+                psd = PSDImage.frompil(img)
+                psd._record.header.version = 2
+                psd.save(p)
+            comp = add("Big.psb", psb)["comps"][0]
+            self.assertEqual(comp["name"], "Big")
+            self.assertTrue(comp["layers"])
+
+            def ora(p):
+                with zipfile.ZipFile(p, "w") as z:
+                    z.writestr("mimetype", "image/openraster")
+                    z.writestr("stack.xml", '<image w="1920" h="1080"><stack>'
+                               '<layer name="Bar" src="data/bar.png" x="50" y="700" opacity="0.5"/>'
+                               '<stack name="G" x="10" y="0"><layer name="Back" src="data/back.png" x="0" y="0"/></stack>'
+                               '</stack></image>')
+                    for n, im in (("bar", Image.new("RGBA", (400, 80), (255, 0, 0, 255))),
+                                  ("back", Image.new("RGBA", (1920, 1080), (0, 0, 40, 255)))):
+                        import io
+                        b = io.BytesIO()
+                        im.save(b, "PNG")
+                        z.writestr(f"data/{n}.png", b.getvalue())
+            r = add("Lower.ora", ora)
+            layers = r["comps"][0]["layers"]
+            self.assertEqual([l["name"] for l in layers], ["Back", "Bar"])
+            self.assertEqual((layers[0]["x"], layers[1]["x"], layers[1]["y"], layers[1]["opacity"]), (10, 50, 700, 0.5))
+            self.assertTrue(os.path.isfile(ws.asset_path(layers[1]["src"])))
+
+            r = add("Logo.png", lambda p: Image.new("RGBA", (400, 200), (1, 2, 3, 255)).save(p))
+            layer = r["comps"][0]["layers"][0]
+            self.assertEqual((layer["x"], layer["y"], layer["w"], layer["h"]), (760, 440, 400, 200))
+            self.assertTrue(os.path.isfile(ws.asset_path(layer["src"])))
+
+            src = os.path.join(tmp, "x.afdesign")
+            with open(src, "wb") as f:
+                f.write(b"\x00\xffKA")
+            with self.assertRaisesRegex(ValueError, "Preserve Editability"):
+                assets.add("Scorebug.afdesign", src, graphic=True)
+            self.assertFalse(os.path.exists(src))
+            self.assertEqual(len(ws.data["compositions"]), 3)
+            ws.close()
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
 
 @unittest.skipUnless(media.ffmpeg_path(), "needs FFmpeg")
 class MediaTests(unittest.TestCase):
