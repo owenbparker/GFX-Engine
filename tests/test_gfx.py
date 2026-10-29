@@ -296,6 +296,23 @@ class StatsTests(unittest.TestCase):
         self.assertEqual((t["MVP"], t["MVP row 1"], t["Game"]), ("Rein", "15,000", "Overwatch"))
         t = dict(stats.rows(stats.read("overwatch", of), False, {}, "left 1")[1:])
         self.assertEqual(t["MVP row 4"], "12,345")
+        # Call of Duty: nothing until the HUD reads the end-of-game scoreboard
+        # (its names come all game); then K/D/A, DMG, K/D and kills, deaths, assists, damage.
+        cf = {"left_p1_ign": "JayK", "left_p1_name": "Jay K", "right_p1_ign": "IceDagger"}
+        self.assertIsNone(stats.read("cod", cf))
+        cf.update({"postgame": 1, "stats_final": 1, "left_p1_kills": 17, "left_p1_deaths": 10, "left_p1_assists": 6,
+                   "left_p1_damage": 1866, "left_p2_ign": "A47", "left_p2_kills": 23, "left_p2_deaths": 4,
+                   "left_p2_assists": 4, "left_p2_damage": 2188, "right_p1_kills": 10, "right_p1_deaths": 18,
+                   "right_p1_assists": 1, "right_p1_damage": 1038})
+        t = dict(stats.rows(stats.read("cod", cf), False)[1:])
+        self.assertEqual((t["Stat 1 title"], t["Stat 2 title"], t["Stat 3 title"]), ("K/D/A", "DMG", "K/D"))
+        self.assertEqual([t[f"Row {i} title"] for i in range(1, 5)], ["KILLS", "DEATHS", "ASSISTS", "DMG"])
+        self.assertEqual((t["Left player 1"], t["Left player 1 stat 1"], t["Left player 1 stat 2"], t["Left stat 1"], t["Left stat 2"]),
+                         ("JayK", "17/10/6", "1,866", "40/14/10", "4,054"))
+        self.assertEqual((t["MVP"], t["MVP row 1"], t["MVP row 4"], t["Game"]), ("A47", "23", "2,188", "Call of Duty"))
+        s = stats.Stats(tempfile.mkdtemp())
+        self.assertTrue(s.update("CoD HUD", "cod", cf))
+        self.assertFalse(s.live())     # (read after the game: FINAL)
 
     def test_player_stats_pick_and_roster(self):
         from gfxengine import stats

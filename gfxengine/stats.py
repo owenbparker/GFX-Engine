@@ -26,12 +26,14 @@ SIDES = ("left", "right")
 # and the Player stats rows ("Row 1"... 4). "kda" is K/D/A (3/1/7), "kd" the
 # kills per death.
 BASE = {"lol": ("kills", "deaths", "assists"), "valorant": ("kills", "deaths", "assists"), "rl": ("goals", "saves", "score"),
-        "overwatch": ("kills", "deaths", "assists")}
+        "overwatch": ("kills", "deaths", "assists"), "cod": ("kills", "deaths", "assists")}
 LAYOUT = {"lol": {"cols": ("kda", "cs", "dmg"), "rows": ("kda", "cs", "dmg", "gold")},
           "valorant": {"cols": ("acs", "kills", "deaths"), "rows": ("acs", "kills", "deaths", "assists")},
           "rl": {"cols": ("goals", "saves", "score"), "rows": ("goals", "saves", "assists", "score")},
-          "overwatch": {"cols": ("dmg", "kills", "deaths"), "rows": ("dmg", "kills", "deaths", "healing")}}
-NAMES = {"acs": "ACS", "kda": "K/D/A", "kd": "K/D", "cs": "CS", "vision": "VISION", "gold": "GOLD", "dmg": "DMG", "healing": "HEALING"}
+          "overwatch": {"cols": ("dmg", "kills", "deaths"), "rows": ("dmg", "kills", "deaths", "healing")},
+          "cod": {"cols": ("kda", "dmg", "kd"), "rows": ("kills", "deaths", "assists", "dmg")}}
+NAMES = {"acs": "ACS", "kda": "K/D/A", "kd": "K/D", "cs": "CS", "vision": "VISION", "gold": "GOLD", "dmg": "DMG", "healing": "HEALING",
+         "ntk": "NON-TRADED KILLS", "streak": "HIGHEST STREAK"}
 TITLES = {g: tuple(k.upper() for k in keys) for g, keys in BASE.items()}
 GAMES = {"lol": "League of Legends", "valorant": "VALORANT", "rl": "Rocket League", "cod": "Call of Duty",
          "smash": "Super Smash Bros. Ultimate", "overwatch": "Overwatch"}
@@ -123,7 +125,21 @@ def _overwatch(f):
     return teams
 
 
-READERS = {"lol": _lol, "valorant": _valorant, "rl": _rl, "overwatch": _overwatch}
+def _cod(f):
+    # (read off the end-of-game scoreboard by the CoD HUD: none until then, as
+    # its player names come all game long)
+    teams = {}
+    for side in SIDES:
+        players = [{"name": (f.get(f"{side}_p{n}_ign") or f.get(f"{side}_p{n}_name") or "") if f.get("postgame") else "",
+                    "character": "", "stats": [_int(f.get(f"{side}_p{n}_{x}")) for x in ("kills", "deaths", "assists")],
+                    "extra": "", "values": {"dmg": _int(f.get(f"{side}_p{n}_damage")), "ntk": _int(f.get(f"{side}_p{n}_ntk")),
+                                            "streak": _int(f.get(f"{side}_p{n}_streak"))}}
+                   for n in range(1, 6)]
+        teams[side] = {"score": _int(f.get(f"{side}_wins")), "players": players}
+    return teams
+
+
+READERS = {"lol": _lol, "valorant": _valorant, "rl": _rl, "overwatch": _overwatch, "cod": _cod}
 
 
 def read(game, fields):
@@ -285,7 +301,8 @@ class Stats:
         new = read(game, fields)
         if not new:
             return False
-        self.heard = time.time()
+        if not (fields or {}).get("stats_final"):   # (stats read after the game: FINAL already)
+            self.heard = time.time()
         new["source"] = source
         with self.lock:
             old = self.data
