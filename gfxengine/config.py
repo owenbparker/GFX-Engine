@@ -38,6 +38,11 @@ DEFAULTS = {
     "network_address": "",
     # This engine's name on the network.
     "name": "",
+    # This engine's own ID (made once): a game HUD pairs with it, so a HUD
+    # never sends to, or takes Global Information from, another engine.
+    "engine_id": "",
+    # The PC it was made on (a copy of this folder on another PC makes its own).
+    "engine_id_pc": "",
     # The workspace open (its folder in workspaces/).
     "workspace": "",
     # The Camera Control Room's saved lighting: [{"name", "cams": {"<pc>|<camera>":

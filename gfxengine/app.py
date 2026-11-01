@@ -25,6 +25,7 @@ import sys
 import tempfile
 import threading
 import time
+import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
@@ -50,6 +51,20 @@ for ext, kind in ((".ttf", "font/ttf"), (".otf", "font/otf"), (".woff", "font/wo
 PAGES = {"/": "/control", "/control": "control.html", "/output": "output.html"}
 
 
+# How long a HUD keeps its place on the engine after it last sent (another
+# copy of the same HUD is turned away meanwhile).
+FEED_HOLD = 12
+
+
+class Paired(ValueError):
+    """A HUD talking to an engine it isn't paired with (code "wrong_engine"),
+    or a second copy of a HUD the engine already has (code "taken")."""
+
+    def __init__(self, msg, code):
+        super().__init__(msg)
+        self.code = code
+
+
 def _is_local(ip):
     return ip in ("127.0.0.1", "::1", "::ffff:127.0.0.1")
 
@@ -71,6 +86,10 @@ class Engine:
         # Data sent by game HUDs ("League HUD" -> its fields), kept while the engine runs.
         self.feeds = {}
         self.feeds_rev = 0
+        if not self.settings.get().get("engine_id") or self.settings.get().get("engine_id_pc") != socket.gethostname():
+            self.settings.update({"engine_id": uuid.uuid4().hex[:16], "engine_id_pc": socket.gethostname()})
+        self.id = self.settings.get()["engine_id"]
+        self._turned_away = {}  # (HUD, address) -> when it was last logged
         self.ws = self.live = self.assets = self.sources = self.stats = None
         self._cond = threading.Condition()
         self._parts_lock = threading.Lock()
@@ -133,7 +152,7 @@ class Engine:
     def _beacon_info(self):
         s = self.settings.get()
         return {"name": self.name(), "port": s["http_port"], "network": s["allow_network"], "version": self.updater.current,
-                "address": s.get("network_address") or ""}
+                "address": s.get("network_address") or "", "id": self.id}
 
     def name(self):
         return self.settings.get().get("name") or socket.gethostname()
@@ -373,6 +392,13 @@ class Engine:
         self.changed()
         return logo
 
+    def check_paired(self, wanted):
+        """A HUD says which engine it's paired with (its ID): turn it away if
+        that isn't this one (another engine has its old address now...)."""
+        if wanted and str(wanted) != self.id:
+            raise Paired(f"This is a different GFX Engine ({self.name()}), not the one this HUD is paired with",
+                         "wrong_engine")
+
     def ingest(self, body, client):
         """A game HUD's data: its fields (a table named after the HUD) and the
         series score (into Global)."""
@@ -382,9 +408,18 @@ class Engine:
             raise ValueError("fields must be an object")
         rows = [["Field", "Value"]] + [[str(k)[:80], "" if v is None else str(v)[:500]] for k, v in fields.items()]
         old = self.feeds.get(name)
+        hud_id = str(body.get("hud_id") or "")[:40]
+        if old and time.time() - old["at"] < FEED_HOLD and (
+                (old.get("hud_id") != hud_id) if (hud_id and old.get("hud_id")) else (old["from"] != client)):
+            # Another copy of this HUD is sending here: the first one keeps the engine.
+            if time.time() - self._turned_away.get((name, client), 0) > 60:
+                self._turned_away[(name, client)] = time.time()
+                log(f"Turned away a second {name} from {client}: the one on {old['from']} is connected", "warn")
+            raise Paired(f"This GFX Engine ({self.name()}) already has a {name} connected, from {old['from']}. "
+                         f"Disconnect that one first.", "taken")
         was_live = self.stats.live()
         self.feeds[name] = {"rows": rows, "from": client, "game": str(body.get("game") or ""), "at": time.time(),
-                            "hud": self._hud_pages(name, body.get("hud"), client)}
+                            "hud": self._hud_pages(name, body.get("hud"), client), "hud_id": hud_id}
         if self.feeds[name]["hud"] != (old or {}).get("hud"):
             self.feeds_rev += 1
             self._add_hud_graphics(name, self.feeds[name]["hud"])
@@ -758,7 +793,7 @@ def make_handler(engine):
                 path = "/" + target
             if path == "/api/hello":
                 return self._json({"app": discover.APP, "name": engine.name(), "version": engine.updater.current,
-                                   "port": engine.settings.get()["http_port"]})
+                                   "port": engine.settings.get()["http_port"], "id": engine.id})
             if path == "/api/state":
                 return self._send(engine.state_json())
             if path == "/api/stream":
@@ -786,6 +821,10 @@ def make_handler(engine):
                 return self._json(engine.roster_links())
             if path == "/api/global":
                 # For game HUDs ("Use Global Information"): logos as addresses on this engine.
+                try:
+                    engine.check_paired((q.get("engine") or [""])[0])
+                except Paired as e:
+                    return self._json({"error": str(e), "code": e.code, "id": engine.id}, 409)
                 g = engine.global_config()
                 host = self.headers.get("Host") or f"localhost:{engine.settings.get()['http_port']}"
                 for side in ("left", "right"):
@@ -797,7 +836,7 @@ def make_handler(engine):
                                             else logo)
                 for sp in g["sponsors"]:
                     sp["logo_url"] = sp["logo"] if re.match(r"https?://", sp["logo"]) else f"http://{host}/{quote(sp['logo'])}"
-                return self._json({"global": g, "workspace": engine.ws.get()["name"], "engine": engine.name()})
+                return self._json({"global": g, "workspace": engine.ws.get()["name"], "engine": engine.name(), "id": engine.id})
             if path == "/api/pack":
                 return self._json({"graphics": engine.pack()})
             if path.startswith("/api/source/"):
@@ -909,15 +948,18 @@ def make_handler(engine):
                 elif path == "/api/teams":
                     result = {"teams": engine.save_teams(body.get("teams") or [])}
                 elif path == "/api/roster/links":
+                    engine.check_paired(body.get("engine"))
                     result = engine.roster_links(body.get("game"), body.get("fields"))
                 elif path == "/api/roster/link":
+                    engine.check_paired(body.get("engine"))
                     engine.link_player(body.get("side"), body.get("player", -1), body.get("ign", ""))
                     result = engine.roster_links(body.get("game"), body.get("fields"))
                 elif path == "/api/stats/clear":
                     engine.clear_stats()
                 elif path == "/api/ingest":
+                    engine.check_paired(body.get("engine"))
                     engine.ingest(body, self.client_address[0])
-                    result = {"ok": True, "global": engine.global_config()}
+                    result = {"ok": True, "global": engine.global_config(), "id": engine.id, "name": engine.name()}
                 # --- on air ---
                 elif path == "/api/companion":
                     result = companion.act(engine, body)
@@ -979,10 +1021,27 @@ def make_handler(engine):
                 self._json(result)
             except KeyError as e:
                 self._json({"error": f"Missing or unknown: {e}"}, 400)
+            except Paired as e:
+                self._json({"error": str(e), "code": e.code, "id": engine.id}, 409)
             except (ValueError, TypeError, OSError) as e:
                 self._json({"error": str(e)}, 400)
 
     return Handler
+
+
+class _HTTPServer(ThreadingHTTPServer):
+    """On Windows, SO_REUSEADDR lets a second program listen on a port that's
+    in use, and the two then share its connections at random (two engines on
+    one PC would each get half of every HUD's data). Take the port for this
+    engine alone there; a second copy then finds it taken and opens a window
+    onto this one."""
+    if os.name == "nt":
+        allow_reuse_address = False
+
+        def server_bind(self):
+            if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+                self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+            super().server_bind()
 
 
 class Server:
@@ -999,7 +1058,7 @@ class Server:
         self._bind(address, first=True)
 
     def _serve(self, host):
-        httpd = ThreadingHTTPServer((host, self.port), make_handler(self.engine))
+        httpd = _HTTPServer((host, self.port), make_handler(self.engine))
         httpd.daemon_threads = True
         threading.Thread(target=httpd.serve_forever, daemon=True).start()
         self.httpds[host] = httpd

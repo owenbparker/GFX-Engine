@@ -928,3 +928,88 @@ class HudBoardTests(unittest.TestCase):
             self.assertEqual([l["type"] for l in comps["VALORANT HUD/agent-select"]["layers"]], ["web"])
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+
+class EnginePairingTests(unittest.TestCase):
+    """Two GFX Engines on one network: a HUD only talks to the engine it
+    connected to, and an engine keeps one copy of each HUD."""
+
+    def _engine(self, port):
+        from gfxengine.app import Engine, start
+        tmp = tempfile.mkdtemp()
+        settings = Settings(os.path.join(tmp, "settings.json"))
+        settings.update({"http_port": port})
+        engine = Engine(settings, os.path.join(tmp, "workspaces"), starter=os.path.join(ROOT, "starter"),
+                        library_dir=os.path.join(tmp, "library"), legacy_dir=os.path.join(tmp, "none"))
+        engine.updater.check_in_background = lambda: None
+        start(engine)
+        self.addCleanup(engine.server.stop)
+        return engine, f"http://127.0.0.1:{port}"
+
+    def _hud(self, store, link):
+        hud = link.EngineLink("League HUD", "lol", lambda: {"fields": {"Blue kills": store["kills"]}},
+                              lambda g, fetch: g["left"]["name"], load=lambda: store.get("saved"),
+                              save=lambda d: store.update(saved=d))
+        self.addCleanup(hud.stop)
+        return hud
+
+    def _wait(self, test, secs=8):
+        end = time.time() + secs
+        while time.time() < end:
+            if test():
+                return True
+            time.sleep(0.1)
+        return False
+
+    def test_huds_stay_with_their_engine(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("enginelink", os.path.join(ROOT, "hud-link", "enginelink.py"))
+        link = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(link)
+        e1, url1 = self._engine(8797)
+        e2, url2 = self._engine(8798)
+        self.assertNotEqual(e1.id, e2.id)
+        self.assertEqual(Settings(e1.settings.path).get()["engine_id"], e1.id)   # (kept for next time)
+        e1.set_global({"left": {"name": "Show One"}})
+        e2.set_global({"left": {"name": "Show Two"}})
+
+        a = self._hud({"kills": 3}, link)
+        a.connect(url1)
+        self.assertEqual(a.engine_id, e1.id)
+        self.assertTrue(self._wait(lambda: a.ok and "League HUD" in e1.feeds))
+        self.assertEqual(e1.feeds["League HUD"]["rows"][1], ["Blue kills", "3"])
+
+        # A second League HUD sending to the same engine is turned away (no flip-flopping data).
+        b = self._hud({"kills": 9}, link)
+        b.connect(url1)
+        self.assertTrue(self._wait(lambda: b.error and "already has a League HUD" in b.error), b.error)
+        self.assertEqual(e1.feeds["League HUD"]["rows"][1], ["Blue kills", "3"])
+        b.disconnect()
+
+        # Its address now reaches the other engine: turned away there, and the HUD finds its own again.
+        link.scan = lambda port=8782: [{"url": url1, "id": e1.id, "name": "One"}, {"url": url2, "id": e2.id, "name": "Two"}]
+        a.url, a._looked_at = url2, time.time()   # (it looked just now: stays on the wrong address a moment)
+        self.assertTrue(self._wait(lambda: not a.ok and "isn't" in a.error), a.error)
+        self.assertNotIn("League HUD", e2.feeds)
+        a._looked_at = 0
+        self.assertTrue(self._wait(lambda: a.ok and a.url == url1))
+        self.assertNotIn("League HUD", e2.feeds)
+
+        # Use Global Information: from its own engine, even when its address now reaches another.
+        a.url = url2
+        self.assertEqual(a.use_global()["summary"], "Show One")
+        self.assertEqual(a.url, url1)
+        with self.assertRaises(urllib.error.HTTPError) as err:
+            urllib.request.urlopen(f"{url2}/api/global?engine={e1.id}", timeout=5)
+        self.assertEqual(err.exception.code, 409)
+        a.stop()
+
+        # A HUD connected before engines had IDs pairs with the engine at its address.
+        store = {"kills": 1, "saved": {"url": url2, "name": "Two", "connected": True}}
+        old = self._hud(store, link)
+        self.assertTrue(self._wait(lambda: old.ok and store["saved"].get("engine_id") == e2.id))
+        self.assertTrue(store["saved"]["hud_id"])
+        # Engines and HUDs from before (no IDs sent) still work.
+        req = urllib.request.Request(url1 + "/api/ingest", json.dumps({"source": "RL HUD", "fields": {"x": 1}}).encode(),
+                                     {"Content-Type": "application/json"})
+        self.assertTrue(json.loads(urllib.request.urlopen(req, timeout=5).read())["ok"])
