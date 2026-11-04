@@ -429,8 +429,9 @@ class Engine:
                 log(f"{name} connected from {client}")
         if self.stats.update(name, str(body.get("game") or ""), fields) or was_live != self.stats.live():
             self.feeds_rev += 1
-        # The series score into Global: a score the HUD changed (or its first,
-        # unless 0) - so connecting a HUD doesn't undo what was set here. Never
+        # The series score into Global: only a score the HUD changed while
+        # connected (a map won there) - so connecting a HUD, or restarting
+        # this engine, never puts an old score back over the one set here. Never
         # the HUD's team names, short names or colours: Global is where the teams
         # are set, and HUDs follow it (an old match's teams left in a HUD kept
         # replacing them).
@@ -448,10 +449,8 @@ class Engine:
                     value = int(team["score"])
                 except (TypeError, ValueError):
                     continue
-                first = "score" not in before
-                moved = not first and before.get("score") != team["score"]
-                first_score = first and value > 0   # (a HUD at 0-0 keeps the score set here)
-                if (moved or first_score) and value != g[side]["score"]:
+                moved = "score" in before and before.get("score") != team["score"]
+                if moved and value != g[side]["score"]:
                     changes.setdefault(side, {})["score"] = value
             bo = series.get("best_of")
             if bo and int(bo) != g["best_of"] and ("best_of" not in prev or prev.get("best_of") != bo):

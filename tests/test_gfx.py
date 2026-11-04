@@ -849,7 +849,11 @@ class ServerTests(unittest.TestCase):
             sc = dict(json.loads(get("/api/state"))["data"]["tables"]["Schedule"][1:])
             self.assertEqual((sc["Count"], sc["Match 1 when"], sc["Match 1 team 1 logo"], sc["Match 1 show"], sc["Match 2 show"]),
                              ("1", "TUE 10/20  |  7:30 PM", r["logo"], "1", ""))
-            # A game HUD's data: its own table, and the series score into Global.
+            # A game HUD's data: its own table, and the series score into Global
+            # (a score it changes: the one it connects with stays out).
+            post("/api/ingest", {"source": "League HUD", "game": "lol", "fields": {"Blue kills": 7, "Game time": "12:34"},
+                                 "series": {"left": {"score": 3}, "right": {"score": 3}, "best_of": 5}})
+            self.assertEqual(json.loads(get("/api/state"))["global"]["left"]["score"], 0)
             post("/api/ingest", {"source": "League HUD", "game": "lol", "fields": {"Blue kills": 7, "Game time": "12:34"},
                                  "series": {"left": {"score": 2}, "right": {"score": 1}, "best_of": 5}})
             state2 = json.loads(get("/api/state"))
@@ -996,7 +1000,7 @@ class EnginePairingTests(unittest.TestCase):
 
         def apply_global(g, fetch):
             for s in ("left", "right"):
-                cfg[s].update(name=g[s]["name"], short=g[s]["short"])
+                cfg[s].update(name=g[s]["name"], short=g[s]["short"], wins=g[s]["score"])
             return "teams"
 
         def swap():
@@ -1012,7 +1016,15 @@ class EnginePairingTests(unittest.TestCase):
         self.assertTrue(self._wait(lambda: names() == ("St. Clair Saints", "Winthrop University")), names())
         g = e.global_config()
         self.assertEqual((g["left"]["name"], g["left"]["short"], g["right"]["name"]), ("St. Clair Saints", "SCC", "Winthrop University"))
-        self.assertEqual(g["left"]["score"], 1)                       # (its score still goes to Global)
+        self.assertEqual((g["left"]["score"], cfg["left"]["wins"]), (0, 0))   # (its old score didn't go to Global: Global's came here)
+        # A map won in the HUD: its score goes to Global.
+        cfg["left"]["wins"] = 1
+        self.assertTrue(self._wait(lambda: e.global_config()["left"]["score"] == 1))
+        # The score changed in Global: followed.
+        e.set_global({"right": {"score": 1}})
+        self.assertTrue(self._wait(lambda: cfg["right"]["wins"] == 1))
+        e.set_global({"right": {"score": 0}})
+        self.assertTrue(self._wait(lambda: cfg["right"]["wins"] == 0))
         # The HUD's old teams come back: Global's are taken in again.
         cfg["left"].update(name="Bearrett + 2019 Kawhi", short="BK")
         self.assertTrue(self._wait(lambda: cfg["left"]["name"] == "St. Clair Saints"))
