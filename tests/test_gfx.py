@@ -857,6 +857,15 @@ class ServerTests(unittest.TestCase):
             self.assertEqual((state2["global"]["left"]["score"], state2["global"]["right"]["score"]), (2, 1))
             self.assertIn(["Game", "4"], state2["data"]["tables"]["Global"])
             self.assertIn("League HUD", state2["data"]["feeds"])
+            # Never its teams: Global's stay (a HUD's old match's teams kept replacing them).
+            before = {s: dict(state2["global"][s]) for s in ("left", "right")}
+            for _ in range(2):
+                post("/api/ingest", {"source": "League HUD", "game": "lol", "fields": {"Blue kills": 7},
+                                     "series": {"left": {"name": "Bearrett + 2019 Kawhi", "short": "BK", "score": 2, "color": "#00ff00"},
+                                                "right": {"name": "Vixed + DnD", "short": "VD", "score": 1}}})
+            after = json.loads(get("/api/state"))["global"]
+            for s in ("left", "right"):
+                self.assertEqual({k: after[s][k] for k in ("name", "short", "color")}, {k: before[s][k] for k in ("name", "short", "color")})
             post("/api/ingest", {"source": "League HUD", "game": "lol", "fields": {"P1 NAME": "Faker", "P1 KDA": "5/0/2"}})
             stats = dict(json.loads(get("/api/state"))["data"]["tables"]["Stats"][1:])
             self.assertEqual((stats["Status"], stats["MVP"], stats["MVP team"]), ("LIVE", "Faker", "St. Clair Saints"))
@@ -960,6 +969,71 @@ class EnginePairingTests(unittest.TestCase):
                 return True
             time.sleep(0.1)
         return False
+
+    def _link(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("enginelink", os.path.join(ROOT, "hud-link", "enginelink.py"))
+        link = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(link)
+        return link
+
+    def test_huds_follow_global_teams(self):
+        """A connected HUD takes the engine's Global teams in by itself, never
+        sends its own back, and swaps with the engine."""
+        link = self._link()
+        link.EngineLink.RECHECK = 0.5
+        e, url = self._engine(8799)
+        e.set_global({"left": {"name": "St. Clair Saints", "short": "SCC", "score": 0},
+                      "right": {"name": "Winthrop University", "short": "WU", "score": 0}})
+        cfg = {"left": {"name": "Bearrett + 2019 Kawhi", "short": "BK", "wins": 1},
+               "right": {"name": "Vixed + DnD", "short": "VD", "wins": 0}}
+        swaps = []
+
+        def snapshot():
+            return {"fields": {"Left": cfg["left"]["name"]},
+                    "series": {s: {"name": cfg[s]["name"], "short": cfg[s]["short"], "score": cfg[s]["wins"], "color": "#00ff00"}
+                               for s in ("left", "right")}}
+
+        def apply_global(g, fetch):
+            for s in ("left", "right"):
+                cfg[s].update(name=g[s]["name"], short=g[s]["short"])
+            return "teams"
+
+        def swap():
+            swaps.append(1)
+            cfg["left"], cfg["right"] = cfg["right"], cfg["left"]
+
+        store = {}
+        hud = link.EngineLink("VALORANT HUD", "valorant", snapshot, apply_global, load=lambda: store.get("saved"),
+                              save=lambda d: store.update(saved=d), swap=swap)
+        self.addCleanup(hud.stop)
+        hud.connect(url)
+        names = lambda: (cfg["left"]["name"], cfg["right"]["name"])
+        self.assertTrue(self._wait(lambda: names() == ("St. Clair Saints", "Winthrop University")), names())
+        g = e.global_config()
+        self.assertEqual((g["left"]["name"], g["left"]["short"], g["right"]["name"]), ("St. Clair Saints", "SCC", "Winthrop University"))
+        self.assertEqual(g["left"]["score"], 1)                       # (its score still goes to Global)
+        # The HUD's old teams come back: Global's are taken in again.
+        cfg["left"].update(name="Bearrett + 2019 Kawhi", short="BK")
+        self.assertTrue(self._wait(lambda: cfg["left"]["name"] == "St. Clair Saints"))
+        self.assertEqual(e.global_config()["left"]["name"], "St. Clair Saints")
+        # Changed in Global: followed.
+        e.set_global({"right": {"name": "Humber Hawks", "short": "HUM"}})
+        self.assertTrue(self._wait(lambda: cfg["right"]["name"] == "Humber Hawks"))
+        # Swapped in Global: the HUD swaps its sides (wins too) once.
+        g = e.global_config()
+        e.set_global({"left": g["right"], "right": g["left"]})
+        self.assertTrue(self._wait(lambda: names() == ("Humber Hawks", "St. Clair Saints")), names())
+        time.sleep(1.5)
+        self.assertEqual((len(swaps), cfg["right"]["wins"], cfg["left"]["wins"]), (1, 1, 0))
+        self.assertEqual(e.global_config()["right"]["score"], 1)
+        # The HUD's own Swap sides: swaps Global too, and isn't swapped back.
+        swap()
+        self.assertTrue(hud.swap_global())
+        time.sleep(1.5)
+        g = e.global_config()
+        self.assertEqual((g["left"]["name"], g["right"]["name"], g["left"]["score"]), ("St. Clair Saints", "Humber Hawks", 1))
+        self.assertEqual((names(), len(swaps)), (("St. Clair Saints", "Humber Hawks"), 2))
 
     def test_huds_stay_with_their_engine(self):
         import importlib.util

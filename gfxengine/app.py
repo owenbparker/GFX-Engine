@@ -429,9 +429,11 @@ class Engine:
                 log(f"{name} connected from {client}")
         if self.stats.update(name, str(body.get("game") or ""), fields) or was_live != self.stats.live():
             self.feeds_rev += 1
-        # The series into Global: a value the HUD changed (or its first, for the
-        # score, unless 0), and names only where Global has none - so connecting a HUD
-        # doesn't undo what was set here.
+        # The series score into Global: a score the HUD changed (or its first,
+        # unless 0) - so connecting a HUD doesn't undo what was set here. Never
+        # the HUD's team names, short names or colours: Global is where the teams
+        # are set, and HUDs follow it (an old match's teams left in a HUD kept
+        # replacing them).
         series = body.get("series") or {}
         prev = (old or {}).get("series") or {}
         self.feeds[name]["series"] = series
@@ -440,16 +442,17 @@ class Engine:
             changes = {}
             for side in ("left", "right"):
                 team, before = series.get(side) or {}, prev.get(side) or {}
-                for key in ("score", "name", "short", "color"):
-                    if team.get(key) in (None, ""):
-                        continue
-                    value = int(team[key]) if key == "score" else str(team[key])
-                    first = key not in before
-                    moved = not first and before.get(key) != team[key]
-                    blank = key != "score" and not g[side][key]
-                    first_score = first and key == "score" and value > 0   # (a HUD at 0-0 keeps the score set here)
-                    if (moved or blank or first_score) and value != g[side][key]:
-                        changes.setdefault(side, {})[key] = value
+                if not isinstance(team, dict) or team.get("score") in (None, ""):
+                    continue
+                try:
+                    value = int(team["score"])
+                except (TypeError, ValueError):
+                    continue
+                first = "score" not in before
+                moved = not first and before.get("score") != team["score"]
+                first_score = first and value > 0   # (a HUD at 0-0 keeps the score set here)
+                if (moved or first_score) and value != g[side]["score"]:
+                    changes.setdefault(side, {})["score"] = value
             bo = series.get("best_of")
             if bo and int(bo) != g["best_of"] and ("best_of" not in prev or prev.get("best_of") != bo):
                 changes["best_of"] = int(bo)
