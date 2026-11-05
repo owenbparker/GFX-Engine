@@ -28565,6 +28565,109 @@
      "scroll": 0
     }
    ]
+  },
+  {
+   "id": "cf6122240",
+   "name": "Sponsor board",
+   "layer": 0,
+   "width": 1920,
+   "height": 1080,
+   "kind": "board",
+   "layers": [
+    {
+     "id": "lf5b06329",
+     "name": "Backdrop",
+     "type": "image",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "opacity": 0.749,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 450,
+       "delay": 24
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "assets/Player stats/Layer 1.png",
+     "fit": "fill",
+     "loop": true
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "screen",
+     "id": "la4448da2",
+     "name": "Background loop",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 1920,
+     "h": 1080,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 0
+      },
+      "out": {
+       "type": "fade",
+       "dur": 250,
+       "delay": 0
+      }
+     },
+     "src": "{{Global!BG loop}}",
+     "fit": "cover",
+     "loop": true,
+     "audio": false,
+     "tint": "{{Global!BG loop colour}}",
+     "brightness": "{{Global!BG loop brightness}}",
+     "speed": "{{Global!BG loop speed}}"
+    },
+    {
+     "opacity": 1,
+     "rotation": 0,
+     "visible": true,
+     "blend": "normal",
+     "id": "lbcc8bbe8",
+     "name": "Sponsor",
+     "type": "image",
+     "x": 460,
+     "y": 290,
+     "w": 1000,
+     "h": 500,
+     "field": "",
+     "anim": {
+      "in": {
+       "type": "fade",
+       "dur": 600,
+       "delay": 200
+      },
+      "out": {
+       "type": "fade",
+       "dur": 300,
+       "delay": 0
+      }
+     },
+     "src": "{{Sponsors}}",
+     "fit": "contain",
+     "loop": true,
+     "mono": true,
+     "swap": "fade"
+    }
+   ]
   }
  ],
  "transitions": [
@@ -28883,6 +28986,7 @@
  ],
  "pack_new": [
   "Smash crews scoreboard",
+  "Sponsor board",
   "Standings (16 teams)",
   "Standings (8 teams)",
   "Timer bug"

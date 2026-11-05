@@ -204,12 +204,21 @@
     if (bar) bar.style.transform = `scaleX(${now.secs ? Math.max(0, now.left / now.secs) : 0})`;
     if (box._key === key) return;
     box._key = key;
-    const img = el("img", "gfx-rot-img", { objectFit: fitOf(layer.fit) });
+    // (layer.mono: each sponsor white unless it's set to keep its colours)
+    const white = layer.mono && now.index >= 0 && now.list[now.index].white;
+    const img = el("img", "gfx-rot-img", { objectFit: fitOf(layer.fit), filter: white ? "brightness(0) invert(1)" : "" });
     img.draggable = false;
     if (logo) img.src = url(encodeURI(logo));
     const old = [...box.querySelectorAll(".gfx-rot-img")];
     box.insertBefore(img, bar || null);
     if (first || box._opts.still || !old.length) { old.forEach(o => o.remove()); return; }
+    if (layer.swap === "fade") {
+      // The old one fades out, then the new one fades in.
+      for (const o of old) o.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 500, easing: "ease", fill: "forwards" })
+        .finished.then(() => o.remove(), () => o.remove());
+      img.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 700, delay: 500, easing: "ease", fill: "backwards" });
+      return;
+    }
     // The old one lifts away, the new one rises into place.
     for (const o of old) o.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateY(-35%) scale(.92)", filter: "blur(4px)" }],
       { duration: 450, easing: EASE_OUT, fill: "forwards" }).finished.then(() => o.remove(), () => o.remove());

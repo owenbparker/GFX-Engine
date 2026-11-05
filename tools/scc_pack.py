@@ -27,7 +27,7 @@ from gfxengine.project import new_id  # noqa: E402
 STARTER = os.path.join(ROOT, "starter")
 
 # Boards that fill the screen: the background loop plays over their backdrop.
-LOOP_BOARDS = ("Schedule", "Standings (8 teams)", "Standings (16 teams)", "Team stats", "Player stats", "Group bracket", "Top 8 bracket", "Final four",
+LOOP_BOARDS = ("Schedule", "Sponsor board", "Standings (8 teams)", "Standings (16 teams)", "Team stats", "Player stats", "Group bracket", "Top 8 bracket", "Final four",
                *(f"Player graphic ({n})" for n in range(1, 6)))
 # What each graphic is: one board and one lower third can be on air at a time.
 KINDS = {"lower third": ("Caster lower third",),
@@ -455,9 +455,13 @@ def link(data, starter=STARTER):
     for count in (8, 16):
         if f"Standings ({count} teams)" not in comps:
             data["compositions"].append(standings(comps, count, starter))
+    # The sponsor board: Global's sponsors fading one into the next over the background loop.
+    if "Sponsor board" not in comps:
+        data["compositions"].append(sponsor_board(comps))
     # (graphics new to the pack: workspaces made before get them too, once)
     data["pack_new"] = sorted(set(data.get("pack_new") or []) | {"Timer bug", "Smash crews scoreboard",
-                                                                 "Standings (8 teams)", "Standings (16 teams)"})
+                                                                 "Standings (8 teams)", "Standings (16 teams)",
+                                                                 "Sponsor board"})
 
     # Graphics no longer in the pack, and the files only they used.
     gone = [c for c in data["compositions"] if c["name"] in REMOVED]
@@ -638,6 +642,28 @@ def standings(comps, count, starter=STARTER):
                      "Vazirmatn-Black", "#ffffff", "center", head, show="{{Standings!Stat 2 shown}}"),
             ]
     return {"id": new_id("c"), "name": f"Standings ({count} teams)", "layer": 0, "width": 1920, "height": 1080,
+            "kind": "board", "layers": layers}
+
+
+def sponsor_board(comps):
+    """A full-screen board of Global's sponsors: one at a time, big in the
+    middle, each fading out and the next fading in (on its own seconds, like
+    every sponsor box), over the boards' backdrop and background loop."""
+    base = {"opacity": 1, "rotation": 0, "visible": True, "blend": "normal"}
+    layers = []
+    backdrop = next((l for l in (comps.get("Player stats") or {"layers": []})["layers"] if l["name"] == "Layer 1"), None)
+    if backdrop:
+        layers.append(dict(json.loads(json.dumps(backdrop)), id=new_id("l"), name="Backdrop"))
+    layers += [
+        dict(base, id=new_id("l"), name="Background loop", type="video", x=0, y=0, w=1920, h=1080, blend="screen",
+             field="", anim={"in": {"type": "fade", "dur": 600, "delay": 0}, "out": {"type": "fade", "dur": 250, "delay": 0}},
+             src="{{Global!BG loop}}", fit="cover", loop=True, audio=False, tint="{{Global!BG loop colour}}",
+             brightness="{{Global!BG loop brightness}}", speed="{{Global!BG loop speed}}"),
+        dict(base, id=new_id("l"), name="Sponsor", type="image", x=460, y=290, w=1000, h=500, field="",
+             anim={"in": {"type": "fade", "dur": 600, "delay": 200}, "out": {"type": "fade", "dur": 300, "delay": 0}},
+             src="{{Sponsors}}", fit="contain", loop=True, mono=True, swap="fade"),
+    ]
+    return {"id": new_id("c"), "name": "Sponsor board", "layer": 0, "width": 1920, "height": 1080,
             "kind": "board", "layers": layers}
 
 
