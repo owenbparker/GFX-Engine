@@ -28,12 +28,12 @@ SIDES = ("left", "right")
 BASE = {"lol": ("kills", "deaths", "assists"), "valorant": ("kills", "deaths", "assists"), "rl": ("goals", "saves", "score"),
         "overwatch": ("kills", "deaths", "assists"), "cod": ("kills", "deaths", "assists")}
 LAYOUT = {"lol": {"cols": ("kda", "cs", "dmg"), "rows": ("kda", "cs", "dmg", "gold")},
-          "valorant": {"cols": ("acs", "kills", "deaths"), "rows": ("acs", "kills", "deaths", "assists")},
+          "valorant": {"cols": ("kills", "deaths", "assists"), "rows": ("kills", "deaths", "assists", "fk")},
           "rl": {"cols": ("goals", "saves", "score"), "rows": ("goals", "saves", "assists", "score")},
           "overwatch": {"cols": ("dmg", "kills", "deaths"), "rows": ("dmg", "kills", "deaths", "healing")},
           "cod": {"cols": ("kda", "dmg", "kd"), "rows": ("kills", "deaths", "assists", "dmg")}}
 NAMES = {"acs": "ACS", "kda": "K/D/A", "kd": "K/D", "cs": "CS", "vision": "VISION", "gold": "GOLD", "dmg": "DMG", "healing": "HEALING",
-         "ntk": "NON-TRADED KILLS", "streak": "HIGHEST STREAK"}
+         "ntk": "NON-TRADED KILLS", "streak": "HIGHEST STREAK", "fk": "FIRST KILLS"}
 TITLES = {g: tuple(k.upper() for k in keys) for g, keys in BASE.items()}
 GAMES = {"lol": "League of Legends", "valorant": "VALORANT", "rl": "Rocket League", "cod": "Call of Duty",
          "smash": "Super Smash Bros. Ultimate", "overwatch": "Overwatch"}
@@ -93,7 +93,9 @@ def _valorant(f):
             players.append({"name": f.get(f"{S} P{n} NAME") or "", "character": f.get(f"{S} P{n} AGENT") or "",
                             "icon": _agent_icon(f.get(f"{S} P{n} AGENT")), "stats": [k, d, a],
                             "extra": f.get(f"{S} P{n} CREDITS", ""),
-                            "values": {"acs": _int(acs) if str(acs or "") != "" else acs_estimate(k, a, rounds)}})
+                            "values": {"acs": _int(acs) if str(acs or "") != "" else acs_estimate(k, a, rounds),
+                                       # (the round's first kill, counted by the HUD; "–" from a HUD too old to)
+                                       "fk": _int(f.get(f"{S} P{n} FK")) if f"{S} P{n} FK" in f else None}})
         teams[side] = {"score": _int(f.get(f"SCORE {S}")), "players": players}
     return teams
 

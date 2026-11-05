@@ -257,13 +257,14 @@ class MediaTests(unittest.TestCase):
 class StatsTests(unittest.TestCase):
     def test_games_to_one_table(self):
         from gfxengine import stats
-        f = {"LEFT P1 NAME": "Owen", "LEFT P1 AGENT": "Jett", "LEFT P1 K": "12", "LEFT P1 D": "4", "LEFT P1 A": "3",
+        f = {"LEFT P1 NAME": "Owen", "LEFT P1 AGENT": "Jett", "LEFT P1 K": "12", "LEFT P1 D": "4", "LEFT P1 A": "3", "LEFT P1 FK": "2",
              "RIGHT P1 NAME": "Sam", "RIGHT P1 K": "5", "RIGHT P1 D": "9", "SCORE LEFT": "7"}
         t = dict(stats.rows(stats.read("valorant", f), True, {"left": "SCC"})[1:])
-        self.assertEqual((t["Status"], t["Left score"], t["Left player 1"], t["Left player 1 stat 2"]), ("LIVE", "7", "Owen", "12"))
-        self.assertEqual((t["MVP"], t["MVP team"], t["MVP K/D"], t["Stat 1 title"]), ("Owen", "SCC", "3.00", "ACS"))
-        # VALORANT: ACS (estimated over the 7 rounds), kills, deaths; the big number is rounds won; agent icons.
-        self.assertEqual((t["Left player 1 stat 1"], t["Row 4 title"], t["Left kills"], t["Left total kills"]), ("354", "ASSISTS", "7", "12"))
+        self.assertEqual((t["Status"], t["Left score"], t["Left player 1"], t["Left player 1 stat 2"]), ("LIVE", "7", "Owen", "4"))
+        self.assertEqual((t["MVP"], t["MVP team"], t["MVP K/D"], t["Stat 1 title"]), ("Owen", "SCC", "3.00", "KILLS"))
+        # VALORANT: kills, deaths, assists (+ first kills on Player stats); the big number is rounds won; agent icons.
+        self.assertEqual((t["Left player 1 stat 1"], t["Left stat 3"], t["Row 4 title"], t["MVP row 4"], t["Left kills"],
+                          t["Left total kills"]), ("12", "3", "FIRST KILLS", "2", "7", "12"))
         pics = dict(stats.rows(stats.read("valorant", f), True, {}, "auto", None, {"team": {"left": "champion"}, "player": {"left": "headshot"}})[1:])
         self.assertEqual((pics["Left player 1 champion"], pics["MVP champion"]), ("agents/Jett.png", ""))
         lol = stats.read("lol", {"P1 NAME": "A", "P1 KDA": "3/1/7", "KILLS LEFT": 3})
@@ -325,7 +326,7 @@ class StatsTests(unittest.TestCase):
         auto = dict(stats.rows(stats.read("valorant", f), True, {}, "auto", look)[1:])
         self.assertEqual((auto["MVP"], auto["MVP name"], auto["MVP picked"], auto["MVP headshot shown"]), ("Sammy", "Sam Lee", "auto", ""))
         mine = dict(stats.rows(stats.read("valorant", f), True, {}, "left 1", look)[1:])
-        self.assertEqual((mine["MVP name"], mine["MVP flag"], mine["MVP headshot"], mine["MVP stat 2"]),
+        self.assertEqual((mine["MVP name"], mine["MVP flag"], mine["MVP headshot"], mine["MVP stat 1"]),
                          ("Owen Parker", "flags/ca.svg", "library/teams/players/o.png", "12"))
         other = dict(stats.rows(stats.read("valorant", f), True, {}, "right 1", look)[1:])
         self.assertEqual((other["MVP name"], other["MVP flag shown"]), ("Zed", ""))
