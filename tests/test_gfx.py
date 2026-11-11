@@ -944,6 +944,40 @@ class HudBoardTests(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class HudLookTests(unittest.TestCase):
+    def test_add_a_graphic_to_the_rocket_league_hud(self):
+        import io
+        import zipfile
+        from gfxengine.app import Engine
+        tmp = tempfile.mkdtemp()
+        try:
+            engine = Engine(Settings(os.path.join(tmp, "settings.json")), os.path.join(tmp, "workspaces"),
+                            starter=os.path.join(ROOT, "starter"), library_dir=os.path.join(tmp, "library"),
+                            legacy_dir=os.path.join(tmp, "none"))
+            if not engine.ws:
+                engine.create_workspace("Test")
+            comp = engine.ws.add_comp({"id": "crl", "name": "RL HUD", "layers": [
+                {"id": "l1", "type": "text", "text": "{{Rocket League HUD!target}}", "x": 0, "y": 0, "w": 10, "h": 10},
+                {"id": "l2", "type": "rect", "fill": "#fff", "meter": {"value": "{{Rocket League HUD!target_boost}}"},
+                 "when": [{"value": "{{Rocket League HUD!target}}", "op": "has"}], "x": 0, "y": 0, "w": 10, "h": 10}]})
+            self.assertIsNone(engine.hud_look("rl"))
+            with self.assertRaises(ValueError):
+                engine.add_to_hud(comp["id"], "lol")
+            engine.ingest({"source": "Rocket League HUD", "game": "rl", "fields": {"target": "ATOMIC", "look_rev": ""}}, "127.0.0.1")
+            meta = engine.add_to_hud(comp["id"], "rl")
+            self.assertEqual((meta["name"], meta["rev"]), ("RL HUD", 1))
+            self.assertEqual(engine.add_to_hud(comp["id"], "rl")["rev"], 2)
+            z = zipfile.ZipFile(io.BytesIO(engine.hud_look_file("rl")))
+            self.assertTrue({"index.html", "gfx-data.js", "runtime.js"} <= set(z.namelist()))
+            data = z.read("gfx-data.js").decode()
+            self.assertIn("Rocket League HUD", data)     # (the HUD's table, as it was)
+            self.assertNotIn('"Teams"', data)            # (not the data the graphic doesn't read)
+            huds = engine.hud_looks()
+            self.assertEqual((huds[0]["game"], huds[0]["connected"], huds[0]["look"]["rev"]), ("rl", True, 2))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
 class EnginePairingTests(unittest.TestCase):
     """Two GFX Engines on one network: a HUD only talks to the engine it
     connected to, and an engine keeps one copy of each HUD."""

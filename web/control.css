@@ -530,3 +530,12 @@ table.sheet td.c:hover { background: #1d3b5e; }
 .cr-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .cr-empty { padding: 20px 14px; }
 #page-cameras .page-head select { width: auto; }
+
+/* Composer: live data */
+.ly .fld.live { color: #39d98a; border-color: #1f6b47; margin-left: 4px; }
+.sect .rule { border-left: 2px solid #2e5a8a; padding-left: 8px; margin: 6px 0; display: grid; gap: 4px; }
+.sect .rule select, .sect .rule input { min-width: 0; }
+.links .link-row { display: grid; grid-template-columns: 1fr 1.4fr; gap: 6px; align-items: center; margin: 3px 0; }
+.links .link-row a { color: var(--text); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.links .link-row select { min-width: 0; width: 100%; }
+.hud-add .primary { margin-top: 8px; width: 100%; }

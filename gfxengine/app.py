@@ -54,6 +54,8 @@ PAGES = {"/": "/control", "/control": "control.html", "/output": "output.html"}
 # How long a HUD keeps its place on the engine after it last sent (another
 # copy of the same HUD is turned away meanwhile).
 FEED_HOLD = 12
+# The game HUDs a Composer graphic can be added to (as their overlay): game -> the HUD's name.
+HUD_LOOK_GAMES = {"rl": "Rocket League HUD"}
 
 
 class Paired(ValueError):
@@ -419,7 +421,8 @@ class Engine:
                          f"Disconnect that one first.", "taken")
         was_live = self.stats.live()
         self.feeds[name] = {"rows": rows, "from": client, "game": str(body.get("game") or ""), "at": time.time(),
-                            "hud": self._hud_pages(name, body.get("hud"), client), "hud_id": hud_id}
+                            "hud": self._hud_pages(name, body.get("hud"), client), "hud_id": hud_id,
+                            "look_rev": fields.get("look_rev")}
         if self.feeds[name]["hud"] != (old or {}).get("hud"):
             self.feeds_rev += 1
             self._add_hud_graphics(name, self.feeds[name]["hud"])
@@ -516,6 +519,70 @@ class Engine:
             out.append(blank_layer("video", name="Background loop", x=0, y=0, w=1920, h=1080, blend="screen", fit="cover",
                                    audio=False, src="{{Global!BG loop}}", tint="{{Global!BG loop colour}}",
                                    brightness="{{Global!BG loop brightness}}", speed="{{Global!BG loop speed}}"))
+        return out
+
+    # --- a graphic added to a game HUD ("Add to a HUD") ----------------------
+    # The graphic, its files and fonts, as the HTML export, kept for the game:
+    # that game's HUD, connected here, sees the new version and plays it as its
+    # own overlay with its own live data (see the Rocket League HUD's look.py).
+
+    def _looks_dir(self):
+        return os.path.join(self.ws.folder, "hud_looks")
+
+    def hud_look(self, game):
+        """What's kept for that game's HUD: {"game", "name", "comp", "at", "rev", "size"} or None."""
+        if game not in HUD_LOOK_GAMES:
+            return None
+        try:
+            with open(os.path.join(self._looks_dir(), game + ".json"), encoding="utf-8") as f:
+                return json.load(f)
+        except (OSError, ValueError):
+            return None
+
+    def hud_look_file(self, game):
+        meta = self.hud_look(game)
+        path = os.path.join(self._looks_dir(), game + ".zip")
+        if not meta or not os.path.isfile(path):
+            raise KeyError("Nothing has been added to that HUD yet")
+        with open(path, "rb") as f:
+            return f.read()
+
+    def add_to_hud(self, comp_id, game):
+        """Makes the graphic that game's HUD's overlay."""
+        if game not in HUD_LOOK_GAMES:
+            raise ValueError(f"The {GAMES.get(game, game)} HUD can't take a graphic yet")
+        comp = next((c for c in self.ws.get()["compositions"] if c["id"] == comp_id), None)
+        if not comp:
+            raise KeyError("No such graphic")
+        tables = self.data_snapshot()["tables"]
+        # (only the data the graphic reads: the whole of Teams would bring every team's logo)
+        used = {m.strip().lower() for m in re.findall(r"\{\{\s*([^!{}|]+)!", json.dumps(comp))}
+        if re.search(r"\{\{\s*sponsors", json.dumps(comp), re.I):
+            used.add("sponsors")
+        keep = {k: v for k, v in tables.items() if k.lower() in used or k in ("Global", "Sponsors")}
+        blob = export.build(self.ws, self.assets, [comp_id], {}, keep)
+        os.makedirs(self._looks_dir(), exist_ok=True)
+        old = self.hud_look(game) or {}
+        meta = {"game": game, "hud": HUD_LOOK_GAMES[game], "name": comp["name"], "comp": comp_id,
+                "at": time.time(), "rev": int(old.get("rev") or 0) + 1, "size": len(blob)}
+        tmp = os.path.join(self._looks_dir(), game + ".zip.tmp")
+        with open(tmp, "wb") as f:
+            f.write(blob)
+        os.replace(tmp, os.path.join(self._looks_dir(), game + ".zip"))
+        with open(os.path.join(self._looks_dir(), game + ".json"), "w", encoding="utf-8") as f:
+            json.dump(meta, f)
+        log(f'Added "{comp["name"]}" to the {HUD_LOOK_GAMES[game]} ({len(blob) // 1024} KB): it picks it up in a few seconds')
+        self.changed()
+        return meta
+
+    def hud_looks(self):
+        """For Composer: each game a HUD can take a graphic for, what it has, and whether that HUD is connected."""
+        out = []
+        for game, hud in HUD_LOOK_GAMES.items():
+            feed = self.feeds.get(hud)
+            out.append({"game": game, "name": GAMES[game], "hud": hud, "look": self.hud_look(game),
+                        "connected": bool(feed and time.time() - feed["at"] < 15),
+                        "from": feed["from"] if feed else "", "took": (feed or {}).get("look_rev")})
         return out
 
     def hud_rows(self):
@@ -845,6 +912,17 @@ def make_handler(engine):
                 return self._json(engine.sources.table(path.rsplit("/", 1)[1]))
             if path == "/api/stinger-cut":
                 return self._json({"cut": engine.stinger_cut((q.get("src") or [""])[0])})
+            if path == "/api/hud-look":
+                # A game HUD asking what graphic it should play (see add_to_hud).
+                game = (q.get("game") or [""])[0]
+                if (q.get("file") or [""])[0] == "1":
+                    try:
+                        return self._send(engine.hud_look_file(game), "application/zip")
+                    except KeyError as e:
+                        return self._json({"error": e.args[0]}, 404)
+                return self._json({"look": engine.hud_look(game), "id": engine.id})
+            if path == "/api/hud-looks":
+                return self._json({"huds": engine.hud_looks()})
             if path == "/api/export":
                 ids = [i for i in (q.get("comps") or [""])[0].split(",") if i]
                 bus = (q.get("bus") or ["preview"])[0]
@@ -923,6 +1001,9 @@ def make_handler(engine):
                     engine.delete_comp(body["id"])
                 elif path == "/api/comp/order":
                     ws.order_comps(body["ids"])
+                elif path == "/api/hud-look":
+                    result = {"look": engine.add_to_hud(body.get("comp") or "", body.get("game") or ""),
+                              "huds": engine.hud_looks()}
                 elif path == "/api/layer/blank":
                     result = {"layer": blank_layer(body.get("type", "text"))}
                 elif path == "/api/project":

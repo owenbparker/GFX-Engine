@@ -12,8 +12,8 @@
 
 (function cameras() {
   const ME = "ccr" + Math.random().toString(16).slice(2, 15);
-  const PORTS = { lol: 8777, valorant: 8778, cod: 8780 };
-  const GAME_NAMES = { lol: "League HUD", valorant: "VALORANT HUD", cod: "CoD HUD" };
+  const PORTS = { lol: 8777, valorant: 8778, cod: 8780, rl: 8781 };
+  const GAME_NAMES = { lol: "League HUD", valorant: "VALORANT HUD", cod: "CoD HUD", rl: "Rocket League HUD" };
   const hubs = {};   // HUD address -> { base, game, note, polling }
   const cams = {};   // "address|id" -> { hub, id, info, pc, video, tile, state, asked }
   let selected = null, active = false, listTimer = 0;
@@ -352,7 +352,7 @@
     if (name && confirm(`Delete the lighting "${name}"?`)) await saveLooks(looks().filter(l => l.name !== name));
   });
   $("#cr-add").addEventListener("click", () => {
-    const typed = (prompt("A League, VALORANT or CoD HUD's address (e.g. 192.168.2.40:8778), or blank to forget the ones added:",
+    const typed = (prompt("A League, VALORANT, CoD or Rocket League HUD's address (e.g. 192.168.2.40:8778), or blank to forget the ones added:",
                           savedAddresses().map(a => a.replace(/^https?:\/\//, "")).join(", ")) ?? null);
     if (typed === null) return;
     const list = typed.split(/[,\s]+/).filter(Boolean).map(t => {

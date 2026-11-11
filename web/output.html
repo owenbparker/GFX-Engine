@@ -99,6 +99,13 @@
       for (const id of ids) values[id] = Object.assign(values[id] || {}, fields);
       bus.sync(bus.wanted(state()), "update");
     };
+    // Live data from a game HUD the graphic was added to (its own page feeds it).
+    window.setData = function (tables, now) {
+      GFX.setClock(now);
+      GFX.setData(Object.assign({}, data.tables, tables));
+      bus.sync(bus.wanted(state()), "update");
+    };
+    if (window.GFX_FEED) window.GFX_FEED(window.setData);
     if (q.get("autoplay") !== "0") (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => setTimeout(window.play, 100));
   }
 })();

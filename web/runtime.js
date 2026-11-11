@@ -259,7 +259,7 @@
     }
     // A page of a game HUD (its agent select, its overlay...), live.
     if (t === "web") {
-      if (!value) return el("div");
+      if (!value) return opts.showHidden ? el("div", "gfx-media", { background: "repeating-linear-gradient(45deg,#2b2f36 0 12px,#22252b 12px 24px)", outline: "2px dashed #5b6270", outlineOffset: "-2px" }) : el("div");
       const f = el("iframe", "gfx-media", { border: "0", background: "transparent", pointerEvents: "none" });
       f.setAttribute("allowtransparency", "true");
       f.setAttribute("scrolling", "no");
@@ -601,8 +601,92 @@
     document.querySelectorAll(".gfx-L").forEach(L => {
       if (L._layer && L._layer.show) L.style.display = showing(L._layer) ? "" : "none";
       if (L._layer) restyle(L);
+      if (L._layer && L._layer.when && !L._edit) toggle(L);
     });
   }
+
+  // --- live data rules: "Show when" and "Fill by" ----------------------------
+  // layer.when: [{value: "{{Rocket League HUD!target_has_cam}}", op, to}], all
+  // true for the layer to show. When that changes on air the layer plays its
+  // own Out animation and hides (a cam box sliding down), or its In animation.
+  const truthy = v => { v = String(v == null ? "" : v).trim().toLowerCase(); return !!v && v !== "0" && v !== "false"; };
+  const num = v => { const n = parseFloat(String(v).replace(/[^0-9.+-]/g, "")); return isFinite(n) ? n : 0; };
+  GFX.test = function (rule) {
+    const v = GFX.resolve(rule.value).trim(), to = GFX.resolve(rule.to == null ? "" : rule.to).trim();
+    switch (rule.op || "has") {
+      case "has": return truthy(v);
+      case "empty": return !truthy(v);
+      case "is": return v.toLowerCase() === to.toLowerCase();
+      case "not": return v.toLowerCase() !== to.toLowerCase();
+      case ">=": return num(v) >= num(to);
+      case "<=": return num(v) <= num(to);
+      case ">": return num(v) > num(to);
+      case "<": return num(v) < num(to);
+      default: return true;
+    }
+  };
+  GFX.wanted = layer => (Array.isArray(layer.when) ? layer.when : [layer.when]).filter(r => r && r.value).every(GFX.test);
+  GFX.RULE_OPS = [["has", "has something"], ["empty", "is empty"], ["is", "is"], ["not", "isn't"],
+    [">=", "is at least"], ["<=", "is at most"], [">", "is more than"], ["<", "is less than"]];
+  function toggle(L, first) {
+    const want = GFX.wanted(L._layer);
+    if (L._on === want) return;
+    const was = L._on;
+    L._on = want;
+    // Faded rather than hidden (an empty series box): just the opacity.
+    if (L._layer.otherwise === "dim") {
+      L.style.visibility = "";
+      const to = want ? (L._layer.opacity == null ? 1 : L._layer.opacity) : 0.25;
+      if (first || was == null) L.style.opacity = to;
+      else L.animate([{ opacity: getComputedStyle(L).opacity }, { opacity: to }], { duration: 250, fill: "forwards" })
+        .finished.then(a => { L.style.opacity = to; }, () => {});
+      return;
+    }
+    const inner = L.firstChild;
+    if (L._anim) { L._anim.cancel(); L._anim = null; }
+    if (first || was == null || !inner) { L.style.visibility = want ? "" : "hidden"; return; }
+    const a = (L._layer.anim && L._layer.anim[want ? "in" : "out"]) || { type: "fade", dur: 300 };
+    const f = frames(a.type === "none" ? "fade" : a.type, L._layer);
+    L.style.visibility = "";
+    const run = inner.animate(want ? f : f.slice().reverse(), { duration: Math.max(1, +a.dur || 300),
+      easing: want ? EASE : EASE_OUT, fill: want ? "none" : "forwards" });
+    L._anim = run;
+    run.finished.then(() => { if (L._anim === run) { L._anim = null; if (!want) { L.style.visibility = "hidden"; run.cancel(); } } }, () => {});
+  }
+
+  // layer.meter: {value, max, dir: right|left|up|down|ring, start, sweep}:
+  // the layer is cut to how full the value is (a boost bar; the boost dial's
+  // ring, swept from "start" degrees round by "sweep").
+  function meter(L) {
+    const m = L._layer.meter, box = L.firstChild && L.firstChild.firstChild;
+    if (!m || !m.value || !box) return;
+    const raw = GFX.resolve(m.value).trim();
+    const max = num(GFX.resolve(m.max == null || m.max === "" ? "100" : m.max)) || 100;
+    const k = raw === "" ? (L._edit ? 1 : 0) : Math.max(0, Math.min(1, num(raw) / max));
+    const shape = [m.dir, m.start, m.sweep].join("|");
+    if (box._k == null || box._shape !== shape) { box._shape = shape; cut(box, m, box._k = k); return; }
+    if (Math.abs((box._to != null ? box._to : box._k) - k) < 0.0005) return;
+    // (eases from one value to the next, as the game's numbers come in)
+    const from = box._k, at = performance.now();
+    box._to = k;
+    cancelAnimationFrame(box._raf);
+    const step = now => {
+      const t = Math.min(1, (now - at) / 180);
+      cut(box, m, box._k = from + (k - from) * t);
+      if (t < 1) box._raf = requestAnimationFrame(step); else box._to = null;
+    };
+    box._raf = requestAnimationFrame(step);
+  }
+  function cut(box, m, k) {
+    const p = ((1 - k) * 100).toFixed(2) + "%";
+    if (m.dir === "ring") {
+      const mask = `conic-gradient(from ${+m.start || 0}deg, #000 ${(k * (+m.sweep || 360)).toFixed(2)}deg, transparent 0)`;
+      box.style.webkitMaskImage = box.style.maskImage = mask;
+    } else {
+      box.style.clipPath = { left: `inset(0 0 0 ${p})`, up: `inset(${p} 0 0 0)`, down: `inset(0 0 ${p} 0)` }[m.dir] || `inset(0 ${p} 0 0)`;
+    }
+  }
+
   // What a layer's look takes from the data as it changes: its colour
   // ({{Global!Caster primary}}) and where it's moved to ("dx dy scale", around
   // layer.origin on the canvas: the caster boxes, spaced out by how many there are).
@@ -616,6 +700,7 @@
     }
     if (layer.recolor) { const m = L.querySelector(".gfx-recolor"); if (m) m.style.background = GFX.resolve(layer.recolor) || "#ffffff"; }
     if (layer.type === "text" && hasTokens(layer.color)) { const b = L.querySelector(".gfx-text"); if (b) b.style.color = GFX.resolve(layer.color); }
+    if (layer.meter) meter(L);
   }
 
   // Text from a Photoshop file sits on its baseline where Photoshop put it,
@@ -684,7 +769,9 @@
     outer._extra = extraOf(layer);
     outer._layer = layer;
     outer._sig = JSON.stringify(layer);
-    if (layer.move || layer.recolor || hasTokens(layer.color)) restyle(outer);
+    outer._edit = !!opts.showHidden;
+    if (layer.move || layer.recolor || layer.meter || hasTokens(layer.color)) restyle(outer);
+    if (layer.when && !opts.showHidden) toggle(outer, true);
     return outer;
   }
 
@@ -720,6 +807,8 @@
       if (!L || L._sig !== JSON.stringify(layer) || L._value !== value || L._extra !== extraOf(layer)) {
         const fresh = buildLayer(layer, values, opts);
         if (layer.visible === false) fresh.style.visibility = "hidden";
+        // (a rule's layer rebuilt with new data: it carries on from where it was)
+        if (L && layer.when && !opts.showHidden && L._on !== fresh._on) { fresh._on = L._on; fresh.style.visibility = L.style.visibility; fresh.style.opacity = L.style.opacity; toggle(fresh); }
         if (L) { destroy(L); L.replaceWith(fresh); } else root.insertBefore(fresh, prev ? prev.nextSibling : root.firstChild);
         L = fresh;
       } else if (L.previousSibling !== prev && prev !== L) {

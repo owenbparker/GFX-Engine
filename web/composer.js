@@ -9,12 +9,13 @@
   let comp = null;            // our copy of it (changes are saved as they're made)
   let root = null;            // its element on the canvas
   let selected = null;        // selected layer id
+  const multi = new Set();    // more layers picked with Ctrl / Shift (their "Show when" set together)
   let scale = 0.5, offX = 0, offY = 0;
   let pending = false, lastSent = "";
   const undo = [], redo = [];
   try { compId = localStorage.getItem("gfx-edit"); } catch (e) { /* */ }
 
-  const TYPE_ICON = { text: "T", rect: "▭", image: "🖼", video: "▶", lottie: "✦", bracket: "⊏" };
+  const TYPE_ICON = { text: "T", rect: "▭", image: "🖼", video: "▶", lottie: "✦", bracket: "⊏", web: "◫" };
 
   // --- saving ------------------------------------------------------------
   const saveSoon = debounce(save, 120);
@@ -111,8 +112,8 @@
     if (!comp) { list.replaceChildren(); return; }
     // Top layer first, as in Photoshop.
     list.replaceChildren(...[...comp.layers].reverse().map(l => h("div", {
-      class: "ly" + (l.id === selected ? " sel" : ""), draggable: true,
-      onclick: () => selectLayer(l.id),
+      class: "ly" + (l.id === selected || multi.has(l.id) ? " sel" : ""), draggable: true,
+      onclick: e => (e.ctrlKey || e.metaKey || e.shiftKey) ? pickToo(l.id) : selectLayer(l.id),
       ondragstart: e => { dragLayer = l.id; e.dataTransfer.effectAllowed = "move"; },
       ondragover: e => { e.preventDefault(); e.currentTarget.classList.add("drag-over"); },
       ondragleave: e => e.currentTarget.classList.remove("drag-over"),
@@ -132,9 +133,23 @@
         onclick: e => { e.stopPropagation(); snapshot(); l.visible = l.visible === false; changed(); } }, "👁"),
       h("span", { class: "ic" }, TYPE_ICON[l.type] || "?"),
       h("span", { class: "nm", title: l.name }, l.name),
-      l.field ? h("span", { class: "fld", title: `Changed from Control as "${l.field}"` }, "field") : null)));
+      l.field ? h("span", { class: "fld", title: `Changed from Control as "${l.field}"` }, "field") : null,
+      linked(l) ? h("span", { class: "fld live", title: "Follows live data" }, "live") : null)));
+  }
+  // Does the layer follow live data (a link, a fill or a "Show when")?
+  const linked = l => !!(l.meter || l.when || [l.text, l.src, l.fill].some(v => /\{\{\s*(Rocket League HUD|Global)!/i.test(v || "")));
+  // Ctrl / Shift + click: one more layer (or one less).
+  function pickToo(id) {
+    if (!multi.size && selected) multi.add(selected);
+    if (multi.has(id)) multi.delete(id); else multi.add(id);
+    selected = multi.has(id) ? id : [...multi].pop() || null;
+    if (multi.size < 2) multi.clear();
+    renderLayers();
+    renderProps();
+    drawSelection();
   }
   function selectLayer(id) {
+    multi.clear();
     selected = id;
     renderLayers();
     renderProps();
@@ -175,6 +190,13 @@
       ["Ticker", "text", { text: "{{Global!Ticker}}", font: "Inter", weight: 600, size: 28, caps: true, scroll: 90, fit: "none", x: 0, y: 1030, w: 1920, h: 40 }],
       ["Background loop", "video", { src: "{{Global!BG loop}}", x: 0, y: 0, w: 1920, h: 1080, fit: "cover", blend: "screen", audio: false,
         tint: "{{Global!BG loop colour}}", brightness: "{{Global!BG loop brightness}}", speed: "{{Global!BG loop speed}}" }]]],
+    ["Rocket League HUD", [
+      ["Spectated player's cam", "web", { src: "{{Rocket League HUD!target_cam}}", x: 40, y: 760, w: 360, h: 240,
+        when: [{ value: "{{Rocket League HUD!target_has_cam}}", op: "has" }],
+        anim: { in: { type: "slide-up", dur: 400, delay: 0 }, out: { type: "slide-up", dur: 350, delay: 0 } } }],
+      ["Spectated player's name", "text", textOf("{{Rocket League HUD!target}}")],
+      ["Spectated player's boost", "text", textOf("{{Rocket League HUD!target_boost}}", { w: 160, size: 96, h: 120, align: "center" })],
+      ["Clock", "text", textOf("{{Rocket League HUD!clock}}", { w: 220, align: "center" })]]],
     ["Tournament", [
       ["Knockout bracket (8 or 16)", "bracket", { x: 144, y: 196, w: 1566, h: 748, font: "Bebas Neue", color: "#ffffff",
         gold: "#b28a1d", dark: "#000b05", line: "#b28a1d", champ: "#ffc52a" }],
@@ -482,11 +504,12 @@
 
   function renderProps() {
     if (!comp) { props.replaceChildren(h("div", { class: "empty" }, "Make a graphic with + New, or Import a Photoshop file.")); return; }
+    if (multi.size > 1) return renderMulti();
     const l = layerById(selected);
     if (!l) return renderCompProps();
     const sections = [];
     sections.push(h("div", { class: "sect" },
-      h("h3", {}, { text: "Text", rect: "Shape", image: "Picture", video: "Video", lottie: "Lottie animation" }[l.type] + " layer"),
+      h("h3", {}, ({ text: "Text", rect: "Shape", image: "Picture", video: "Video", lottie: "Lottie animation", bracket: "Bracket", web: "Web page" }[l.type] || "Layer") + " layer"),
       lab("Name", bind(l, "name", "text")),
       h("label", { title: "Give it a name to change it from Control (and from data)" }, "Field (changed from Control)",
         h("div", { class: "row-gap" },
@@ -536,6 +559,12 @@
         h("div", { class: "grid2" }, bind(l, "color", "color", { label: "Text" }), bind(l, "gold", "color", { label: "First round" })),
         h("div", { class: "grid2" }, bind(l, "dark", "color", { label: "Later rounds" }), bind(l, "line", "color", { label: "Lines" })),
         bind(l, "champ", "color", { label: "Champion's frame" })));
+    } else if (l.type === "web") {
+      sections.push(h("div", { class: "sect" }, h("h3", {}, "Page"),
+        lab("Address", bind(l, "src", "text", { placeholder: "{{Rocket League HUD!target_cam}}" })),
+        h("p", { class: "muted small" }, "A live web page in this box: a game HUD's page, or the spectated player's cam."),
+        l.design != null ? h("button", { class: "small", onclick: () => { snapshot(); l.type = /^#|^rgb|^\{\{Global!.*colou?r/i.test(l.design) ? "rect" : "image";
+          if (l.type === "rect") { l.fill = l.design; delete l.src; } else l.src = l.design; delete l.design; delete l.when; changed({ props: true }); } }, "Back to the design's picture") : null));
     } else if (l.type === "rect") {
       sections.push(h("div", { class: "sect" }, h("h3", {}, "Shape"),
         h("div", { class: "grid2" }, bind(l, "fill", "color", { label: "Fill" }), lab("Corner radius", bind(l, "radius", "number", { min: 0 }))),
@@ -553,8 +582,97 @@
         l.type !== "image" ? h("div", { class: "row-gap" }, bind(l, "loop", "check", { label: "Loop" }),
           l.type === "video" ? bind(l, "audio", "check", { label: "Sound (Program output)" }) : null) : null));
     }
+    sections.push(liveSection([l]));
     sections.push(animSection(l));
     props.replaceChildren(...sections);
+  }
+
+  // --- live data: what a layer shows, fills by, and when it shows ------------------
+  // (the property a layer's content is in)
+  const contentKey = l => l.type === "text" ? "text" : l.type === "rect" ? "fill" : ["image", "web", "video"].includes(l.type) ? "src" : null;
+  function setShows(l, v) {
+    const key = contentKey(l);
+    if (!key) return;
+    snapshot();
+    // (the design's own text or picture is kept, to go back to)
+    if (v && !LiveData.isToken(l[key]) && l.design == null) l.design = l[key] ?? "";
+    if (v) l[key] = v;
+    else if (l.design != null) { l[key] = l.design; delete l.design; }
+    changed({ props: true });
+  }
+  function liveSection(layers) {
+    const one = layers.length === 1 ? layers[0] : null;
+    const each = fn => { snapshot(); layers.forEach(fn); changed({ props: true }); };
+    const kids = [h("h3", {}, "Live data")];
+    if (!one) kids.push(h("p", { class: "muted small" }, `${layers.length} layers: their "Show when" and "Fill by" are set together.`));
+    const key = one && contentKey(one);
+    if (key) {
+      const v = LiveData.isToken(one[key]) ? one[key].trim() : "";
+      kids.push(lab(one.type === "text" ? "Text shows" : one.type === "rect" ? "Colour from" : one.type === "web" ? "Page from" : "Picture from",
+        LiveData.select(v, val => setShows(one, val), "(as designed)")));
+    }
+    // Fill by: a bar (or the dial's ring) cut to how full the value is.
+    const m = one ? one.meter : null;
+    kids.push(lab("Fill by (a boost bar or dial)", LiveData.select(m ? m.value : "", val =>
+      each(l => { if (!val) delete l.meter; else l.meter = Object.assign({ max: "100", dir: "right" }, l.meter, { value: val }); }), "(always full)")));
+    if (m) {
+      const setM = (k, val) => { snapshot(); one.meter[k] = val; changed({ props: true }); };
+      kids.push(h("div", { class: "grid3" },
+        lab("Full at", h("input", { value: m.max ?? "100", onchange: e => setM("max", e.target.value) })),
+        lab("Fills", h("select", { onchange: e => setM("dir", e.target.value) },
+          [["right", "Left to right"], ["left", "Right to left"], ["up", "Bottom up"], ["down", "Top down"], ["ring", "Round (a dial)"]]
+            .map(([o, t]) => h("option", { value: o, selected: (m.dir || "right") === o }, t)))),
+        m.dir === "ring" ? lab("Starts at °", h("input", { type: "number", step: 5, value: m.start || 0, onchange: e => setM("start", +e.target.value) })) : null),
+        m.dir === "ring" ? lab("Goes round °", h("input", { type: "number", step: 5, value: m.sweep || 360, onchange: e => setM("sweep", +e.target.value) })) : null,
+        m.dir === "ring" ? h("p", { class: "muted small" }, "0° is the top, going clockwise. A dial that starts bottom-left and ends bottom-right: start 225°, round 270°.") : null);
+    }
+    // Show when: all of these true (else hidden, with its Out animation).
+    const rules = one ? (Array.isArray(one.when) ? one.when : one.when ? [one.when] : []) : [];
+    const setRules = list => each(l => { if (list.length) l.when = JSON.parse(JSON.stringify(list)); else delete l.when; });
+    kids.push(h("label", {}, "Show when"));
+    rules.forEach((r, i) => {
+      const upd = (k, val) => { const list = rules.map(x => Object.assign({}, x)); list[i][k] = val; setRules(list); };
+      kids.push(h("div", { class: "rule" },
+        LiveData.select(r.value, val => { const list = rules.map(x => Object.assign({}, x)); if (val) list[i].value = val; else list.splice(i, 1); setRules(list); }, "(remove)"),
+        h("div", { class: "row-gap" },
+          h("select", { onchange: e => upd("op", e.target.value) }, GFX.RULE_OPS.map(([o, t]) => h("option", { value: o, selected: (r.op || "has") === o }, t))),
+          ["has", "empty"].includes(r.op || "has") ? null : h("input", { value: r.to ?? "", placeholder: "value", onchange: e => upd("to", e.target.value) }))));
+    });
+    kids.push(h("div", { class: "row-gap" },
+      LiveData.select("", val => { if (val) setRules([...rules, { value: val, op: "has" }]); }, rules.length ? "+ and also…" : "(always shown) + add a rule…")));
+    if (rules.length || !one) {
+      kids.push(lab("Otherwise", h("select", { onchange: e => each(l => { if (e.target.value) l.otherwise = e.target.value; else delete l.otherwise; }) },
+        [["", "Hide (plays its Out animation, then In when it's back)"], ["dim", "Fade it (an empty series box)"]]
+          .map(([o, t]) => h("option", { value: o, selected: ((one && one.otherwise) || "") === o }, t)))));
+      if (!one) kids.push(h("button", { class: "small", onclick: () => each(l => { delete l.when; delete l.otherwise; }) }, "Clear their rules"));
+    }
+    if (rules.length) kids.push(h("p", { class: "muted small" }, "Composer shows it either way; on air it follows the rule, playing its In and Out animations. A box that rises in and sinks away: In and Out both slide-up."));
+    if (one && ["image", "rect", "video"].includes(one.type)) kids.push(h("button", { class: "small", style: { marginTop: "6px" },
+      title: "The Rocket League HUD's player cam (Player Cam or a VDO.Ninja link) for whoever is spectated, in this box",
+      onclick: () => { snapshot(); makeCam(one); changed({ props: true }); } }, "Make this the spectated player's cam"));
+    return h("div", { class: "sect" }, ...kids);
+  }
+  // A box that shows the spectated player's cam, and slides away when they have none.
+  function makeCam(l) {
+    l.design = l.design ?? (l.src || l.fill || "");
+    l.type = "web";
+    l.src = `{{${LiveData.RL}!target_cam}}`;
+    delete l.fill;
+    l.when = [{ value: `{{${LiveData.RL}!target_has_cam}}`, op: "has" }];
+    l.anim = Object.assign({}, l.anim, { in: { type: "slide-up", dur: 400, delay: 0 }, out: { type: "slide-up", dur: 350, delay: 0 } });
+  }
+  function renderMulti() {
+    const layers = comp.layers.filter(l => multi.has(l.id));
+    const setAnim = (dir, type) => { if (!type) return; snapshot(); layers.forEach(l => { l.anim = l.anim || {}; l.anim[dir] = Object.assign({ dur: 300, delay: 0 }, l.anim[dir], { type }); }); changed({ props: true }); };
+    props.replaceChildren(
+      h("div", { class: "sect" }, h("h3", {}, `${layers.length} layers`),
+        h("p", { class: "muted small" }, layers.map(l => l.name).join(", ")),
+        h("p", { class: "muted small" }, "Ctrl or Shift + click in the list picks more (or fewer).")),
+      liveSection(layers),
+      h("div", { class: "sect" }, h("h3", {}, "Animation"),
+        h("div", { class: "grid2" },
+          lab("All in", h("select", { onchange: e => setAnim("in", e.target.value) }, h("option", { value: "" }, "(as they are)"), GFX.animTypes.map(t => h("option", { value: t }, t)))),
+          lab("All out", h("select", { onchange: e => setAnim("out", e.target.value) }, h("option", { value: "" }, "(as they are)"), GFX.animTypes.map(t => h("option", { value: t }, t)))))));
   }
   function uniqueFieldExcept(name, layer) {
     const taken = new Set(comp.layers.filter(x => x !== layer).map(x => (x.field || "").toLowerCase()));
@@ -601,9 +719,61 @@
           h("button", { class: "small", onclick: () => autoAnimate() }, "Auto (one after another)"),
           h("button", { class: "small", onclick: () => allAnim("fade") }, "All fade"),
           h("button", { class: "small", onclick: () => allAnim("none") }, "None"))),
+      hudSection(),
+      linksSection(),
       h("div", { class: "sect" }, h("h3", {}, "Shortcuts"),
         h("p", { class: "muted small" }, "Drag to move (Shift: straight, Ctrl: no snapping), handles to resize (Shift: keep shape). Arrows nudge (Shift: 10). Ctrl+D duplicates, Delete removes, Ctrl+Z / Ctrl+Shift+Z undo / redo. Alt+click picks the layer underneath.")));
   }
+  // --- Add to a HUD: this graphic as a game HUD's own overlay -------------------
+  let hudGame = "rl";
+  try { hudGame = localStorage.getItem("gfx-hud-game") || "rl"; } catch (e) { /* */ }
+  function hudSection() {
+    const box = h("div", { class: "sect hud-add" }, h("h3", {}, "Add this to a game HUD"),
+      h("p", { class: "muted small" }, "Makes this graphic the HUD's overlay: the HUD plays it with its own live data (no delay), cams and all."),
+      h("div", { class: "muted small" }, "Looking for the HUDs…"));
+    const forComp = compId;
+    fetch("/api/hud-looks").then(r => r.json()).then(r => {
+      if (compId !== forComp || !box.isConnected) return;
+      const huds = r.huds || [];
+      const games = Object.fromEntries((App.state.games || []).map(n => [n, n]));
+      const pick = huds.find(x => x.game === hudGame) || huds[0];
+      const list = h("select", { onchange: e => { hudGame = e.target.value; try { localStorage.setItem("gfx-hud-game", hudGame); } catch (err) { /* */ } renderProps(); } },
+        huds.map(x => h("option", { value: x.game, selected: x === pick }, x.name)),
+        h("optgroup", { label: "Not yet" }, Object.keys(games).filter(n => !huds.some(x => x.name === n)).map(n => h("option", { disabled: true }, n))));
+      const kids = [lab("Game", list)];
+      if (pick) {
+        const look = pick.look, mine = look && look.comp === compId;
+        const n = comp.layers.filter(linked).length;
+        kids.push(h("p", { class: "small " + (pick.connected ? "" : "warnline") }, pick.connected
+          ? `${pick.hud} is connected (${pick.from}).` + (look ? (pick.took === look.rev ? " It's playing what was sent last." : " It picks up the last one in a few seconds.") : "")
+          : `${pick.hud} isn't connected to this engine now. It takes the graphic when it connects (Connect to GFX Engine in the HUD).`));
+        if (look) kids.push(h("p", { class: "muted small" }, `${mine ? "This graphic" : `"${look.name}"`} was sent ${new Date(look.at * 1000).toLocaleString()}.`));
+        if (!n) kids.push(h("p", { class: "warnline small" }, "None of its layers follow the live data yet: link them below, or pick a layer and use Live data."));
+        kids.push(h("button", { class: "primary", onclick: async () => {
+          const r2 = await api("/api/hud-look", { comp: compId, game: pick.game });
+          if (r2 && r2.look) { toast(`Sent to the ${pick.hud}`); renderProps(); }
+        } }, look && mine ? `Send the changes to the ${pick.hud}` : `Make it the ${pick.hud}'s overlay`));
+      }
+      box.replaceChildren(box.firstChild, box.children[1], ...kids);
+    }).catch(() => { if (box.isConnected) box.lastChild.textContent = "Couldn't ask the engine about the HUDs."; });
+    return box;
+  }
+  // Every field of the graphic, with the live data it follows: linking a whole HUD in one place.
+  function linksSection() {
+    const rows = comp.layers.filter(l => l.field || contentKey(l) && LiveData.isToken(l[contentKey(l)]));
+    if (!rows.length) return null;
+    return h("div", { class: "sect links" }, h("h3", {}, "Live data links"),
+      h("p", { class: "muted small" }, "Each field and what it shows on air. Click a name to find it on the canvas."),
+      ...[...rows].reverse().map(l => {
+        const key = contentKey(l), v = key && LiveData.isToken(l[key]) ? l[key].trim() : "";
+        const was = l.type === "text" ? (l.design ?? l.text) : "";
+        return h("div", { class: "link-row" },
+          h("a", { href: "#", title: was ? `Designed as "${was}"` : l.name, onclick: e => { e.preventDefault(); selected = l.id; renderLayers(); drawSelection(); } },
+            l.name + (was && !v ? ` · "${String(was).slice(0, 14)}"` : "")),
+          key ? LiveData.select(v, val => setShows(l, val), "(as designed)") : h("span", { class: "muted small" }, "—"));
+      }));
+  }
+
   function allAnim(type) {
     snapshot();
     for (const l of comp.layers) l.anim = { in: { type, dur: 300, delay: 0 }, out: { type: type === "none" ? "none" : "fade", dur: 250, delay: 0 } };
