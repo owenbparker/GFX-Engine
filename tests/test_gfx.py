@@ -785,7 +785,7 @@ class AfterEffectsTests(unittest.TestCase):
                 self.assets.add("Intro.aep", aep)
             _fake_aep(aep, ["Main Comp", "Lower Third"])
         # A stand-in aerender: writes ProRes 4444 where -output says, and logs progress.
-        fake = os.path.join(self.tmp, "aerender")
+        fake = os.path.join(self.tmp, "aerender.py")
         log = os.path.join(self.tmp, "aerender.log")
         with open(fake, "w") as f:
             f.write(f"""#!{sys.executable}
@@ -800,6 +800,12 @@ subprocess.run([{media.ffmpeg_path()!r}, "-y", "-loglevel", "error", "-f", "lavf
                 "-c:v", "prores_ks", "-profile:v", "4444", "-pix_fmt", "yuva444p10le", out], check=True)
 """)
         os.chmod(fake, os.stat(fake).st_mode | stat.S_IEXEC)
+        if sys.platform == "win32":
+            # (Windows runs a script through a .cmd, as aerender.exe would be run)
+            cmd = os.path.join(self.tmp, "aerender.cmd")
+            with open(cmd, "w") as f:
+                f.write(f'@"{sys.executable}" "{fake}" %*\n')
+            fake = cmd
         os.environ["GFX_AERENDER"] = fake
         r = self.assets.add("Intro.aep", aep, graphic=True)
         self.assertEqual((r["job"], r["aep"]["comps"]), (None, ["Main Comp", "Lower Third"]))
