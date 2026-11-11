@@ -1127,6 +1127,84 @@ class HudLookTests(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class ShareTests(unittest.TestCase):
+    """A graphic exported as a .sccgfx file and imported into another engine."""
+
+    def _engine(self, tmp):
+        from gfxengine.app import Engine
+        engine = Engine(Settings(os.path.join(tmp, "settings.json")), os.path.join(tmp, "workspaces"),
+                        starter=None, library_dir=os.path.join(tmp, "library"), legacy_dir=os.path.join(tmp, "none"))
+        if not engine.ws:
+            engine.create_workspace("Test")
+        return engine
+
+    def _add(self, engine, name, blob):
+        return engine.upload(name, io.BytesIO(blob), len(blob))
+
+    def test_export_and_import_a_graphic_with_its_files(self):
+        from gfxengine import share
+        a_dir, b_dir = tempfile.mkdtemp(), tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, a_dir, True)
+        self.addCleanup(shutil.rmtree, b_dir, True)
+        a, b = self._engine(a_dir), self._engine(b_dir)
+        png = io.BytesIO()
+        Image.new("RGBA", (4, 4), (255, 0, 0, 255)).save(png, "PNG")
+        logo = self._add(a, "logo.png", png.getvalue())["assets"][0]
+        with open(os.path.join(ROOT, "web", "fonts", "Anton-Regular.ttf"), "rb") as f:
+            font = self._add(a, "Anton-Regular.ttf", f.read())["assets"][0]
+        self._add(a, "Match.csv", b"Field,Value\nCaster,Owen\n")
+        lottie = os.path.join(a.ws.assets_dir, "spin", "spin.json")
+        os.makedirs(os.path.join(a.ws.assets_dir, "spin", "images"))
+        with open(lottie, "w") as f:
+            json.dump({"v": "5.7", "fr": 30, "ip": 0, "op": 30, "w": 10, "h": 10, "layers": [],
+                       "assets": [{"id": "i", "u": "images/", "p": "dot.png"}]}, f)
+        with open(os.path.join(a.ws.assets_dir, "spin", "images", "dot.png"), "wb") as f:
+            f.write(png.getvalue())
+        ps = next(x for x in a.assets.fonts() if x["path"] == font)["postscript"]
+        comp = a.ws.add_comp({"name": "Caster card", "layers": [
+            {"id": "l1", "type": "image", "src": logo, "x": 0, "y": 0, "w": 4, "h": 4},
+            {"id": "l2", "type": "text", "text": "{{Match!Caster}}", "font": ps, "x": 0, "y": 0, "w": 9, "h": 9},
+            {"id": "l3", "type": "lottie", "src": "assets/spin/spin.json", "x": 0, "y": 0, "w": 9, "h": 9}]})
+        a.ws.add_comp({"name": "Other", "layers": []})
+        blob = share.build(a.ws, a.assets, [comp["id"]])
+        names = set(zipfile.ZipFile(io.BytesIO(blob)).namelist())
+        self.assertTrue({"scc-gfx.json", "files/" + logo, "files/" + font, "files/assets/Match.csv",
+                         "files/assets/spin/spin.json", "files/assets/spin/images/dot.png"} <= names, names)
+
+        # The other engine already has a different logo.png.
+        other = io.BytesIO()
+        Image.new("RGBA", (4, 4), (0, 0, 255, 255)).save(other, "PNG")
+        self._add(b, "logo.png", other.getvalue())
+        r = self._add(b, "Caster card.sccgfx", blob)
+        self.assertEqual([c["name"] for c in r["comps"]], ["Caster card"])
+        made = b.ws.comp(r["comps"][0]["id"])
+        src = made["layers"][0]["src"]
+        self.assertEqual(src, "assets/logo-2.png")       # (the one there kept, this one beside it)
+        with open(b.assets.path_of(src), "rb") as f:
+            self.assertEqual(f.read(), png.getvalue())
+        self.assertEqual(made["layers"][2]["src"], "assets/spin/spin.json")
+        self.assertTrue(os.path.isfile(os.path.join(b.ws.assets_dir, "spin", "images", "dot.png")))
+        self.assertIn(ps, {x["postscript"] for x in b.assets.fonts()})
+        self.assertEqual([s["name"] for s in b.ws.get()["sources"]], ["Match"])
+        self.assertTrue(os.path.isfile(b.assets.path_of(b.ws.get()["sources"][0]["path"])))
+
+        # Again: a second copy of the graphic, no new files, no second source.
+        r = self._add(b, "Caster card.sccgfx", blob)
+        self.assertEqual(r["comps"][0]["name"], "Caster card 2")
+        self.assertEqual(r["assets"], [])
+        self.assertEqual(len(b.ws.get()["sources"]), 1)
+
+        # Everything at once, and an Export HTML zip.
+        r = self._add(b, "all.sccgfx", share.build(a.ws, a.assets, []))
+        self.assertEqual(len(r["comps"]), len(a.ws.get()["compositions"]))
+        self.assertEqual([c["name"] for c in r["comps"]][-2:], ["Caster card 3", "Other"])
+        from gfxengine import export
+        r = self._add(b, "page.zip", export.build(a.ws, a.assets, [comp["id"]]))
+        self.assertEqual(b.ws.comp(r["comps"][0]["id"])["layers"][0]["src"], "assets/logo-2.png")
+        with self.assertRaises(ValueError):
+            self._add(b, "broken.sccgfx", b"not a zip")
+
+
 class EnginePairingTests(unittest.TestCase):
     """Two GFX Engines on one network: a HUD only talks to the engine it
     connected to, and an engine keeps one copy of each HUD."""

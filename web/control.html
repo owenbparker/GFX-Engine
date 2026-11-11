@@ -273,9 +273,9 @@
 <main id="page-composer" class="page" hidden>
   <aside class="comp-left panel">
     <div class="panel-head"><h3>Graphics</h3>
-      <div class="row-gap"><button class="small" id="comp-import" title="A new graphic from a Photoshop file (layers and text come across), OpenRaster or picture; or from a video (.mov from After Effects keeps its transparency), Lottie animation (.json / .lottie) or After Effects project (.aep, rendered with After Effects on this PC). Affinity, Krita, GIMP, Procreate: save as .psd first">Import</button>
+      <div class="row-gap"><button class="small" id="comp-import" title="A new graphic from a Photoshop file (layers and text come across), OpenRaster or picture; or from a video (.mov from After Effects keeps its transparency), Lottie animation (.json / .lottie) or After Effects project (.aep, rendered with After Effects on this PC). Affinity, Krita, GIMP, Procreate: save as .psd first. A .sccgfx file exported from another GFX Engine brings its graphics in with their files">Import</button>
         <button class="small" id="comp-new" title="New, empty graphic">+ New</button>
-        <input type="file" id="comp-import-file" accept=".psd,.psb,.ora,.png,.jpg,.jpeg,.webp,.gif,.svg,.avif,.bmp,.afdesign,.afphoto,.afpub,.af,.kra,.xcf,.procreate,.clip,.ptg,.ai,.sketch,.fig,.mov,.mp4,.webm,.m4v,.mxf,.avi,.mkv,.json,.lottie,.zip,.aep,.aepx" hidden></div></div>
+        <input type="file" id="comp-import-file" accept=".psd,.psb,.ora,.png,.jpg,.jpeg,.webp,.gif,.svg,.avif,.bmp,.afdesign,.afphoto,.afpub,.af,.kra,.xcf,.procreate,.clip,.ptg,.ai,.sketch,.fig,.mov,.mp4,.webm,.m4v,.mxf,.avi,.mkv,.json,.lottie,.zip,.aep,.aepx,.sccgfx" hidden></div></div>
     <div id="comp-list" class="comp-list"></div>
     <div class="panel-head"><h3>Layers</h3>
       <div class="add-layer">
@@ -298,6 +298,7 @@
       <select id="canvas-bg" class="small" title="Canvas background">
         <option value="checker">Checker</option><option value="black">Black</option><option value="grey">Grey</option><option value="white">White</option>
       </select>
+      <button class="small" id="comp-export" title="This graphic and every file it uses (pictures, videos, fonts, data sources) as one .sccgfx file: send it to another PC and use Import in its GFX Engine">Export</button>
       <button class="small" id="comp-dup">Duplicate</button>
       <button class="small danger" id="comp-del">Delete</button>
     </div>
@@ -379,13 +380,16 @@
       <div id="engines" class="engines"></div>
     </section>
     <section class="panel">
-      <div class="panel-head"><h3>Export HTML</h3></div>
-      <p class="muted small">Graphics as plain web files that play without the engine: a browser source, CasparCG or SPX template (play / stop / update), or a web page.
-        The values on Preview are used.</p>
+      <div class="panel-head"><h3>Export</h3></div>
+      <p class="muted small">The ticked graphics, to take to another GFX Engine or to play without the engine.</p>
       <div id="export-list" class="export-list"></div>
       <div class="row-gap"><button id="export-all" class="small">All</button><button id="export-none" class="small">None</button>
-        <div class="spacer"></div><button id="export-go" class="primary">Export .zip</button></div>
-      <p class="muted small">In the zip, open <code>index.html</code>. Add <code>?autoplay=0</code> to wait for play(), <code>?Field=Text</code> to set a field,
+        <div class="spacer"></div><button id="share-go" title="The graphics with every file they use (pictures, videos, fonts, data sources) as one .sccgfx file: on the other PC, Composer &gt; Import it">For another GFX Engine</button>
+        <button id="export-go" class="primary" title="Plain web files: a browser source, CasparCG or SPX template, or a web page. The values on Preview are used">Export .zip</button></div>
+      <p class="muted small"><b>For another GFX Engine</b> makes one <code>.sccgfx</code> file of them with their pictures, videos, fonts and data sources:
+        on the other PC, use Import in Composer. An engine on this network can get them straight away: <b>Send graphics</b> beside it under Network.</p>
+      <p class="muted small"><b>Export .zip</b> is plain web files that play without the engine (browser source, CasparCG or SPX template, web page; the values on Preview are used).
+        In the zip, open <code>index.html</code>. Add <code>?autoplay=0</code> to wait for play(), <code>?Field=Text</code> to set a field,
         or <code>?live=http://this-pc:8782</code> to follow this engine's Program.</p>
     </section>
     <section class="panel">

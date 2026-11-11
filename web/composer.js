@@ -94,11 +94,16 @@
     // (video and After Effects are converted / rendered first)
     if (r && r.job && !(r.comps && r.comps[0])) r = await waitJob(r.job);
     if (!(r && r.comps && r.comps[0])) return;
-    if (r.comps.length && !r.missing_fonts) toast(`Made the graphic "${r.comps[0].name}"`);
+    if (r.comps.length && !r.missing_fonts && !r.imported) toast(`Made the graphic "${r.comps[0].name}"`);
     // (once the engine's update with the new graphic is here)
     const id = r.comps[0].id;
     for (let i = 0; i < 40 && !App.comp(id); i++) await new Promise(res => setTimeout(res, 100));
     open(id);
+  });
+  $("#comp-export").addEventListener("click", () => {
+    if (!compId) return;
+    toast(`Exporting "${App.comp(compId).name}"… send the .sccgfx file to the other PC and Import it there`);
+    location.href = `/api/share?comps=${compId}`;
   });
   $("#comp-dup").addEventListener("click", async () => { if (compId) open((await api("/api/comp/duplicate", { id: compId })).comp.id); });
   $("#comp-del").addEventListener("click", async () => {

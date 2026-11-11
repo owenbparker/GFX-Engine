@@ -17,6 +17,7 @@ async function upload(file, graphic) {
     if (!data) return null;
   }
   if (data.job && /\.aepx?$/i.test(file.name)) toast(`After Effects is rendering ${file.name}… (Assets shows how far)`);
+  else if (data.imported) toast(data.comps.length === 1 ? `Imported the graphic "${data.comps[0].name}"` : `Imported ${data.comps.length} graphics`);
   else if (data.comps && data.comps.length) {
     const c = data.comps[0];
     toast(`Made the graphic "${c.name}" (${c.layers.length} layers)` + (data.missing_fonts && data.missing_fonts.length ? ` - add these fonts: ${data.missing_fonts.join(", ")}` : ""));
@@ -450,9 +451,17 @@ addEventListener("drop", e => {
     const r = await fetch(scan ? "/api/scan" : "/api/engines").then(r => r.json()).catch(() => ({ engines: [] }));
     box.replaceChildren(...(r.engines.length ? r.engines.map(e => h("div", { class: "engine" },
       h("b", {}, e.name), h("span", { class: "muted" }, `${e.ip}:${e.port}`), h("div", { class: "spacer" }),
+      h("button", { class: "small", title: "Send the graphics ticked under Export to that engine, with their files", onclick: () => sendTo(e) }, "Send graphics"),
       h("button", { class: "small", onclick: () => copy(`${e.url}/output`, "its Program address") }, "Copy output"),
       h("a", { class: "btn small", href: `${e.url}/control`, target: "_blank" }, "Open"))) :
       [h("div", { class: "muted small" }, scan ? "No other engines found." : "None seen yet. Engines that allow the network show up here by themselves; Scan looks for them too.")]));
+  }
+  async function sendTo(e) {
+    const ids = App.comps().filter(c => chosen.has(c.id)).map(c => c.id);
+    if (!ids.length) return toast("Tick the graphics to send under Export", true);
+    toast(`Sending ${ids.length} graphic(s) to ${e.name}…`);
+    const r = await api("/api/share/send", { url: e.url, comps: ids }).catch(() => null);
+    if (r) toast(`${e.name} has them now: ${r.comps.join(", ")}`);
   }
   $("#net-scan").addEventListener("click", () => engines(true));
   $("#net-allow").addEventListener("change", e => api("/api/settings", { allow_network: e.target.checked }));
@@ -465,6 +474,11 @@ addEventListener("drop", e => {
     const ids = App.comps().filter(c => chosen.has(c.id)).map(c => c.id);
     const name = ids.length === 1 ? App.comp(ids[0]).name : App.state.project.name;
     location.href = `/api/export?comps=${ids.join(",")}&name=${encodeURIComponent(name)}`;
+  });
+  $("#share-go").addEventListener("click", () => {
+    if (!chosen.size) return toast("Pick some graphics to export", true);
+    const ids = App.comps().filter(c => chosen.has(c.id)).map(c => c.id);
+    location.href = `/api/share?comps=${ids.join(",")}`;
   });
   $("#ws-folder").addEventListener("click", () => api("/api/open", { what: "workspace" }));
 

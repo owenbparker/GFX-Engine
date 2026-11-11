@@ -29,7 +29,7 @@ import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
-from . import companion, discover, export, globalcfg, media, pack
+from . import companion, discover, export, globalcfg, media, pack, share
 from .assets import Assets
 from .config import WEB_DIR, Settings, safe_join
 from .data import Sources
@@ -954,6 +954,20 @@ def make_handler(engine):
                 name = re.sub(r"[^\w\- ]+", "", (q.get("name") or [engine.ws.get()["name"]])[0]).strip() or "graphics"
                 return self._send(blob, "application/zip", headers={
                     "Content-Disposition": f"attachment; filename=\"{name}.zip\"; filename*=UTF-8''{quote(name)}.zip"})
+            if path == "/api/share":
+                # Graphics with their files, as one file for another GFX Engine's Import.
+                ids = [i for i in (q.get("comps") or [""])[0].split(",") if i]
+                try:
+                    blob = share.build(engine.ws, engine.assets, ids)
+                except KeyError as e:
+                    return self._json({"error": e.args[0]}, 404)
+                comps = {c["id"]: c["name"] for c in engine.ws.get()["compositions"]}
+                name = comps.get(ids[0]) if len(ids) == 1 else engine.ws.get()["name"]
+                name = re.sub(r'[^\w\- ()&]+', "", (q.get("name") or [name or ""])[0]).strip() or "graphics"
+                plain = name.encode("ascii", "ignore").decode().strip() or "graphics"
+                return self._send(blob, "application/zip", headers={
+                    "Content-Disposition": f"attachment; filename=\"{plain}{share.EXT}\"; "
+                                           f"filename*=UTF-8''{quote(name)}{share.EXT}"})
             if path == "/api/backup":
                 engine.ws.save()
                 tmp = tempfile.mkdtemp()
@@ -1028,6 +1042,15 @@ def make_handler(engine):
                     engine.delete_comp(body["id"])
                 elif path == "/api/comp/order":
                     ws.order_comps(body["ids"])
+                elif path == "/api/share/send":
+                    # (straight to another engine on the network: its Import takes it)
+                    ids = [i for i in body.get("comps") or [] if i]
+                    blob = share.build(ws, engine.assets, ids)
+                    names = {c["id"]: c["name"] for c in ws.get()["compositions"]}
+                    name = names.get(ids[0], "graphic") if len(ids) == 1 else ws.get()["name"]
+                    got = share.send(blob, str(body.get("url") or ""), name)
+                    log(f"Sent {len(got.get('comps') or [])} graphic(s) to {body.get('url')}")
+                    result = {"comps": [c.get("name") for c in got.get("comps") or []]}
                 elif path == "/api/hud-look":
                     result = {"look": engine.add_to_hud(body.get("comp") or "", body.get("game") or ""),
                               "huds": engine.hud_looks()}

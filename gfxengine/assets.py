@@ -12,6 +12,8 @@ Adding a file does what that kind of file needs:
     .aep .aepx            After Effects: rendered with After Effects when it's installed
                           on this PC (see aerender), then converted like a .mov
     .csv .xlsx .txt       added, and made a data source
+    .sccgfx               graphics exported from a GFX Engine, with their files
+                          (see share; an Export HTML .zip is taken the same way)
     .ai .prproj           refused, saying how to export them instead
 
 With graphic=True (Composer's Import), a video, Lottie animation or After
@@ -29,6 +31,7 @@ import zipfile
 from . import aerender
 from . import fonts as fontnames
 from . import media
+from . import share
 from .log import log
 
 IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".avif", ".bmp")
@@ -171,6 +174,16 @@ class Assets:
             raise ValueError(REFUSED[ext])
         kind = kind_of(name)
         result = {"assets": [], "comps": [], "sources": [], "job": None}
+        if ext == share.EXT or (ext == ".zip" and share.is_package(src_path)):
+            # Graphics exported from a GFX Engine (or an Export HTML zip), with their files.
+            try:
+                return share.import_package(src_path, self.ws, self)
+            except (zipfile.BadZipFile, KeyError, ValueError, TypeError) as e:
+                raise ValueError(e.args[0] if isinstance(e, ValueError) and e.args else
+                                 f"{os.path.basename(name)} isn't a GFX Engine graphics file") from None
+            finally:
+                if os.path.exists(src_path):
+                    os.remove(src_path)
         if kind == "aep":
             return self._aep(name, src_path, graphic, comp)
         if graphic and (kind in ("video", "lottie") or ext == ".zip"):
