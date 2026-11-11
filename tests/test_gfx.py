@@ -676,6 +676,149 @@ class TeamsTests(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+def _riff(cid, body):
+    import struct
+    return cid + struct.pack(">I", len(body)) + body + (b"\0" if len(body) & 1 else b"")
+
+
+def _fake_aep(path, comps):
+    """An .aep shaped like After Effects writes them: RIFX "Egg!", items in a
+    folder, each an "Item" list with idta (type 4 = composition) and Utf8."""
+    import struct
+    items = b"".join(_riff(b"LIST", b"Item" + _riff(b"idta", struct.pack(">H", kind) + b"\0" * 14)
+                           + _riff(b"Utf8", name.encode()) + _riff(b"LIST", b"Layr" + _riff(b"Utf8", b"a layer")))
+                     for kind, name in [(1, "Solids")] + [(4, c) for c in comps] + [(7, "footage.png")])
+    body = b"Egg!" + _riff(b"head", b"\0" * 20) + _riff(b"LIST", b"Fold" + _riff(b"LIST", b"Item" + _riff(b"idta", b"\0\1" + b"\0" * 14) + _riff(b"Utf8", b"Root") + items))
+    with open(path, "wb") as f:
+        f.write(b"RIFX" + struct.pack(">I", len(body)) + body)
+
+
+@unittest.skipUnless(media.ffmpeg_path(), "needs FFmpeg")
+class AfterEffectsTests(unittest.TestCase):
+    """.mov from After Effects, Lottie and .aep projects: added as files, and
+    as graphics of their own (Composer's Import)."""
+
+    def setUp(self):
+        from gfxengine.assets import Assets
+        self.tmp = tempfile.mkdtemp()
+        self.ws = Workspace(os.path.join(self.tmp, "ws"), starter="")
+        self.jobs = media.Jobs()
+        self.assets = Assets(self.ws, self.jobs)
+
+    def tearDown(self):
+        self.ws.close()
+        os.environ.pop("GFX_AERENDER", None)
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def wait(self, jid):
+        deadline = time.time() + 120
+        while time.time() < deadline:
+            j = next(j for j in self.jobs.list() if j["id"] == jid)
+            if j["status"] != "running":
+                self.assertEqual(j["status"], "done", j["error"])
+                return j["result"]
+            time.sleep(0.1)
+        self.fail("job didn't finish")
+
+    def prores(self, path, alpha=True, secs=1):
+        import subprocess
+        src = "color=c=red@0.5:s=600x150:d=%s,format=yuva444p" % secs if alpha else "testsrc=s=1920x1080:d=%s" % secs
+        args = [media.ffmpeg_path(), "-y", "-loglevel", "error", "-f", "lavfi", "-i", src]
+        args += ["-c:v", "prores_ks", "-profile:v", "4444", "-pix_fmt", "yuva444p10le"] if alpha else ["-c:v", "prores_ks", "-profile:v", "3"]
+        subprocess.run(args + [path], check=True)
+
+    def test_mov_with_alpha_imports_as_a_graphic(self):
+        src = os.path.join(self.tmp, "up.mov")
+        self.prores(src)
+        r = self.assets.add("Lower Third.mov", src, graphic=True)
+        self.assertIsNotNone(r["job"])
+        done = self.wait(r["job"])
+        self.assertEqual(done["assets"], ["assets/Lower Third.webm"])
+        info = media.probe(self.ws.asset_path(done["assets"][0]))
+        self.assertTrue(info["alpha"] and media.playable(self.ws.asset_path(done["assets"][0]), info), info)
+        layer = done["comps"][0]["layers"][0]
+        self.assertEqual((layer["type"], layer["src"], layer["loop"]), ("video", "assets/Lower Third.webm", False))
+        self.assertEqual((layer["x"], layer["y"], layer["w"], layer["h"]), (660, 465, 600, 150))
+        self.assertEqual(done["comps"][0]["kind"], "overlay")
+        self.assertIn(done["comps"][0]["id"], [c["id"] for c in self.ws.data["compositions"]])
+
+    def test_mov_without_alpha_and_plain_add(self):
+        src = os.path.join(self.tmp, "up.mov")
+        self.prores(src, alpha=False)
+        r = self.assets.add("Background.mov", src)
+        done = self.wait(r["job"])
+        self.assertEqual((done["assets"], done["comps"]), (["assets/Background.mp4"], []))
+        self.assertEqual(self.ws.data["compositions"], [])
+
+    def test_lottie_json_and_dotlottie(self):
+        anim = {"v": "5.7.4", "fr": 30, "ip": 0, "op": 60, "w": 800, "h": 200, "layers": [],
+                "assets": [{"id": "image_0", "w": 10, "h": 10, "u": "/images/", "p": "img_0.png", "e": 0}]}
+        src = os.path.join(self.tmp, "up.json")
+        with open(src, "w") as f:
+            json.dump(anim, f)
+        r = self.assets.add("Bug.json", src, graphic=True)
+        layer = r["comps"][0]["layers"][0]
+        self.assertEqual((layer["type"], layer["src"], layer["w"], layer["h"], layer["y"]), ("lottie", "assets/Bug.json", 800, 200, 440))
+        src = os.path.join(self.tmp, "up.lottie")
+        with zipfile.ZipFile(src, "w") as z:
+            z.writestr("manifest.json", json.dumps({"animations": [{"id": "intro"}]}))
+            z.writestr("animations/intro.json", json.dumps(anim))
+            z.writestr("images/img_0.png", b"png")
+        r = self.assets.add("Intro.lottie", src)
+        self.assertEqual(r["assets"], ["assets/Intro/intro.json"])
+        with open(self.ws.asset_path("assets/Intro/intro.json")) as f:
+            self.assertEqual(json.load(f)["assets"][0]["u"], "images/")
+        self.assertTrue(os.path.isfile(self.ws.asset_path("assets/Intro/images/img_0.png")))
+        self.assertFalse(os.path.exists(self.ws.asset_path("assets/Intro/manifest.json")))
+
+    def test_after_effects_project(self):
+        import stat
+        import sys
+        from gfxengine import aerender
+        aep = os.path.join(self.tmp, "up.aep")
+        _fake_aep(aep, ["Main Comp", "Lower Third"])
+        self.assertEqual(aerender.comps(aep), ["Main Comp", "Lower Third"])
+        # Without After Effects: says how to export instead.
+        os.environ["GFX_AERENDER"] = os.path.join(self.tmp, "none")
+        if not aerender.aerender_path():
+            with self.assertRaisesRegex(ValueError, "Lottie"):
+                self.assets.add("Intro.aep", aep)
+            _fake_aep(aep, ["Main Comp", "Lower Third"])
+        # A stand-in aerender: writes ProRes 4444 where -output says, and logs progress.
+        fake = os.path.join(self.tmp, "aerender")
+        log = os.path.join(self.tmp, "aerender.log")
+        with open(fake, "w") as f:
+            f.write(f"""#!{sys.executable}
+import subprocess, sys
+a = sys.argv[1:]
+open({log!r}, "a").write(repr(a) + "\\n")
+out = a[a.index("-output") + 1]
+print("PROGRESS:  Duration: 0:00:01:00")
+print("PROGRESS:  Frame Rate: 30.00 (comp)")
+print("PROGRESS:  0:00:00:15 (16): 0 Seconds")
+subprocess.run([{media.ffmpeg_path()!r}, "-y", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=blue@0.5:s=1920x1080:d=1,format=yuva444p",
+                "-c:v", "prores_ks", "-profile:v", "4444", "-pix_fmt", "yuva444p10le", out], check=True)
+""")
+        os.chmod(fake, os.stat(fake).st_mode | stat.S_IEXEC)
+        os.environ["GFX_AERENDER"] = fake
+        r = self.assets.add("Intro.aep", aep, graphic=True)
+        self.assertEqual((r["job"], r["aep"]["comps"]), (None, ["Main Comp", "Lower Third"]))
+        r = self.assets.render_aep(r["aep"]["file"], "Lower Third", graphic=True)
+        done = self.wait(r["job"])
+        self.assertEqual(done["assets"], ["assets/Lower Third.webm"])
+        self.assertTrue(media.probe(self.ws.asset_path(done["assets"][0]))["alpha"])
+        layer = done["comps"][0]["layers"][0]
+        self.assertEqual((layer["type"], layer["w"], layer["h"], layer["loop"]), ("video", 1920, 1080, False))
+        with open(log) as f:
+            args = f.read()
+        self.assertIn("'-comp', 'Lower Third'", args)
+        self.assertIn("High Quality with Alpha", args)
+        # One composition: rendered straight away.
+        _fake_aep(aep, ["Only"])
+        r = self.assets.add("One.aep", aep)
+        self.assertEqual(self.wait(r["job"])["assets"], ["assets/Only.webm"])
+
+
 class ServerTests(unittest.TestCase):
     def test_engine(self):
         from gfxengine.app import Engine, start

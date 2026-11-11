@@ -103,7 +103,7 @@
         <div class="row-gap">
           <button class="small" id="g-loop-file">Choose video…</button>
           <button class="small ghost" id="g-loop-default" title="The SCC loop that comes with the engine">Use the SCC loop</button>
-          <input type="file" id="g-loop-input" accept="video/*,.mov,.webm,.mp4" hidden>
+          <input type="file" id="g-loop-input" accept="video/*,.mov,.webm,.mp4,.mxf" hidden>
         </div>
         <p class="muted small">Plays behind the schedule and the other full-screen boards.</p>
       </div>
@@ -273,9 +273,9 @@
 <main id="page-composer" class="page" hidden>
   <aside class="comp-left panel">
     <div class="panel-head"><h3>Graphics</h3>
-      <div class="row-gap"><button class="small" id="comp-import" title="A new graphic from a Photoshop file (layers and text come across), OpenRaster or picture. Affinity, Krita, GIMP, Procreate: save as .psd first">Import</button>
+      <div class="row-gap"><button class="small" id="comp-import" title="A new graphic from a Photoshop file (layers and text come across), OpenRaster or picture; or from a video (.mov from After Effects keeps its transparency), Lottie animation (.json / .lottie) or After Effects project (.aep, rendered with After Effects on this PC). Affinity, Krita, GIMP, Procreate: save as .psd first">Import</button>
         <button class="small" id="comp-new" title="New, empty graphic">+ New</button>
-        <input type="file" id="comp-import-file" accept=".psd,.psb,.ora,.png,.jpg,.jpeg,.webp,.gif,.svg,.avif,.bmp,.afdesign,.afphoto,.afpub,.af,.kra,.xcf,.procreate,.clip,.ptg,.ai,.sketch,.fig" hidden></div></div>
+        <input type="file" id="comp-import-file" accept=".psd,.psb,.ora,.png,.jpg,.jpeg,.webp,.gif,.svg,.avif,.bmp,.afdesign,.afphoto,.afpub,.af,.kra,.xcf,.procreate,.clip,.ptg,.ai,.sketch,.fig,.mov,.mp4,.webm,.m4v,.mxf,.avi,.mkv,.json,.lottie,.zip,.aep,.aepx" hidden></div></div>
     <div id="comp-list" class="comp-list"></div>
     <div class="panel-head"><h3>Layers</h3>
       <div class="add-layer">
@@ -320,8 +320,8 @@
   </div>
   <div id="jobs" class="jobs"></div>
   <div id="missing-fonts" class="notice" hidden></div>
-  <div class="drop" id="asset-drop">Drop files here: Photoshop (.psd) becomes a graphic; video (.mov, .mp4, .webm, PNG sequences in a .zip) is made web-ready;
-    fonts (.ttf, .otf), pictures, Lottie (.json from After Effects), and spreadsheets (.csv, .xlsx).</div>
+  <div class="drop" id="asset-drop">Drop files here: Photoshop (.psd) becomes a graphic; video (.mov with alpha from After Effects, .mp4, .webm, PNG sequences in a .zip) is made web-ready;
+    After Effects projects (.aep) are rendered by After Effects on this PC; fonts (.ttf, .otf), pictures, Lottie (.json / .lottie from After Effects), and spreadsheets (.csv, .xlsx).</div>
   <div id="asset-grid" class="asset-grid"></div>
 </main>
 

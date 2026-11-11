@@ -29,7 +29,7 @@ import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
-from . import companion, discover, export, globalcfg, pack
+from . import companion, discover, export, globalcfg, media, pack
 from .assets import Assets
 from .config import WEB_DIR, Settings, safe_join
 from .data import Sources
@@ -314,7 +314,7 @@ class Engine:
             raise ValueError("left, right, tournament, sponsor or bgloop")
         ext = os.path.splitext(filename or "")[1].lower()
         if side == "bgloop":
-            if ext not in (".mp4", ".webm", ".mov", ".m4v"):
+            if ext not in (".mp4", ".webm", ".mov", ".m4v", ".avi", ".mkv", ".mxf"):
                 raise ValueError("The loop must be an MP4, WEBM or MOV video")
         elif ext not in (".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif"):
             raise ValueError("The logo must be a PNG, JPG, WEBP, SVG or GIF")
@@ -322,6 +322,29 @@ class Engine:
         rel, path = self.ws.unique_asset(base + ext, {"sponsor": "sponsors", "bgloop": "loops"}.get(side, "logos"))
         with open(path, "wb") as f:
             f.write(blob)
+        if side == "bgloop" and not media.playable(path):
+            # QuickTime from After Effects (ProRes, Animation...) and the like: made
+            # web-ready in the background, and used as the loop once it is.
+            info = media.probe(path)
+            dest_base = os.path.splitext(path)[0]
+            src_rel = rel
+
+            def run(progress):
+                try:
+                    out = media.convert(path, dest_base, alpha=info["alpha"], progress=progress)
+                finally:
+                    os.remove(path)
+                new_rel = src_rel[:-len(ext)] + os.path.splitext(out)[1]
+                self.ws.touch_assets()
+                self.assets_rev += 1
+                if (self.global_config()["bgloop"].get("src") or "") in ("", src_rel):
+                    self.set_global({"bgloop": {"src": new_rel, "on": True}})
+                log(f"Background loop converted: {new_rel}")
+                return {"assets": [new_rel]}
+            self.set_global({"bgloop": {"src": rel, "on": True}})
+            g = self.global_config()
+            g["job"] = self.jobs.start(f"Converting {filename}", run)
+            return g
         self.assets_rev += 1
         if side == "tournament":
             return self.set_global({"tournament_logo": rel})
@@ -693,7 +716,7 @@ class Engine:
         if new:
             self.set_sources(self.ws.get()["sources"] + new)
 
-    def upload(self, name, rfile, length, fps=None, graphic=False):
+    def upload(self, name, rfile, length, fps=None, graphic=False, comp=None):
         name = os.path.basename(name.replace("\\", "/"))
         if not name:
             raise ValueError("No file name")
@@ -711,7 +734,7 @@ class Engine:
         if left > 0:
             os.remove(tmp)
             raise ValueError("The upload was cut short")
-        result = self.assets.add(name, tmp, fps=fps, graphic=graphic)
+        result = self.assets.add(name, tmp, fps=fps, graphic=graphic, comp=comp)
         self.add_sources(result.get("sources"))
         self.assets_rev += 1
         self.changed()
@@ -963,7 +986,8 @@ def make_handler(engine):
                 if path == "/api/upload":
                     name = unquote(self.headers.get("X-Filename") or (q.get("name") or [""])[0])
                     fps = float((q.get("fps") or ["0"])[0]) or None
-                    return self._json(engine.upload(name, self.rfile, length, fps, graphic=(q.get("graphic") or [""])[0] == "1"))
+                    return self._json(engine.upload(name, self.rfile, length, fps, graphic=(q.get("graphic") or [""])[0] == "1",
+                                                    comp=(q.get("comp") or [None])[0]))
                 if path in ("/api/teams/import", "/api/teams/logo", "/api/teams/photo"):
                     if length > 30 << 20:
                         raise ValueError("That file is too big (30 MB at most)")
@@ -990,7 +1014,10 @@ def make_handler(engine):
                 result = {"ok": True}
                 ws, live = engine.ws, engine.live
                 # --- graphics ---
-                if path == "/api/comp/new":
+                if path == "/api/aep/render":
+                    # (an After Effects project with several compositions: the one picked)
+                    result = engine.assets.render_aep(body.get("file"), body.get("comp") or None, bool(body.get("graphic")))
+                elif path == "/api/comp/new":
                     comp = body.get("comp") or blank_comp(body.get("name") or "New graphic")
                     result = {"comp": ws.add_comp(comp, after=body.get("after"))}
                 elif path == "/api/comp/save":

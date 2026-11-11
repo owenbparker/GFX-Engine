@@ -51,7 +51,8 @@ the ticker, the background loop or the knockout bracket.
 | Photoshop `.psd` | becomes a graphic: text layers stay editable text (same font, size, colour, tracking), every other layer becomes a picture in place, with a starting animation |
 | `.mov` / `.avi` / `.mkv` | converted for the web: see-through video (QuickTime Animation, ProRes 4444) to WebM with alpha, the rest to MP4 |
 | PNG sequence in a `.zip` | becomes one see-through WebM (frame rate set beside the Add button) |
-| After Effects | export **Lottie** (`.json`, with the Bodymovin plugin) for animations that stay sharp and editable, or render a `.mov` with alpha. `.aep` files can't be played directly |
+| After Effects | add the `.aep` itself when After Effects is installed on the engine PC: After Effects renders the composition you pick ("High Quality with Alpha") and it's converted to see-through WebM. Otherwise export **Lottie** (`.json` or `.lottie`, with Bodymovin / LottieFiles) for animations that stay sharp, or render a `.mov` with alpha |
+| Composer's Import | a `.mov` / video, Lottie or `.aep` becomes a graphic of its own: one layer playing it (see-through video plays once and holds; other video loops) |
 | `.ttf` / `.otf` / `.woff` | a font: text using it (by its PostScript name, as Photoshop records it) picks it up |
 | pictures, `.mp4`, `.webm`, `.svg` | used as they are |
 | `.csv` / `.xlsx` / `.txt` | added and made a data source |

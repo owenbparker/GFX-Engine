@@ -7,15 +7,50 @@ async function upload(file, graphic) {
   const fps = +($("#seq-fps") && $("#seq-fps").value) || 30;
   toast(graphic ? `Importing ${file.name}…` : `Adding ${file.name}…`);
   const r = await fetch(`/api/upload?fps=${fps}${graphic ? "&graphic=1" : ""}`, { method: "POST", headers: { "X-Filename": encodeURIComponent(file.name) }, body: file });
-  const data = await r.json().catch(() => ({}));
+  let data = await r.json().catch(() => ({}));
   if (!r.ok || data.error) { toast(`${file.name}: ${data.error || r.status}`, true); return null; }
-  if (data.comps && data.comps.length) {
+  if (data.aep) {
+    // An After Effects project with several compositions: which one to render.
+    const comp = await pickComp(file.name, data.aep.comps);
+    if (comp == null) return null;
+    data = await api("/api/aep/render", { file: data.aep.file, comp, graphic: !!graphic }).catch(() => null);
+    if (!data) return null;
+  }
+  if (data.job && /\.aepx?$/i.test(file.name)) toast(`After Effects is rendering ${file.name}… (Assets shows how far)`);
+  else if (data.comps && data.comps.length) {
     const c = data.comps[0];
     toast(`Made the graphic "${c.name}" (${c.layers.length} layers)` + (data.missing_fonts && data.missing_fonts.length ? ` - add these fonts: ${data.missing_fonts.join(", ")}` : ""));
   } else if (data.job) toast(`Converting ${file.name}…`);
   else if (data.sources && data.sources.length) toast(`Added ${file.name} as a data source`);
   else toast(`Added ${file.name}`);
   return data;
+}
+// Waits for a background job (converting, rendering) to finish: its result, or null.
+async function waitJob(id) {
+  for (;;) {
+    const j = ((App.state && App.state.jobs) || []).find(x => x.id === id);
+    if (j && j.status === "done") return j.result || {};
+    if (j && j.status === "error") { toast(j.error, true); return null; }
+    await new Promise(res => setTimeout(res, 400));
+  }
+}
+// Picks one of an After Effects project's compositions (null: cancelled).
+function pickComp(name, comps) {
+  return new Promise(resolve => {
+    const sel = h("select", {}, comps.map(c => h("option", { value: c }, c)));
+    const done = v => { back.remove(); resolve(v); };
+    const back = h("div", { class: "dialog-back" },
+      h("div", { class: "dialog panel" },
+        h("div", { class: "pad" },
+          h("h3", {}, "Which composition?"),
+          h("p", { class: "muted small" }, `${name} has ${comps.length} compositions. After Effects renders the one you pick as see-through video.`),
+          h("label", {}, "Composition", sel)),
+        h("div", { class: "dialog-btns" }, h("span", { style: { flex: 1 } }),
+          h("button", { type: "button", onclick: () => done(null) }, "Cancel"),
+          h("button", { type: "button", class: "primary", onclick: () => done(sel.value) }, "Render"))));
+    document.body.append(back);
+    sel.focus();
+  });
 }
 async function uploadAll(files) {
   for (const f of files) await upload(f);
@@ -259,6 +294,25 @@ addEventListener("drop", e => {
     if (t.type === "cut") body.push(h("p", { class: "muted small" }, "Straight away, no animation."));
     if (t.type === "stinger") {
       const videos = App.assets.filter(a => a.kind === "video");
+      // Adding a video here picks it once it's ready (converted or rendered).
+      const addFile = h("input", { type: "file", hidden: true, accept: "video/*,.mov,.webm,.mxf,.zip,.aep,.aepx",
+        onchange: async e => {
+          const f = e.target.files[0];
+          e.target.value = "";
+          if (!f) return;
+          let r = await upload(f);
+          if (r && r.job) r = await waitJob(r.job);
+          const src = r && r.assets && r.assets.find(p => /\.(webm|mp4|m4v)$/i.test(p));
+          if (!src) return;
+          for (let i = 0; i < 40 && !App.assets.some(a => a.path === src); i++) await new Promise(res => setTimeout(res, 150));
+          // (the list may have been redrawn from the engine since: this stinger as it is now)
+          const cur = list.find(x => x.id === t.id);
+          if (!cur) return;
+          cur.src = src;
+          save();
+          render(true);
+          detect(cur);
+        } });
       const vid = h("video", { src: t.src ? "/" + encodeURI(t.src) : "", muted: true, playsInline: true, preload: "auto" });
       const asset = videos.find(a => a.path === t.src);
       const dur = asset ? asset.duration : 0;
@@ -272,8 +326,11 @@ addEventListener("drop", e => {
       vid.addEventListener("loadeddata", () => { vid.currentTime = (t.cut || 0) / 1000; });
       body.push(
         h("label", {}, "Video (see-through WebM, or any video; .mov is converted when added)",
-          h("select", { onchange: e => { set("src", e.target.value, true); detect(t); } }, h("option", { value: "" }, "(pick one)"),
-            videos.map(a => h("option", { value: a.path, selected: a.path === t.src }, a.path.replace(/^assets\//, "") + (a.alpha ? "" : " (not see-through)"))))),
+          h("div", { class: "pick" },
+            h("select", { onchange: e => { set("src", e.target.value, true); detect(t); } }, h("option", { value: "" }, "(pick one)"),
+              videos.map(a => h("option", { value: a.path, selected: a.path === t.src }, a.path.replace(/^assets\//, "") + (a.alpha ? "" : " (not see-through)")))),
+            h("button", { class: "small", title: "Add a video: .mov from After Effects (ProRes 4444 / Animation with alpha), .webm, .mp4, an After Effects project (.aep) or a PNG sequence (.zip)",
+              onclick: () => addFile.click() }, "+"), addFile)),
         h("div", { class: "tr-video" }, vid),
         h("div", { class: "scrub" }, range, mark),
         h("div", { class: "grid3" },

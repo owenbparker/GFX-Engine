@@ -3,6 +3,8 @@
     .psd .psb        Photoshop: layers, text kept as text (see psdimport)
     .ora             OpenRaster (Krita, MyPaint, Pinta...): its layers as pictures
     .png .jpg ...    one picture, as a graphic of its own
+    video, Lottie, After Effects
+                     one layer playing it (made in assets: media_comp)
     .afdesign .afphoto .afpub .af, .kra, .xcf, .procreate, .clip ...
                      refused, saying how to save a .psd from that app (their
                      own formats aren't published, so they can't be read)
@@ -127,6 +129,27 @@ def import_ora(path, workspace, name):
     auto_animate(comp["layers"], width, height)
     comp["kind"] = guess_kind(comp["layers"])
     log(f"Imported {name}: {len(comp['layers'])} layers")
+    return comp
+
+
+def media_comp(name, kind, rel, w=0, h=0, loop=True):
+    """A graphic playing one video or Lottie animation: full screen when it's
+    screen shaped (or bigger), otherwise centred at its own size. Video with
+    transparency plays once and holds its last frame (an animated graphic);
+    other video loops (a background)."""
+    comp = blank_comp(name)
+    if not w or not h:
+        w, h = 1920, 1080
+    scale = min(1920 / w, 1080 / h)
+    if scale > 1 and abs(w / h - 16 / 9) > 0.02:
+        scale = 1
+    w, h = w * scale, h * scale
+    layer = _layer(name, (1920 - w) / 2, (1080 - h) / 2, w, h, rel)
+    layer.update({"type": kind, "fit": "contain", "loop": bool(loop)})
+    comp["layers"].append(layer)
+    # (a see-through animation over the whole screen is an overlay, not a board)
+    comp["kind"] = "overlay" if not loop and guess_kind(comp["layers"]) == "board" else guess_kind(comp["layers"])
+    log(f"Made the graphic {name} from {rel}")
     return comp
 
 

@@ -90,8 +90,11 @@
     const f = e.target.files[0];
     e.target.value = "";
     if (!f) return;
-    const r = await upload(f, true);
+    let r = await upload(f, true);
+    // (video and After Effects are converted / rendered first)
+    if (r && r.job && !(r.comps && r.comps[0])) r = await waitJob(r.job);
     if (!(r && r.comps && r.comps[0])) return;
+    if (r.comps.length && !r.missing_fonts) toast(`Made the graphic "${r.comps[0].name}"`);
     // (once the engine's update with the new graphic is here)
     const id = r.comps[0].id;
     for (let i = 0; i < 40 && !App.comp(id); i++) await new Promise(res => setTimeout(res, 100));
@@ -455,13 +458,16 @@
       linked.length ? h("optgroup", { label: "Global configuration" }, linked.map(([v, t]) => h("option", { value: v, selected: v === value }, t))) : null,
       h("optgroup", { label: "Files" }, list.map(a => h("option", { value: a.path, selected: a.path === value }, a.path.replace(/^assets\//, "")))),
       value && !known ? h("option", { value, selected: true }, value + " (missing)") : null);
-    const file = h("input", { type: "file", hidden: true, accept: kind === "image" ? "image/*" : kind === "video" ? "video/*,.mov,.webm,.zip" : ".json,.zip",
+    const file = h("input", { type: "file", hidden: true, accept: kind === "image" ? "image/*" : kind === "video" ? "video/*,.mov,.webm,.mxf,.zip,.aep,.aepx" : ".json,.lottie,.zip",
       onchange: async e => {
         const f = e.target.files[0];
+        e.target.value = "";
         if (!f) return;
-        const r = await upload(f);
-        if (r && r.assets && r.assets[0]) onChange(r.assets[0]);
-        else if (r && r.job) toast("Converting… pick it when it's done");
+        let r = await upload(f);
+        // (converted or rendered in the background: picked once it's ready)
+        if (r && r.job && !(r.assets && r.assets[0])) r = await waitJob(r.job);
+        const rel = r && r.assets && (r.assets.find(p => kind === "lottie" ? /\.json$/i.test(p) : kind === "video" ? /\.(webm|mp4|m4v)$/i.test(p) : true) || r.assets[0]);
+        if (rel) onChange(rel);
       } });
     return h("div", { class: "pick" }, sel, h("button", { class: "small", title: "Add a file", onclick: () => file.click() }, "+"), file);
   }

@@ -380,7 +380,8 @@ App.on(s => {
     const f = e.target.files[0]; e.target.value = "";
     if (!f) return;
     toast(`Adding ${f.name}…`);
-    g = (await postFile("/api/global/logo?side=bgloop", f)).global; render(true); toast("Background loop saved");
+    g = (await postFile("/api/global/logo?side=bgloop", f)).global; render(true);
+    toast(g.job ? `Converting ${f.name} for the outputs… it's used as the loop once it's ready` : "Background loop saved");
   });
 
   // The game's stats (kept after the game).
