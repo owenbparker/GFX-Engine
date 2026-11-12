@@ -9,3 +9,4 @@ build/
 dist/
 workspaces/
 library/
+appearance.json

@@ -6,6 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="assets-ui/badge.png">
 <link rel="stylesheet" href="control.css">
+<link rel="stylesheet" href="appearance.css">
+<script src="appearance.js"></script>
 </head>
 <body>
 <header id="top">
@@ -27,6 +29,7 @@
         <button data-tab="data">Data</button>
         <button data-tab="transitions">Transitions</button>
         <button data-tab="outputs">Outputs</button>
+        <button data-tab="appearance">Appearance</button>
       </div>
     </div>
   </nav>
@@ -36,6 +39,12 @@
     <span id="version" class="muted small"></span>
   </div>
 </header>
+
+<!-- APPEARANCE: the look and highlight colour (appearance.js) -->
+<main id="page-appearance" class="page" hidden>
+  <div class="page-head"><h2>Appearance</h2><span class="muted">How GFX Engine looks on this PC. Graphics on air don't change.</span></div>
+  <div class="appearance-page"><div id="appearance-box"></div></div>
+</main>
 
 <!-- HOME: the workspaces -->
 <main id="page-home" class="page" hidden>

@@ -129,6 +129,7 @@ function showTab(name) {
   if (location.hash !== "#" + name) history.replaceState(null, "", "#" + name);
 }
 document.querySelectorAll("#tabs button[data-tab]").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+pages.appearance = { shown() { if (window.Appearance) Appearance.render($("#appearance-box")); } };
 function extrasMenu(open) {
   $("#extras-menu").hidden = !open;
   $("#extras-btn").setAttribute("aria-expanded", String(open));

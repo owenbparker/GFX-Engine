@@ -29,9 +29,9 @@ import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
-from . import companion, discover, export, globalcfg, media, pack, share
+from . import appearance, companion, discover, export, globalcfg, media, pack, share
 from .assets import Assets
-from .config import WEB_DIR, Settings, safe_join
+from .config import DATA_DIR, WEB_DIR, Settings, safe_join
 from .data import Sources
 from .live import Live
 from .log import log, since
@@ -875,6 +875,8 @@ def make_handler(engine):
                 return self._json({"error": "This engine doesn't allow other PCs (Outputs > Network)"}, 403)
             url = urlparse(self.path)
             path, q = url.path, parse_qs(url.query)
+            if appearance.handle(self, "GET", path, DATA_DIR):
+                return
             if path in PAGES:
                 target = PAGES[path]
                 if target.startswith("/"):
@@ -993,6 +995,8 @@ def make_handler(engine):
             if not self._allowed():
                 return self._json({"error": "This engine doesn't allow other PCs (Outputs > Network)"}, 403)
             path = urlparse(self.path).path
+            if appearance.handle(self, "POST", path, DATA_DIR):
+                return
             q = parse_qs(urlparse(self.path).query)
             local = _is_local(self.client_address[0])
             try:
