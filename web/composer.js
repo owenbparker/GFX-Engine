@@ -231,16 +231,97 @@
   });
 
   // --- the canvas --------------------------------------------------------------
-  function fitStage() {
+  // Zoom: Ctrl + scroll wheel zooms toward the mouse, the scroll wheel pans
+  // while zoomed in (Shift: sideways), middle mouse or Space + drag pans too,
+  // Ctrl+0 or the zoom button fits the whole graphic again. zoom is relative
+  // to "fit"; offX/offY are where the graphic's top left sits on screen.
+  let zoom = 1, spaceDown = false;
+  const ZOOM_MIN = 0.25, ZOOM_MAX = 16;
+  const fitScale = r => Math.max(0.01, Math.min((r.width - 48) / GFX.W, (r.height - 48) / GFX.H));
+  function applyView() {
     const r = canvas.getBoundingClientRect();
-    const pad = 24;
-    scale = Math.min((r.width - pad * 2) / GFX.W, (r.height - pad * 2) / GFX.H);
-    offX = (r.width - GFX.W * scale) / 2;
-    offY = (r.height - GFX.H * scale) / 2;
+    // Keep at least 80 px of the graphic on screen.
+    const w = GFX.W * scale, hh = GFX.H * scale, keep = 80;
+    offX = Math.min(r.width - keep, Math.max(keep - w, offX));
+    offY = Math.min(r.height - keep, Math.max(keep - hh, offY));
     stage.style.transform = `translate(${offX}px, ${offY}px) scale(${scale})`;
+    const zb = $("#canvas-zoom");
+    if (zb) zb.textContent = zoom === 1 ? "Fit" : Math.round(scale * 100) + "%";   // % of real size
+    canvas.classList.toggle("zoomed", zoom !== 1);
     drawSelection();
   }
-  new ResizeObserver(fitStage).observe(canvas);
+  function fitStage() {
+    const r = canvas.getBoundingClientRect();
+    zoom = 1;
+    scale = fitScale(r);
+    offX = (r.width - GFX.W * scale) / 2;
+    offY = (r.height - GFX.H * scale) / 2;
+    applyView();
+  }
+  function zoomTo(z, cx, cy) {
+    const r = canvas.getBoundingClientRect();
+    if (cx == null) { cx = r.width / 2; cy = r.height / 2; }
+    zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
+    if (Math.abs(zoom - 1) < 0.02) return fitStage();
+    // The point of the graphic under (cx, cy) stays under it.
+    const gx = (cx - offX) / scale, gy = (cy - offY) / scale;
+    scale = fitScale(r) * zoom;
+    offX = cx - gx * scale; offY = cy - gy * scale;
+    applyView();
+  }
+  let lastSize = null;
+  new ResizeObserver(() => {
+    const r = canvas.getBoundingClientRect();
+    if (zoom === 1 || !lastSize) fitStage();
+    else {
+      // Keep the middle of the view where it was and the same zoom.
+      offX += (r.width - lastSize[0]) / 2; offY += (r.height - lastSize[1]) / 2;
+      scale = fitScale(r) * zoom;
+      applyView();
+    }
+    lastSize = [r.width, r.height];
+  }).observe(canvas);
+  canvas.addEventListener("wheel", e => {
+    if (!comp) return;
+    const r = canvas.getBoundingClientRect();
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      // Pixel or line deltas; trackpad pinch also arrives as Ctrl + wheel.
+      const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+      zoomTo(zoom * Math.exp(-Math.max(-300, Math.min(300, dy)) * 0.0015), e.clientX - r.left, e.clientY - r.top);
+    } else if (zoom > 1) {
+      e.preventDefault();
+      const k = e.deltaMode === 1 ? 33 : 1;
+      if (e.shiftKey && !e.deltaX) offX -= e.deltaY * k;
+      else { offX -= e.deltaX * k; offY -= e.deltaY * k; }
+      applyView();
+    }
+  }, { passive: false });
+  // Middle mouse, or Space held, drags the view.
+  canvas.addEventListener("mousedown", e => {
+    if (!(e.button === 1 || (e.button === 0 && spaceDown))) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    const sx = e.clientX - offX, sy = e.clientY - offY;
+    canvas.classList.add("panning");
+    const move = ev => { offX = ev.clientX - sx; offY = ev.clientY - sy; applyView(); };
+    const up = () => { removeEventListener("mousemove", move); removeEventListener("mouseup", up); canvas.classList.remove("panning"); };
+    addEventListener("mousemove", move);
+    addEventListener("mouseup", up);
+  }, true);
+  canvas.addEventListener("auxclick", e => { if (e.button === 1) e.preventDefault(); });
+  addEventListener("keydown", e => {
+    if (App.tab !== "composer" || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+    const mod = e.ctrlKey || e.metaKey;
+    if (e.key === " " && !mod) { e.preventDefault(); if (!spaceDown) { spaceDown = true; canvas.classList.add("can-pan"); } return; }
+    if (!mod) return;
+    if (e.key === "0") { e.preventDefault(); fitStage(); }
+    else if (e.key === "1") { e.preventDefault(); zoomTo(1 / fitScale(canvas.getBoundingClientRect())); }   // 100%: real pixels
+    else if (e.key === "=" || e.key === "+") { e.preventDefault(); zoomTo(zoom * 1.25); }
+    else if (e.key === "-") { e.preventDefault(); zoomTo(zoom / 1.25); }
+  });
+  addEventListener("keyup", e => { if (e.key === " ") { spaceDown = false; canvas.classList.remove("can-pan"); } });
+  addEventListener("blur", () => { spaceDown = false; canvas.classList.remove("can-pan"); });
+  $("#canvas-zoom").addEventListener("click", fitStage);
   $("#canvas-bg").addEventListener("change", e => { canvas.className = "canvas " + e.target.value; try { localStorage.setItem("gfx-canvas-bg", e.target.value); } catch (err) { /* */ } });
   try { const bg = localStorage.getItem("gfx-canvas-bg"); if (bg) { $("#canvas-bg").value = bg; } } catch (e) { /* */ }
   canvas.className = "canvas " + $("#canvas-bg").value;
@@ -733,7 +814,7 @@
       hudSection(),
       linksSection(),
       h("div", { class: "sect" }, h("h3", {}, "Shortcuts"),
-        h("p", { class: "muted small" }, "Drag to move (Shift: straight, Ctrl: no snapping), handles to resize (Shift: keep shape). Arrows nudge (Shift: 10). Ctrl+D duplicates, Delete removes, Ctrl+Z / Ctrl+Shift+Z undo / redo. Alt+click picks the layer underneath.")));
+        h("p", { class: "muted small" }, "Drag to move (Shift: straight, Ctrl: no snapping), handles to resize (Shift: keep shape). Arrows nudge (Shift: 10). Ctrl+D duplicates, Delete removes, Ctrl+Z / Ctrl+Shift+Z undo / redo. Alt+click picks the layer underneath. Ctrl+scroll zooms (Ctrl+0 fits, Ctrl+1 is 100%), scroll or middle-drag or Space+drag moves around while zoomed.")));
   }
   // --- Add to a HUD: this graphic as a game HUD's own overlay -------------------
   let hudGame = "rl";

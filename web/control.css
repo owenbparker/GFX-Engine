@@ -150,6 +150,8 @@ label > input, label > select, label > textarea { margin-top: 3px; color: var(--
 .canvas.black { background: #000; } .canvas.grey { background: #555; } .canvas.white { background: #fff; }
 #canvas-stage { position: absolute; transform-origin: 0 0; outline: 1px dashed #ffffff40; }
 #canvas-sel { position: absolute; inset: 0; pointer-events: none; }
+.canvas.can-pan { cursor: grab; } .canvas.panning, .canvas.panning * { cursor: grabbing !important; }
+#canvas-zoom { min-width: 52px; font-variant-numeric: tabular-nums; }
 .sel-box { position: absolute; border: 1px solid var(--accent); pointer-events: none; }
 .sel-box.hover { border-color: #2e90fa88; border-style: dashed; }
 .handle { position: absolute; width: 10px; height: 10px; background: #fff; border: 1px solid var(--accent); border-radius: 2px; pointer-events: auto; transform: translate(-50%, -50%); }
