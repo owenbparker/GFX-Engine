@@ -233,6 +233,9 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const sig = JSON.stringify([comps.map(c => [c.id, c.name, c.kind, c.layers]), pv.on, pg.on, pv.values, selected]);
     if (!force && list.dataset.sig === sig) return;
     list.dataset.sig = sig;
+    // Where the operator is now: read before building, because the cached thumbnails move
+    // into the new rows and the old list shrinks under the scroll (it jumped up on every PVW / TAKE).
+    const top = list.scrollTop;
     if (!comps.length) {
       list.replaceChildren(h("div", { class: "empty" }, q ? "Nothing matches." : "No graphics yet. Make one in Composer, or add a Photoshop file in Assets."));
       return;
@@ -248,6 +251,13 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const huds = comps.filter(c => c.hud);
     if (huds.length) rows.push(h("div", { class: "rd-group" }, "Game HUD"), ...huds.map(row));
     list.replaceChildren(...rows);
+    list.scrollTop = top;
+  }
+  // Rebuild a list and keep it scrolled where it was (or back to the top when keep is false).
+  function keepScroll(el, fn, keep = true) {
+    const top = keep ? el.scrollTop : 0;
+    fn();
+    el.scrollTop = top;
   }
   function row(c) {
     const pv = App.state.live.preview, pg = App.state.live.program;
@@ -354,11 +364,14 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
       return;
     }
     box.dataset.sig = sig;
+    // Same graphic rebuilt (a take, a new asset...): stay where you were. Another graphic starts at the top.
+    const same = box.dataset.comp === comp.id;
+    box.dataset.comp = comp.id;
     if (!fields.length) {
-      box.replaceChildren(...(bracket || sched || clock || timer || roster || mvp || caster || pics || comp.hud ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")]));
+      keepScroll(box, () => box.replaceChildren(...(bracket || sched || clock || timer || roster || mvp || caster || pics || comp.hud ? extras() : [h("div", { class: "empty" }, "This graphic has no fields. In Composer, pick a layer and give it a field name to change it from here.")])), same);
       return;
     }
-    box.replaceChildren(...fields.map(l => {
+    keepScroll(box, () => { box.replaceChildren(...fields.map(l => {
       const v = pvVals[l.field];
       let input;
       if (l.type === "text") {
@@ -386,8 +399,7 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
         h("div", { class: "row-gap" }, input, link,
           h("button", { class: "ghost small", title: "Back to the design's own", onclick: () => { input.value = ""; push(comp.id, l.field, null); updateResolved(res, l, ""); } }, "↺")),
         res);
-    }));
-    box.prepend(...extras());
+    })); box.prepend(...extras()); }, same);
   }
   // A knockout bracket: how many teams (the tournament's, in Global; changes it on air too).
   function sizeField(s) {
