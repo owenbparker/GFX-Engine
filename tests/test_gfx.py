@@ -650,6 +650,8 @@ class TournamentTests(unittest.TestCase):
         self.assertEqual(r16["Top R3 M2 team 2"], "M")     # (nobody against it twice: through)
         self.assertEqual(r16["Top R2 M1 team 1"], "")      # (not played yet)
         self.assertEqual(tournament.clean({"top": {"format": "triple"}})["top"]["format"], "single")
+        self.assertEqual(r16["Top short names"], "off")
+        self.assertEqual(dict(tournament.rows({"top": {"short": True}})[1:])["Top short names"], "on")
 
     def test_groups(self):
         from gfxengine import tournament

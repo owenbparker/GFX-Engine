@@ -168,6 +168,8 @@ upper bracket, a lower bracket the upper bracket's losers drop into, the
 grand final, and a grand final reset if the lower bracket's team wins it
 (turn the reset off for a single grand final). The Top 8 bracket graphic
 draws the whole thing with the same slots, lines and champion frame.
+Tick **Short names on air** to show each team's short name (from the Teams
+tab) on the bracket graphic instead of the full name.
 Lower bracket matches are `{{Tournament!Top L1 M1 team 1}}` ..., the grand
 final `{{Tournament!Top GF team 1}}` and its reset `{{Tournament!Top GF2 team 1}}`;
 the final four then shows the upper and lower finals and the grand final.

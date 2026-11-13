@@ -261,6 +261,7 @@
     for (const b of document.querySelectorAll("#tn-format button")) b.classList.toggle("on", b.dataset.format === fmt);
     $("#tn-reset-wrap").hidden = fmt !== "double";
     $("#tn-reset").checked = top.reset !== false;
+    $("#tn-short").checked = !!top.short;
     if (fmt === "double") return renderDouble(top, box);
     const cols = ROUNDS[size].map((title, r) => {
       const matches = [];
@@ -285,6 +286,7 @@
   document.querySelectorAll("#tn-format button").forEach(b => b.addEventListener("click", () => {
     t.top.format = b.dataset.format; changed(); renderTop(); refresh();
   }));
+  $("#tn-short").addEventListener("change", e => { t.top.short = e.target.checked; changed(); });
   $("#tn-reset").addEventListener("change", e => { t.top.reset = e.target.checked; changed(); renderTop(); refresh(); });
   $("#tn-top-scores").addEventListener("click", () => { if (confirm("Clear every score in the knockout bracket?")) { t.top.scores = {}; changed(); renderTop(); } });
   $("#tn-group-scores").addEventListener("click", () => { if (confirm("Clear every score in the groups?")) { t.groups.forEach(g => (g.scores = {})); changed(); renderGroups(); } });

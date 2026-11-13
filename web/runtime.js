@@ -353,7 +353,8 @@
     function slot(x, y, w, hgt, team, score, fill, lost, big) {
       const s = el("div", "gfx-bk-slot", { left: x + "px", top: y + "px", width: w + "px", height: hgt + "px", background: fill,
         opacity: lost ? 0.5 : 1, fontFamily: family, fontWeight: weight, color: layer.color || "#ffffff" });
-      const name = get(team), logo = get(team + " logo");
+      // (Short names: the team list's short name, when it has one)
+      const name = (get("Top short names") === "on" && get(team + " short")) || get(team), logo = get(team + " logo");
       const sq = big ? 0 : hgt * 0.67;
       if (logo) {
         const img = el("img", "gfx-bk-logo", { width: hgt * 0.8 + "px", height: hgt * 0.8 + "px", left: hgt * 0.12 + "px", top: hgt * 0.1 + "px" });

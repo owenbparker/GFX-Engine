@@ -75,7 +75,7 @@ def all_keys():
 
 
 def default():
-    return {"top": {"size": 8, "format": "single", "reset": True, "teams": [""] * 16, "scores": {}},
+    return {"top": {"size": 8, "format": "single", "reset": True, "short": False, "teams": [""] * 16, "scores": {}},
             "groups": [{"name": f"GROUP {g}", "teams": [""] * 4, "scores": {}} for g in GROUP_NAMES]}
 
 
@@ -89,7 +89,7 @@ def clean(t):
     size = size if size in SIZES else 8
     teams = [str(x or "").strip()[:120] for x in (top.get("teams") or [])][:16]
     fmt = top.get("format") if top.get("format") in FORMATS else "single"
-    out = {"top": {"size": size, "format": fmt, "reset": top.get("reset") is not False,
+    out = {"top": {"size": size, "format": fmt, "reset": top.get("reset") is not False, "short": bool(top.get("short")),
                    "teams": teams + [""] * (16 - len(teams)), "scores": _scores(top.get("scores"), all_keys())}}
     groups = t.get("groups") if isinstance(t.get("groups"), list) else []
     out["groups"] = []
@@ -242,6 +242,7 @@ def rows(t, find=None):
     out.append(["Top teams", str(top["size"])])
     out.append(["Top format", top["format"]])
     out.append(["Top reset", "on" if top["reset"] else "off"])
+    out.append(["Top short names", "on" if top["short"] else "off"])     # (the bracket graphic shows each team's short name)
 
     def matches(prefix, rounds):
         for r, ms in enumerate(rounds, 1):
