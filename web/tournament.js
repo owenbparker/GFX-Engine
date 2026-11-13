@@ -216,9 +216,52 @@
   const logoOf = name => { const tm = (App.state.teams || []).find(x => x.name.toLowerCase() === String(name || "").toLowerCase()); return tm && tm.logo; };
   const nameBox = row => h("div", { class: "tn-name", "data-row": row });
 
+  // Double elimination: the lower bracket's rounds (matches in each), and their names.
+  const lowerCounts = size => { const out = []; for (let n = size / 4; n >= 1; n = n / 2) out.push(n, n); return out; };
+  const lowerName = (r, n) => r === n - 1 ? "Lower final" : `Lower round ${r + 1}`;
+  const upperName = (r, n) => r === n - 1 ? "Upper final" : r === n - 2 ? "Upper semi-finals" : `Upper round ${r + 1}`;
+  function matchBox(top, key, first, m) {
+    const side = s => h("div", { class: "tn-slot" },
+      h("i", { class: "tn-logo", "data-logo": `Top ${key} team ${s + 1}` }),
+      first ? teamInput(top.teams[2 * m + s], v => { top.teams[2 * m + s] = v; changed(); }) : nameBox(`Top ${key} team ${s + 1}`),
+      scoreInput(top.scores, key, s));
+    return h("div", { class: "tn-match" }, side(0), side(1));
+  }
+  const champCol = () => h("div", { class: "tn-col champ" }, h("div", { class: "tn-title" }, "Champion"),
+    h("div", { class: "tn-col-body" }, h("div", { class: "tn-match" }, h("div", { class: "tn-slot" },
+      h("i", { class: "tn-logo", "data-logo": "Top champion" }), nameBox("Top champion")))));
+  function renderDouble(top, box) {
+    const size = top.size, ur = Math.log2(size), lc = lowerCounts(size);
+    const col = (title, matches) => h("div", { class: "tn-col" }, h("div", { class: "tn-title" }, title), h("div", { class: "tn-col-body" }, ...matches));
+    const upper = [];
+    for (let r = 0; r < ur; r++) {
+      const ms = [];
+      for (let m = 0; m < size >> (r + 1); m++) ms.push(matchBox(top, `R${r + 1} M${m + 1}`, r === 0, m));
+      upper.push(col(upperName(r, ur), ms));
+    }
+    const lower = lc.map((n, r) => {
+      const ms = [];
+      for (let m = 0; m < n; m++) ms.push(matchBox(top, `L${r + 1} M${m + 1}`, false, m));
+      return col(lowerName(r, lc.length), ms);
+    });
+    const gf = [h("div", { class: "tn-mname muted small" }, "Grand final"), matchBox(top, "GF", false, 0)];
+    if (top.reset) gf.push(h("div", { class: "tn-mname muted small" }, "Reset (if the lower team wins)"), matchBox(top, "GF2", false, 0));
+    box.replaceChildren(h("div", { class: "tn-double" },
+      h("div", { class: "tn-dbl-brackets" },
+        h("div", { class: "tn-dbl-label" }, "Upper bracket"), h("div", { class: "tn-rounds" }, ...upper),
+        h("div", { class: "tn-dbl-label" }, "Lower bracket"), h("div", { class: "tn-rounds" }, ...lower)),
+      h("div", { class: "tn-col tn-gf" }, h("div", { class: "tn-title" }, "Grand final"), h("div", { class: "tn-col-body" }, h("div", { class: "tn-gf-box" }, ...gf))),
+      champCol()));
+  }
+
   function renderTop() {
     const top = t.top, size = top.size, box = $("#tn-top");
     for (const b of document.querySelectorAll("#tn-size button")) b.classList.toggle("on", +b.dataset.size === size);
+    const fmt = top.format === "double" ? "double" : "single";
+    for (const b of document.querySelectorAll("#tn-format button")) b.classList.toggle("on", b.dataset.format === fmt);
+    $("#tn-reset-wrap").hidden = fmt !== "double";
+    $("#tn-reset").checked = top.reset !== false;
+    if (fmt === "double") return renderDouble(top, box);
     const cols = ROUNDS[size].map((title, r) => {
       const matches = [];
       for (let m = 0; m < size >> (r + 1); m++) {
@@ -239,6 +282,10 @@
   document.querySelectorAll("#tn-size button").forEach(b => b.addEventListener("click", () => {
     t.top.size = +b.dataset.size; changed(); renderTop(); refresh();
   }));
+  document.querySelectorAll("#tn-format button").forEach(b => b.addEventListener("click", () => {
+    t.top.format = b.dataset.format; changed(); renderTop(); refresh();
+  }));
+  $("#tn-reset").addEventListener("change", e => { t.top.reset = e.target.checked; changed(); renderTop(); refresh(); });
   $("#tn-top-scores").addEventListener("click", () => { if (confirm("Clear every score in the knockout bracket?")) { t.top.scores = {}; changed(); renderTop(); } });
   $("#tn-group-scores").addEventListener("click", () => { if (confirm("Clear every score in the groups?")) { t.groups.forEach(g => (g.scores = {})); changed(); renderGroups(); } });
 

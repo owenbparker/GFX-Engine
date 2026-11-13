@@ -374,6 +374,7 @@
       // (too long: narrower)
       requestAnimationFrame(() => { const k = nameBox.clientWidth / (nameBox.scrollWidth || 1); if (k < 1) nameBox.style.fontSize = parseFloat(nameBox.style.fontSize) * Math.max(0.5, k) + "px"; });
     }
+    if (get("Top format") === "double") return drawDouble();
     let centres = [];
     for (let r = 0; r < rounds; r++) {
       const n = size >> (r + 1), x = r * (sw + gap), next = [];
@@ -409,6 +410,91 @@
     box.appendChild(frame);
     const pad = ch * 0.1;
     slot(cx + pad, cy - ch / 2 + pad, cw - 2 * pad, ch - 2 * pad, "Top champion", "", dark, false, true);
+
+    // Double elimination: the upper bracket on top, the lower bracket under
+    // it (its rounds in columns, the upper rounds lined up with the lower
+    // rounds they drop teams into), then the grand final, its reset and the
+    // champion. The same slots, lines and champion frame as the single one.
+    function drawDouble() {
+      const k = rounds, L = 2 * k - 2, reset = get("Top reset") !== "off";
+      const ncols = L + 1 + (reset ? 1 : 0);
+      const sw = Wd / (ncols * 1.22 + 1.15), gap = sw * 0.22, cw = sw * 1.15;
+      const lh = Math.max(14, Ht * 0.045), sepH = Ht * 0.03;
+      const unit = (Ht - 2 * lh - sepH) / (size * 0.75);
+      const sh = Math.min(Ht * 0.08, unit * (size === 16 ? 0.36 : 0.42)), g = sh / 6;
+      const uTop = lh, lTop = lh + unit * size / 2 + sepH + lh;
+      const colX = c => c * (sw + gap);
+      const label = (text, x, y, w, align) => {
+        const t = el("div", "gfx-bk-label", { left: x + "px", top: y + "px", width: w + "px", height: lh + "px", fontSize: lh * 0.8 + "px",
+          fontFamily: family, fontWeight: weight, color: line, justifyContent: align || "flex-start" });
+        t.textContent = text;
+        box.appendChild(t);
+      };
+      label("Upper bracket", 0, 0, Wd * 0.5);
+      label("Lower bracket", 0, lTop - lh, Wd * 0.5);
+      const match = (key, x, cy, fill, unneeded) => {
+        const winner = get(`Top ${key} winner`);
+        for (let t = 0; t < 2; t++) {
+          const team = `Top ${key} team ${t + 1}`;
+          const lost = unneeded || (!!winner && !!get(team) && get(team) !== winner);
+          slot(x, t ? cy + g / 2 : cy - g / 2 - sh, sw, sh, team, team + " score", fill, lost);
+        }
+      };
+      // (a line from a match on to a slot of a later one)
+      const into = (x, cy, tx, ncy, side) => {
+        const ty = side ? ncy + g / 2 + sh / 2 : ncy - g / 2 - sh / 2;
+        const x1 = x + sw + 4, x2 = tx - 4, xm = x2 - gap / 2 + 4;
+        path(`M${x1} ${cy}H${xm}V${ty}H${x2}`);
+      };
+      // The upper bracket.
+      let ucs = [], ucol = 0;
+      for (let r = 0; r < k; r++) {
+        const n = size >> (r + 1), col = r === 0 ? 0 : 2 * r - 1, x = colX(col), next = [];
+        for (let m = 0; m < n; m++) {
+          const cy = r === 0 ? uTop + unit * (m + 0.5) : (ucs[2 * m] + ucs[2 * m + 1]) / 2;
+          next.push(cy);
+          match(`R${r + 1} M${m + 1}`, x, cy, r === 0 ? gold : dark);
+        }
+        if (r > 0) for (let m = 0; m < ucs.length; m++) into(colX(ucol), ucs[m], x, next[m >> 1], m & 1);
+        ucs = next; ucol = col;
+      }
+      // The lower bracket.
+      let lcs = [];
+      for (let r = 0; r < L; r++) {
+        const n = (size / 4) >> (r >> 1), x = colX(r), next = [];
+        const halves = r > 0 && r % 2 === 0;
+        for (let m = 0; m < n; m++) {
+          const cy = r === 0 ? lTop + unit * (m + 0.5) : halves ? (lcs[2 * m] + lcs[2 * m + 1]) / 2 : lcs[m];
+          next.push(cy);
+          match(`L${r + 1} M${m + 1}`, x, cy, dark);
+        }
+        if (r > 0) for (let m = 0; m < lcs.length; m++) into(colX(r - 1), lcs[m], x, halves ? next[m >> 1] : next[m], halves ? m & 1 : 0);
+        lcs = next;
+      }
+      // The grand final (the upper bracket's winner against the lower's), its reset, the champion.
+      const gy = (ucs[0] + lcs[0]) / 2, gx = colX(L);
+      into(colX(L - 1), ucs[0], gx, gy, 0);
+      into(colX(L - 1), lcs[0], gx, gy, 1);
+      label("Grand final", gx, gy - g / 2 - sh - lh * 1.15, sw, "center");
+      match("GF", gx, gy, dark);
+      let last = gx;
+      if (reset) {
+        const rx = colX(L + 1);
+        label("Reset", rx, gy - g / 2 - sh - lh * 1.15, sw, "center");
+        path(`M${gx + sw + 4} ${gy}H${rx - 4}`);
+        // (dimmed when the upper bracket's team won the grand final: no reset)
+        const gfw = get("Top GF winner");
+        match("GF2", rx, gy, dark, !!gfw && gfw === get("Top GF team 1"));
+        last = rx;
+      }
+      const cx = colX(ncols), ch = sh * 2.4;
+      path(`M${last + sw + 4} ${gy}H${cx - 4}`);
+      const frame = el("div", "gfx-bk-champ", { left: cx + "px", top: gy - ch / 2 + "px", width: cw + "px", height: ch + "px",
+        borderColor: layer.champ || "#ffc52a", borderWidth: Math.max(2, sh / 14) + "px" });
+      box.appendChild(frame);
+      const pad = ch * 0.1;
+      slot(cx + pad, gy - ch / 2 + pad, cw - 2 * pad, ch - 2 * pad, "Top champion", "", dark, false, true);
+    }
   }
 
   function buildOther(layer, value, opts) {
@@ -1121,6 +1207,7 @@
     .gfx-bk-logo{position:absolute;object-fit:contain}
     .gfx-bk-name{position:absolute;top:0;bottom:0;display:flex;align-items:center;white-space:nowrap;text-transform:uppercase;letter-spacing:-.01em;overflow:hidden}
     .gfx-bk-score{position:absolute;right:0;top:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center}
+    .gfx-bk-label{position:absolute;display:flex;align-items:center;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
     .gfx-bk-champ{position:absolute;box-sizing:border-box;border-style:solid}
     .gfx-cover{position:absolute;inset:0;z-index:9000}
     .gfx-stinger{position:absolute;inset:0;width:100%;height:100%;z-index:9500;visibility:hidden;object-fit:cover;pointer-events:none}

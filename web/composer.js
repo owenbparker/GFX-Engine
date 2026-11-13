@@ -740,7 +740,7 @@
         l.show ? h("div", { class: "muted small" }, `Shown only while ${l.show} has something in it.`) : null));
     } else if (l.type === "bracket") {
       sections.push(h("div", { class: "sect" }, h("h3", {}, "Bracket"),
-        h("p", { class: "muted small" }, "The knockout bracket from Global > Tournament: 8 or 16 teams (Control has the choice), drawn to fit this box."),
+        h("p", { class: "muted small" }, "The knockout bracket from Global > Tournament: 8 or 16 teams, single or double elimination (Control has the choice), drawn to fit this box."),
         lab("Font", h("select", { onchange: e => { snapshot(); l.font = e.target.value; changed({ props: true }); } }, fontOptions(l.font))),
         h("div", { class: "grid2" }, bind(l, "color", "color", { label: "Text" }), bind(l, "gold", "color", { label: "First round" })),
         h("div", { class: "grid2" }, bind(l, "dark", "color", { label: "Later rounds" }), bind(l, "line", "color", { label: "Lines" })),

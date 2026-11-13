@@ -404,14 +404,17 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
   }
   // A knockout bracket: how many teams (the tournament's, in Global; changes it on air too).
   function sizeField(s) {
-    const set = size => {
+    const set = (k, v) => {
       const t = JSON.parse(JSON.stringify(App.state.global.tournament));
-      t.top.size = size;
+      t.top[k] = v;
       api("/api/global", { global: { tournament: t } });
     };
     const el = h("div", { class: "field bracket-size" },
       h("label", {}, "Teams in the bracket", h("span", { class: "kind" }, "tournament")),
-      h("select", { "data-k": "size", onchange: e => set(+e.target.value) }, ...[8, 16].map(n => h("option", { value: n }, `${n} teams`))),
+      h("select", { "data-k": "size", onchange: e => set("size", +e.target.value) }, ...[8, 16].map(n => h("option", { value: n }, `${n} teams`))),
+      h("label", {}, "Format"),
+      h("select", { "data-k": "format", onchange: e => set("format", e.target.value) },
+        h("option", { value: "single" }, "Single elimination"), h("option", { value: "double" }, "Double elimination")),
       h("div", { class: "resolved" }, "The teams and scores are in the Tournament tab. This changes the bracket on air too."));
     markSize(el, s);
     return el;
@@ -613,6 +616,8 @@ $("#update").addEventListener("click", () => api("/api/update/install"));
     const size = ((s.global.tournament || {}).top || {}).size || 8;
     const sel = el.querySelector("[data-k=size]");
     if (sel && document.activeElement !== sel) sel.value = String(size);
+    const fsel = el.querySelector("[data-k=format]");
+    if (fsel && document.activeElement !== fsel) fsel.value = ((s.global.tournament || {}).top || {}).format === "double" ? "double" : "single";
     const st = s.global.standings || {};
     for (const k of ["stat", "stat2"]) {
       const sel = el.querySelector(`[data-k=st-${k}]`);

@@ -624,6 +624,33 @@ class TournamentTests(unittest.TestCase):
         self.assertEqual(rows16["Top R2 M3 team 1"], "")                 # (16: the 9th team on is empty)
         self.assertEqual(tournament.clean({"top": {"size": 12}})["top"]["size"], 8)
 
+    def test_double_elimination(self):
+        from gfxengine import tournament
+        sc = {"R1 M1": [2, 0], "R1 M2": [2, 0], "R1 M3": [2, 0], "R1 M4": [2, 0], "R2 M1": [2, 0], "R2 M2": [0, 2], "R3 M1": [2, 1],
+              "L1 M1": [2, 0], "L1 M2": [0, 2], "L2 M1": [2, 0], "L2 M2": [2, 0], "L3 M1": [2, 0], "L4 M1": [0, 2], "GF": [1, 2]}
+        t = tournament.clean({"top": {"size": 8, "format": "double", "teams": list("ABCDEFGH"), "scores": sc}})
+        rows = dict(tournament.rows(t)[1:])
+        self.assertEqual(rows["Top format"], "double")
+        self.assertEqual((rows["Top L1 M1 team 1"], rows["Top L1 M1 team 2"]), ("B", "D"))       # first round losers
+        self.assertEqual((rows["Top L2 M1 team 1"], rows["Top L2 M1 team 2"]), ("B", "E"))       # upper losers drop in, crossed
+        self.assertEqual((rows["Top L2 M2 team 1"], rows["Top L2 M2 team 2"]), ("H", "C"))
+        self.assertEqual((rows["Top L4 M1 team 1"], rows["Top L4 M1 team 2"]), ("B", "G"))       # the upper final's loser
+        self.assertEqual((rows["Top GF team 1"], rows["Top GF team 2"], rows["Top GF winner"]), ("A", "G", "G"))
+        self.assertEqual((rows["Top GF2 team 1"], rows["Top GF2 team 2"]), ("A", "G"))           # the lower team won: reset
+        self.assertEqual(rows["Top champion"], "")
+        t["top"]["scores"]["GF2"] = ["3", "1"]
+        self.assertEqual(dict(tournament.rows(t)[1:])["Top champion"], "A")
+        t["top"]["reset"] = False
+        self.assertEqual(dict(tournament.rows(t)[1:])["Top champion"], "G")
+        # 16 teams, with byes: nobody waits on an empty slot.
+        t16 = tournament.clean({"top": {"size": 16, "format": "double", "teams": list("ABCDEFGHIJKLM"), "scores": {}}})
+        r16 = dict(tournament.rows(t16)[1:])
+        self.assertIn("Top L6 M1 team 1", r16)
+        self.assertEqual(r16["Top R2 M4 team 1"], "M")
+        self.assertEqual(r16["Top R3 M2 team 2"], "M")     # (nobody against it twice: through)
+        self.assertEqual(r16["Top R2 M1 team 1"], "")      # (not played yet)
+        self.assertEqual(tournament.clean({"top": {"format": "triple"}})["top"]["format"], "single")
+
     def test_groups(self):
         from gfxengine import tournament
         g = {"name": "GROUP A", "teams": ["A", "B", "C", "D"],

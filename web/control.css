@@ -407,6 +407,14 @@ table.sheet td.c:hover { background: #1d3b5e; }
 .tn-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px; }
 .tn-team { flex: 1; padding: 4px 6px; }
 .tn-score { flex: 0 0 42px; width: 42px; text-align: center; padding: 4px; }
+.tn-double { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 6px; }
+.tn-dbl-brackets { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.tn-dbl-brackets .tn-rounds + .tn-dbl-label { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+.tn-dbl-label { font-size: 12px; font-weight: 700; }
+.tn-double .tn-rounds { overflow: visible; }
+.tn-double .tn-col { min-width: 190px; flex-basis: 190px; }
+.tn-double .tn-col.champ { min-width: 180px; flex: 0 0 180px; }
+.tn-gf-box { display: flex; flex-direction: column; gap: 4px; }
 .tn-groups { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .tn-group { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
 .tn-group .tn-match { background: var(--panel); }
