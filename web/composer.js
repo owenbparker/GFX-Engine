@@ -42,6 +42,8 @@
   function restore(json) {
     comp = JSON.parse(json);
     if (!comp.layers.some(l => l.id === selected)) selected = null;
+    for (const id of [...multi]) if (!comp.layers.some(l => l.id === id)) multi.delete(id);
+    if (multi.size < 2) multi.clear();
     changed({ props: true });
   }
 
@@ -59,6 +61,7 @@
   function open(id) {
     compId = id;
     selected = null;
+    multi.clear();
     undo.length = redo.length = 0;
     try { localStorage.setItem("gfx-edit", id); } catch (e) { /* */ }
     adopt(true);
@@ -347,6 +350,13 @@
   const HANDLES = ["nw", "n", "ne", "e", "se", "s", "sw", "w"];
   function drawSelection(guides) {
     selLayer.replaceChildren();
+    for (const id of multi) {
+      const o = layerById(id);
+      if (!o || id === selected) continue;
+      const [ox, oy] = toScreen(o.x, o.y);
+      selLayer.appendChild(h("div", { class: "sel-box also", style: { left: ox + "px", top: oy + "px", width: o.w * scale + "px", height: o.h * scale + "px",
+        transform: o.rotation ? `rotate(${o.rotation}deg)` : "" } }));
+    }
     const l = layerById(selected);
     if (!l) { $("#canvas-pos").textContent = ""; return; }
     const [x, y] = toScreen(l.x, l.y);
@@ -408,6 +418,7 @@
       const under = hit(px, py);
       // Clicking inside the selected layer keeps it (it may be under another).
       if (!(l && px >= l.x && px <= l.x + l.w && py >= l.y && py <= l.y + l.h) || e.altKey) l = under;
+      if (!l || !multi.has(l.id)) multi.clear();
       selected = l ? l.id : null;
       renderLayers();
       renderProps();
@@ -473,7 +484,13 @@
       return;
     }
     if (mod && e.key.toLowerCase() === "y") { e.preventDefault(); if (redo.length) { undo.push(JSON.stringify(comp)); restore(redo.pop()); } return; }
+    if (mod && e.key.toLowerCase() === "v" && !e.altKey) { e.preventDefault(); pasteLayers(); return; }
     if (!l) return;
+    if (mod && (e.key.toLowerCase() === "c" || e.key.toLowerCase() === "x") && !e.altKey) {
+      e.preventDefault();
+      copyLayers(e.key.toLowerCase() === "x");
+      return;
+    }
     const step = e.shiftKey ? 10 : 1;
     const moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
     if (moves[e.key]) {
@@ -483,17 +500,94 @@
       changed({ keepList: true });
     } else if (e.key === "Delete" || e.key === "Backspace") {
       e.preventDefault();
-      snapshot();
-      comp.layers = comp.layers.filter(x => x.id !== l.id);
-      selected = null;
-      changed({ props: true });
+      removeLayers(picked());
     } else if (mod && e.key.toLowerCase() === "d") {
       e.preventDefault();
-      duplicateLayer(l);
+      if (multi.size > 1) placeLayers(picked(), 20, " copy");
+      else duplicateLayer(l);
     } else if (e.key === "Escape") {
       selectLayer(null);
     }
   });
+  // --- copy and paste -------------------------------------------------------
+  // Ctrl+C / Ctrl+X copy the picked layers (all of a Ctrl / Shift pick, in
+  // their stacking order) whole: style, field, live data links, "Show when",
+  // animations and the files they use. Ctrl+V puts them in whichever graphic
+  // is open, where they were (20 px on in the graphic they came from, more
+  // each time), above the selected layer, with new ids. The copy is kept
+  // while the engine runs (and in other Composer windows); from a graphic in
+  // another workspace the engine brings the files over too.
+  const CLIP_KEY = "gfx-layer-clip";
+  let clip = null, pastes = {};
+  const picked = () => multi.size > 1 ? comp.layers.filter(x => multi.has(x.id)) : [layerById(selected)].filter(Boolean);
+  const newLayerId = () => "l" + Math.random().toString(16).slice(2, 10);
+  const workspaceId = () => (App.state && App.state.workspace && App.state.workspace.id) || "";
+  function copyLayers(cut) {
+    const layers = picked();
+    if (!layers.length) return;
+    clip = { kind: "scc-gfx-layers", workspace: workspaceId(), comp: compId, cut: !!cut, at: Date.now(),
+      layers: JSON.parse(JSON.stringify(layers)) };
+    pastes = {};
+    try { localStorage.setItem(CLIP_KEY, JSON.stringify(clip)); } catch (e) { /* too big or private: this window keeps it */ }
+    const what = layers.length === 1 ? `"${layers[0].name}"` : `${layers.length} layers`;
+    if (cut) { removeLayers(layers); toast(`Cut ${what}: Ctrl+V pastes it into any graphic`); }
+    else toast(`Copied ${what}: Ctrl+V pastes into any graphic`);
+  }
+  function readClip() {
+    // (the newest copy, this window's or another Composer window's)
+    let stored = null;
+    try { stored = JSON.parse(localStorage.getItem(CLIP_KEY) || "null"); } catch (e) { /* */ }
+    if (stored && stored.kind === "scc-gfx-layers" && (!clip || stored.at > clip.at)) { clip = stored; pastes = {}; }
+    return clip;
+  }
+  async function pasteLayers() {
+    if (!comp) return toast("Make or pick a graphic first", true);
+    const c = readClip();
+    if (!c || !c.layers || !c.layers.length) return toast("Nothing copied yet: pick a layer and press Ctrl+C", true);
+    let layers = JSON.parse(JSON.stringify(c.layers));
+    if (c.workspace && c.workspace !== workspaceId()) {
+      // From another workspace: its pictures, videos and animations come too.
+      const r = await api("/api/layer/paste", { workspace: c.workspace, layers });
+      layers = r.layers;
+      if (r.assets && r.assets.length) toast(`Brought ${r.assets.length} file(s) over from the other workspace`);
+    }
+    // Same graphic: a step on each time (a cut goes back where it was first).
+    const here = c.comp === compId && c.workspace === workspaceId();
+    const n = (pastes[compId] || 0) + (here && !c.cut ? 1 : 0);
+    pastes[compId] = (pastes[compId] || 0) + 1;
+    placeLayers(layers, 20 * n, "", true);
+  }
+  // Adds copies of the layers to the open graphic, above the selected layer
+  // (or on top), and picks them.
+  function placeLayers(layers, offset, suffix, fresh) {
+    if (!layers.length) return;
+    snapshot();
+    const made = layers.map(src => {
+      const l = fresh ? src : JSON.parse(JSON.stringify(src));
+      l.id = newLayerId();
+      if (suffix) l.name = (l.name || "Layer") + suffix;
+      l.x = Math.round((+l.x || 0) + offset); l.y = Math.round((+l.y || 0) + offset);
+      return l;
+    });
+    // (a field of the same name would be one field with another layer here)
+    for (const l of made) if (l.field) l.field = uniqueField(l.field);
+    const anchor = picked().reduce((i, x) => Math.max(i, comp.layers.indexOf(x)), -1);
+    comp.layers.splice(anchor >= 0 ? anchor + 1 : comp.layers.length, 0, ...made);
+    multi.clear();
+    if (made.length > 1) made.forEach(l => multi.add(l.id));
+    selected = made[made.length - 1].id;
+    changed({ props: true });
+  }
+  function removeLayers(layers) {
+    if (!layers.length) return;
+    snapshot();
+    const gone = new Set(layers.map(x => x.id));
+    comp.layers = comp.layers.filter(x => !gone.has(x.id));
+    multi.clear();
+    selected = null;
+    changed({ props: true });
+  }
+
   function duplicateLayer(l) {
     snapshot();
     const copyL = JSON.parse(JSON.stringify(l));
@@ -814,7 +908,7 @@
       hudSection(),
       linksSection(),
       h("div", { class: "sect" }, h("h3", {}, "Shortcuts"),
-        h("p", { class: "muted small" }, "Drag to move (Shift: straight, Ctrl: no snapping), handles to resize (Shift: keep shape). Arrows nudge (Shift: 10). Ctrl+D duplicates, Delete removes, Ctrl+Z / Ctrl+Shift+Z undo / redo. Alt+click picks the layer underneath. Ctrl+scroll zooms (Ctrl+0 fits, Ctrl+1 is 100%), scroll or middle-drag or Space+drag moves around while zoomed.")));
+        h("p", { class: "muted small" }, "Drag to move (Shift: straight, Ctrl: no snapping), handles to resize (Shift: keep shape). Arrows nudge (Shift: 10). Ctrl+C / Ctrl+X copy or cut (Ctrl / Shift + click picks more) and Ctrl+V pastes, into this graphic or any other. Ctrl+D duplicates, Delete removes, Ctrl+Z / Ctrl+Shift+Z undo / redo. Alt+click picks the layer underneath. Ctrl+scroll zooms (Ctrl+0 fits, Ctrl+1 is 100%), scroll or middle-drag or Space+drag moves around while zoomed.")));
   }
   // --- Add to a HUD: this graphic as a game HUD's own overlay -------------------
   let hudGame = "rl";

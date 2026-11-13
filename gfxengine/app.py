@@ -570,6 +570,20 @@ class Engine:
         with open(path, "rb") as f:
             return f.read()
 
+    def paste_layers(self, from_wid, layers):
+        """Composer's paste: layers copied in another workspace bring their files
+        here. Returns {"layers", "assets": [files added]}."""
+        if not isinstance(layers, list):
+            raise ValueError("Nothing to paste")
+        folder = self.workspaces.path(from_wid) if from_wid and from_wid != self.workspace_id else None
+        if not folder:
+            return {"layers": layers, "assets": []}
+        layers, added = share.bring_layers(folder, self.ws, self.assets, layers)
+        if added:
+            self.assets_rev += 1
+            self.changed()
+        return {"layers": layers, "assets": added}
+
     def add_to_hud(self, comp_id, game):
         """Makes the graphic that game's HUD's overlay."""
         if game not in HUD_LOOK_GAMES:
@@ -1058,6 +1072,8 @@ def make_handler(engine):
                 elif path == "/api/hud-look":
                     result = {"look": engine.add_to_hud(body.get("comp") or "", body.get("game") or ""),
                               "huds": engine.hud_looks()}
+                elif path == "/api/layer/paste":
+                    result = engine.paste_layers(str(body.get("workspace") or ""), body.get("layers"))
                 elif path == "/api/layer/blank":
                     result = {"layer": blank_layer(body.get("type", "text"))}
                 elif path == "/api/project":

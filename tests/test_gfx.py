@@ -1204,6 +1204,38 @@ class ShareTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self._add(b, "broken.sccgfx", b"not a zip")
 
+    def test_layers_pasted_from_another_workspace_bring_their_files(self):
+        tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp, True)
+        e = self._engine(tmp)
+        a_id = e.workspace_id
+        png = io.BytesIO()
+        Image.new("RGBA", (4, 4), (255, 0, 0, 255)).save(png, "PNG")
+        logo = self._add(e, "logo.png", png.getvalue())["assets"][0]
+        os.makedirs(os.path.join(e.ws.assets_dir, "spin"))
+        with open(os.path.join(e.ws.assets_dir, "spin", "spin.json"), "w") as f:
+            json.dump({"v": "5.7", "layers": []}, f)
+        layers = [{"id": "l1", "type": "image", "src": logo, "x": 5, "y": 6, "w": 4, "h": 4},
+                  {"id": "l2", "type": "lottie", "src": "assets/spin/spin.json", "x": 0, "y": 0, "w": 9, "h": 9},
+                  {"id": "l3", "type": "text", "text": "{{Global!Left name}}", "x": 0, "y": 0, "w": 9, "h": 9}]
+        # (the same workspace: nothing to do)
+        self.assertEqual(e.paste_layers(a_id, layers), {"layers": layers, "assets": []})
+        e.create_workspace("Other")
+        self.assertNotEqual(e.workspace_id, a_id)
+        other = io.BytesIO()
+        Image.new("RGBA", (4, 4), (0, 0, 255, 255)).save(other, "PNG")
+        self._add(e, "logo.png", other.getvalue())
+        r = e.paste_layers(a_id, layers)
+        self.assertEqual(r["layers"][0]["src"], "assets/logo-2.png")
+        with open(e.assets.path_of("assets/logo-2.png"), "rb") as f:
+            self.assertEqual(f.read(), png.getvalue())
+        self.assertEqual(r["layers"][1]["src"], "assets/spin/spin.json")
+        self.assertTrue(os.path.isfile(os.path.join(e.ws.assets_dir, "spin", "spin.json")))
+        self.assertEqual(r["layers"][2], layers[2])
+        self.assertEqual(r["layers"][0]["x"], 5)
+        # Again: the files are here now.
+        self.assertEqual(e.paste_layers(a_id, layers)["assets"], [])
+
 
 class EnginePairingTests(unittest.TestCase):
     """Two GFX Engines on one network: a HUD only talks to the engine it

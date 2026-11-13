@@ -153,6 +153,7 @@ label > input, label > select, label > textarea { margin-top: 3px; color: var(--
 .canvas.can-pan { cursor: grab; } .canvas.panning, .canvas.panning * { cursor: grabbing !important; }
 #canvas-zoom { min-width: 52px; font-variant-numeric: tabular-nums; }
 .sel-box { position: absolute; border: 1px solid var(--accent); pointer-events: none; }
+.sel-box.also { border-style: dashed; opacity: .8; }
 .sel-box.hover { border-color: #2e90fa88; border-style: dashed; }
 .handle { position: absolute; width: 10px; height: 10px; background: #fff; border: 1px solid var(--accent); border-radius: 2px; pointer-events: auto; transform: translate(-50%, -50%); }
 .guide { position: absolute; background: #ff3ea5; pointer-events: none; }
