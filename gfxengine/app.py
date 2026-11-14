@@ -479,7 +479,7 @@ class Engine:
                 if moved and value != g[side]["score"]:
                     changes.setdefault(side, {})["score"] = value
             bo = series.get("best_of")
-            if bo and int(bo) != g["best_of"] and ("best_of" not in prev or prev.get("best_of") != bo):
+            if bo and int(bo) != g["best_of"] and "best_of" in prev and prev.get("best_of") != bo:
                 changes["best_of"] = int(bo)
             if changes:
                 self.set_global(changes)

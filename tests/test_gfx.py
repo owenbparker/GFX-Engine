@@ -1031,13 +1031,17 @@ class ServerTests(unittest.TestCase):
             # A game HUD's data: its own table, and the series score into Global
             # (a score it changes: the one it connects with stays out).
             post("/api/ingest", {"source": "League HUD", "game": "lol", "fields": {"Blue kills": 7, "Game time": "12:34"},
-                                 "series": {"left": {"score": 3}, "right": {"score": 3}, "best_of": 5}})
+                                 "series": {"left": {"score": 3}, "right": {"score": 3}, "best_of": 7}})
             self.assertEqual(json.loads(get("/api/state"))["global"]["left"]["score"], 0)
+            # Nor the best of it connects with (Global's stays until the HUD's moves).
+            bo_before = json.loads(get("/api/state"))["global"]["best_of"]
+            self.assertNotEqual(bo_before, 7)
             post("/api/ingest", {"source": "League HUD", "game": "lol", "fields": {"Blue kills": 7, "Game time": "12:34"},
-                                 "series": {"left": {"score": 2}, "right": {"score": 1}, "best_of": 5}})
+                                 "series": {"left": {"score": 2}, "right": {"score": 1}, "best_of": 7}})
             state2 = json.loads(get("/api/state"))
             self.assertIn(["Blue kills", "7"], state2["data"]["tables"]["League HUD"])
             self.assertEqual((state2["global"]["left"]["score"], state2["global"]["right"]["score"]), (2, 1))
+            self.assertEqual(state2["global"]["best_of"], bo_before)
             self.assertIn(["Game", "4"], state2["data"]["tables"]["Global"])
             self.assertIn("League HUD", state2["data"]["feeds"])
             # Never its teams: Global's stay (a HUD's old match's teams kept replacing them).
