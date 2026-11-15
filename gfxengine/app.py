@@ -1169,6 +1169,10 @@ def make_handler(engine):
                     if not local:
                         raise ValueError("Updates can only be installed on the engine's own PC")
                     engine.updater.install_in_background()
+                elif path == "/api/update/rollback":
+                    if not local:
+                        raise ValueError("Going back can only be done on the engine's own PC")
+                    engine.updater.rollback_in_background()
                 else:
                     return self._json({"error": "not found"}, 404)
                 self._json(result)

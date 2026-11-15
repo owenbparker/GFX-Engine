@@ -157,8 +157,19 @@ App.on(s => {
   btn.hidden = !(up.available && up.can_install) && up.status !== "downloading" && up.status !== "installing";
   btn.disabled = up.status === "downloading" || up.status === "installing";
   btn.textContent = up.status === "downloading" ? `Downloading ${up.progress}%` : up.status === "installing" ? "Installing…" : `Update to ${up.latest}`;
+  if (up.busy && up.available) btn.title = `${up.busy}: update once it's over`;
+  // "Go back to vX": the version the last update replaced, kept beside the app.
+  const back = $("#update-back");
+  back.hidden = !(up.previous && up.can_install) || btn.disabled;
+  back.textContent = `↩ Go back to ${up.previous || ""}`;
+  back.dataset.version = up.previous || "";
+  if (up.channel === "test") $("#version").textContent += " (test builds)";
 });
 $("#update").addEventListener("click", () => api("/api/update/install"));
+$("#update-back").addEventListener("click", e => {
+  if (confirm(`Go back to ${e.currentTarget.dataset.version}?\n\nThis puts back the version you had before the last update. The engine closes and reopens (about 10 seconds): Program goes blank in OBS until it's back. Your workspace and settings are kept.`))
+    api("/api/update/rollback");
+});
 
 // --- CONTROL ----------------------------------------------------------------
 (function control() {
